@@ -69,7 +69,14 @@ class HtmlUtil
             $table .= "<tr>";
 
             foreach ($data as $column) {
-                $rowStyle = "style='border:1px solid black;" . "background-color: {$backgroundColor}; font-size: 18px; font-family: Arial;'";
+                $rowStyle = "style='border:1px solid black;" . "background-color: {$backgroundColor}; font-size: 18px; font-family: Arial;";
+
+                if (is_numeric($column) || (!empty($column) && strpos($column, "R$") !== false)) {
+                    $rowStyle .= "text-align: right;";
+                }
+
+                $rowStyle .= "'";
+
                 $table .= "<td {$rowStyle}>{$column}</td>";
             }
             $stepColor = $toggleLineColor && $stepColor === 0 ? 1 : 0;

@@ -594,7 +594,8 @@ class ClientesHasUsuariosTable extends Table
                 )
                 ->order([
                     "Usuarios.nome" => "ASC"
-                ]);
+                ])
+                ->group(["ClientesHasUsuarios.clientes_id", "ClientesHasUsuarios.usuarios_id"]);
 
             return $usuarios;
         } catch (\Throwable $th) {

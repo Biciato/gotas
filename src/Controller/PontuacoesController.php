@@ -1060,12 +1060,18 @@ class PontuacoesController extends AppController
                             $sumTransactionMoney += $transaction->qte_reais;
                         }
 
+                        $sumPoints += $sumTransactionPoints;
+                        $sumMoney += $sumTransactionMoney;
+
                         $row = new stdClass();
                         $row->brinde = trim($gift->nome);
                         $row->qte_pontos = $sumTransactionPoints;
-                        $row->qte_reais = $sumTransactionMoney;
-                        $sumPoints += $row->qte_pontos;
-                        $sumMoney += $row->qte_reais;
+
+                        if (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+                            $row->qte_reais = sprintf("R$ %s", number_format($sumTransactionMoney, 2));
+                        } else {
+                            $row->qte_reais = $sumTransactionMoney;
+                        }
 
                         // Só adiciona se tiver valor ou se tiver sido especificado o brinde
                         if (!empty($row->qte_pontos) || !empty($brindesId)) {
@@ -1124,7 +1130,6 @@ class PontuacoesController extends AppController
                         $dataOutSinthetic[$cliente->id] = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$cliente->id], $brindesId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio)->toArray();
                     }
                 } else {
-
                     foreach ($clientes as $cliente) {
                         if ($tipoMovimentacao === TYPE_OPERATION_IN) {
                             $pointsEstablishments[$cliente->id][] = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio)->toArray();
@@ -1203,7 +1208,7 @@ class PontuacoesController extends AppController
                         $rowSumWorker = new stdClass();
                         $rowSumWorker->brinde = "Total:";
                         $rowSumWorker->qte_pontos = $totalWorker->qte_pontos;
-                        $rowSumWorker->qte_reais = $totalWorker->qte_reais;
+                        $rowSumWorker->qte_reais = sprintf("R$ %s", number_format($totalWorker->qte_reais, 2));
                         $rowsWorker[] = $rowSumWorker;
                         $titleReportWorker = sprintf("Resumo de Funcionário (%s - Período: %s à %s)", $funcionario->nome, $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
                         $resumeWorker = HtmlUtil::generateHTMLTable($titleReportWorker, $titleColumnsWorker, $rowsWorker, true);
@@ -1331,7 +1336,7 @@ class PontuacoesController extends AppController
                                 $rowSum->funcionario = "";
                                 $rowSum->usuario = "";
                                 $rowSum->qte_pontos = $sumPointsOut;
-                                $rowSum->qte_reais = number_format($sumMoneyOut, 2);
+                                $rowSum->qte_reais = sprintf("R$ %s", number_format($sumMoneyOut, 2));
                                 $rowSum->qte_unit = $sumQteOut;
                             }
                             $rowsCliente[] = $rowSum;
@@ -1344,7 +1349,7 @@ class PontuacoesController extends AppController
                                 $rowSumWorker = new stdClass();
                                 $rowSumWorker->brinde = "Total:";
                                 $rowSumWorker->qte_pontos = $totalWorker->qte_pontos;
-                                $rowSumWorker->qte_reais = $totalWorker->qte_reais;
+                                $rowSumWorker->qte_reais = sprintf("R$ %s", number_format($totalWorker->qte_reais, 2));
                                 $rowsWorker[] = $rowSumWorker;
                                 $titleReportWorker = sprintf("Resumo de Funcionário (%s - Período: %s à %s)", $funcionario->nome, $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
                                 $resumeWorker = HtmlUtil::generateHTMLTable($titleReportWorker, $titleColumnsWorker, $rowsWorker, true);
