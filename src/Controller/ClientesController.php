@@ -1180,9 +1180,9 @@ class ClientesController extends AppController
 
                 $headerReportEmployee = new stdClass();
                 $headerReportEmployee->nome_fantasia = "Estabelecimento";
-                $headerReportEmployee->funcionario_brindes_nome = "Brindes";
+                $headerReportEmployee->funcionario_brindes_nome = "Saída";
                 $headerReportEmployee->funcionario_brindes_qte = "Qte.";
-                $headerReportEmployee->funcionario_gotas_nome = "Produtos ";
+                $headerReportEmployee->funcionario_gotas_nome = "Entrada";
                 $headerReportEmployee->funcionario_gotas_qte = "Qte.";
                 $dataGifts = [];
                 $dataDrops = [];
@@ -1310,7 +1310,7 @@ class ClientesController extends AppController
 
                     $dataToReturn = new stdClass();
                     $titleGift = sprintf("Ranking de Operações: %s (%s à %s)", "Brindes Adquiridos", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
-                    $titleDrop = sprintf("Ranking de Operações: %s (%s à %s)", "Produtos Vencidos", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $titleDrop = sprintf("Ranking de Operações: %s (%s à %s)", "Produtos Vendidos", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
                     $titleUser = sprintf("Ranking de Operações: %s (%s à %s)", "Usuário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
                     $titleEmployee = sprintf("Ranking de Operações: %s (%s à %s)", "Funcionário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
                     $dataToReturn->brinde = HtmlUtil::generateHTMLTable($titleGift, $headerReportGifts, $dataGifts, true);
