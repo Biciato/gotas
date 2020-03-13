@@ -46,6 +46,10 @@ class ClientesHasUsuario extends Entity
 
     protected function _getAuditInsertLocaltime()
     {
+        if (empty($this->_properties["audit_insert"])) {
+            return "";
+        }
+
         $date = new DateTime($this->_properties["audit_insert"]);
 
         return $date->modify("-3 hour")->format("Y-m-d H:i:s");
