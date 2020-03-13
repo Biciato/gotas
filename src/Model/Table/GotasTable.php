@@ -242,7 +242,7 @@ class GotasTable extends GenericTable
                 $this->save($gota);
             }
         } catch (\Exception $e) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $e->getMessage());
             Log::error($message);
 
             throw new Exception($message);
@@ -284,7 +284,7 @@ class GotasTable extends GenericTable
                 $this->save($gotaAjustePontos);
             }
         } catch (\Exception $e) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $e->getMessage());
             Log::error($message);
 
             throw new Exception($message);

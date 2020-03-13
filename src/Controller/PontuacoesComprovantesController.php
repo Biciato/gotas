@@ -1269,10 +1269,10 @@ class PontuacoesComprovantesController extends AppController
         } catch (\Throwable $th) {
             $errors[] = $th->getMessage();
             $errorCodes[] = $th->getCode();
-            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+            $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
         }
 
         if ($this->request->is(Request::METHOD_POST)) {
@@ -1376,10 +1376,10 @@ class PontuacoesComprovantesController extends AppController
 
                 return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
             } catch (\Throwable $th) {
-                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
                 Log::write("error", $message);
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
             }
         }
     }
@@ -1414,10 +1414,10 @@ class PontuacoesComprovantesController extends AppController
         } catch (\Throwable $th) {
             $errors[] = $th->getMessage();
             $errorCodes[] = $th->getCode();
-            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+            $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
         }
 
         if ($this->request->is(Request::METHOD_POST)) {
@@ -1462,11 +1462,11 @@ class PontuacoesComprovantesController extends AppController
                 for ($i = 0; $i < $count; $i++) {
                     $error = $errors[$i];
                     $errorCode = $errorCodes[$i];
-                    $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $errorCode, $error);
+                    $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $errorCode, $error);
                     Log::write("error", $message);
                 }
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
             }
 
             // Se vazio ou não é um link, o titulo será definido automaticamente
@@ -1481,10 +1481,10 @@ class PontuacoesComprovantesController extends AppController
                 $cliente = $this->Clientes->get($clientesId);
                 $usuario = $this->Usuarios->get($usuariosId);
             } catch (\Throwable $th) {
-                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
                 Log::write("error", $message);
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
             }
 
             $funcionariosId = $usuarioLogado->id;
@@ -1540,10 +1540,10 @@ class PontuacoesComprovantesController extends AppController
 
                 return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
             } catch (\Throwable $th) {
-                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
                 Log::write("error", $message);
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
             }
         }
     }

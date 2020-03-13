@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
@@ -9,7 +10,6 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int $redes_id
  * @property string $cpf
- * @property bool $habilitado
  * @property \Cake\I18n\FrozenTime $data
  * @property int $audit_user_insert_id
  * @property \Cake\I18n\FrozenTime $audit_insert
@@ -33,7 +33,6 @@ class RedesCpfListaNegra extends Entity
     protected $_accessible = [
         'redes_id' => true,
         'cpf' => true,
-        'habilitado' => true,
         'data' => true,
         'audit_user_insert_id' => true,
         'audit_insert' => true,

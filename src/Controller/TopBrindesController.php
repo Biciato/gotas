@@ -428,10 +428,10 @@ class TopBrindesController extends AppController
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()]);
         }
     }
 
@@ -475,7 +475,7 @@ class TopBrindesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_SAVED_EXCEPTION);
+                    throw new Exception(MSG_SAVED_EXCEPTION);
                 }
 
                 $brinde = $this->Brindes->get($brindesId);
@@ -486,7 +486,7 @@ class TopBrindesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_SAVED_EXCEPTION);
+                    throw new Exception(MSG_SAVED_EXCEPTION);
                 }
 
                 // Verifica se o brinde em questão já está definido. Só atribui se não estiver
@@ -513,10 +513,10 @@ class TopBrindesController extends AppController
                 return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
             }
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors);
         }
     }
 
@@ -565,10 +565,10 @@ class TopBrindesController extends AppController
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()]);
         }
     }
 

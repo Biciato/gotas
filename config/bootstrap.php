@@ -337,8 +337,8 @@ const MSG_WARNING = "Atenção!";
 // Erros
 const MSG_LOAD_EXCEPTION_CODE = 0x00000004;
 const MSG_LOAD_EXCEPTION = "Exceção ao obter dados!";
-const MESSAGE_SAVED_EXCEPTION_CODE = 0x00000005;
-const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
+const MSG_SAVED_EXCEPTION_CODE = 0x00000005;
+const MSG_SAVED_EXCEPTION = "Exceção ao salvar dados!";
 const MSG_DELETE_EXCEPTION_CODE = 0x00000006;
 const MSG_DELETE_EXCEPTION = "Exceção ao remover dados!";
 const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
@@ -422,6 +422,9 @@ const MSG_QRCODE_EMPTY_CODE = 0x0000001A;
 const MSG_QRCODE_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
 const MSG_QRCODE_MISMATCH_FORMAT_CODE = 0x0000001B;
 const MSG_QRCODE_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
+
+const MSG_RECORD_ALREADY_EXISTS = "Este registro já existe!";
+const MSG_RECORD_ALREADY_EXISTS_CODE = "0x00000020";
 
 const TIME_EXPIRATION_TOKEN_SECONDS = 31536000;
 // const TIME_EXPIRATION_TOKEN_SECONDS = 60;

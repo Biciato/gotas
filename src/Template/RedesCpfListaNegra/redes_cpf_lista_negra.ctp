@@ -60,8 +60,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     <select name="redes_list" id="redes-list" class="form-control"></select>
                                 </div>
                                 <div class="col-lg-6">
-                                    <label for="usuario_cpf">CPF:</label>
-                                    <input type="text" name="usuario_cpf" id="usuario-cpf" class="form-control"></select>
+                                    <label for="cpf_form_search">CPF:</label>
+                                    <input type="text" name="cpf_form_search" id="cpf-form-search" class="form-control"></select>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -81,10 +81,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <h4>CPF's Bloqueados:</h4>
         <table class="table table-striped table-hover table-condensed table-responsive brindes-list" id="data-table">
             <thead>
-                <tr>
+                <!-- <tr>
+                    <th></th>
                     <th>CPF</th>
                     <th>Ações</th>
-                </tr>
+                </tr> -->
             </thead>
             <tbody>
             </tbody>
@@ -102,7 +103,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
         <div class="form-group row">
             <div class="col-lg-12 text-right">
-                <div class="btn btn-primary" id="btn-salvar">
+                <div class="btn btn-primary" id="btn-save">
                     <span class="fas fa-save"></span> Salvar
                 </div>
             </div>
