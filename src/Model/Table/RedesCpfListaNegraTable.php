@@ -2,10 +2,13 @@
 
 namespace App\Model\Table;
 
+use Cake\Database\Expression\QueryExpression;
+use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Exception;
 
 /**
  * RedesCpfListaNegra Model
@@ -102,6 +105,42 @@ class RedesCpfListaNegraTable extends Table
 
     // ---------------------------------------------------------------------------------------------------
     #region Read
+
+    /**
+     * Obtem lista de cpf
+     *
+     * Obtem lista de cpf pela rede e pelo cpf
+     *
+     * @param integer $redesId Id da Rede
+     * @param string $cpf CPF
+     * @return \App\Model\Entity\RedesCpfListaNegra $list
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     * @date 2020-03-12
+     */
+    public function getCpfsByNetwork(int $redesId, string $cpf = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $cpf) {
+                $exp->eq("RedesCpfListaNegra.redes_id", $redesId);
+
+                if (!empty($cpf)) {
+                    $exp->like("RedesCpfListaNegra.cpf", $cpf);
+                }
+
+                return $exp;
+            };
+
+            return $this
+                ->find("all")
+                ->where($where);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
+        }
+    }
 
     #endregion
 }

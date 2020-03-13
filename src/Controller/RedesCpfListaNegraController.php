@@ -3,8 +3,12 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
-use Cake\Event\Event;
-use stdClass;
+use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\RedesCpfListaNegra;
+use Cake\Http\Client\Request;
+use Cake\Log\Log;
+use Exception;
 
 /**
  * RedesCpfListaNegra Controller
@@ -17,20 +21,70 @@ class RedesCpfListaNegraController extends AppController
 {
 
     /**
-     * Index method
+     * Index Web method
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function redesCpfListaNegra()
+    {
+        $redesId = !empty($this->rede) ? $this->rede->id : 0;
+
+        // Se não for adm devel e não tiver uma rede definida, não tem acesso
+        if ($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER && empty($redesId)) {
+            if ($this->request->getHeader("IsMobile") === 1) {
+                return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            }
+
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            return $this->redirect("/");
+        }
+    }
+
+    /**
+     * List method
      *
      * @return \Cake\Http\Response|void
      */
     public function index()
     {
-        $rede = $this->rede;
+        $redesId = !empty($this->rede) ? $this->rede->id : 0;
+        $errors = [];
+        $errorCodes = [];
 
-        $this->paginate = [
-            'contain' => ['Redes', 'Usuarios']
-        ];
-        $redesCpfListaNegra = $this->paginate($this->RedesCpfListaNegra);
+        // Se não for adm devel e não tiver uma rede definida, não tem acesso
+        if ($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER && empty($redesId)) {
+            return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+        }
 
-        $this->set(compact('redesCpfListaNegra'));
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $redesId;
+                $cpf = !empty($data["cpf"]) ? preg_replace('/[^0-9]/', "", $data["cpf"]) : null;
+
+                if (empty($redesId)) {
+                    throw new Exception(MSG_REDES_ID_EMPTY, MSG_REDES_ID_EMPTY_CODE);
+                }
+
+                $redesCpfListaNegra = $this->RedesCpfListaNegra->getCpfsByNetwork($redesId, $cpf);
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $redesCpfListaNegra]);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
     }
 
     /**
@@ -56,8 +110,18 @@ class RedesCpfListaNegraController extends AppController
      */
     public function add()
     {
-        $redesCpfListaNegra = $this->RedesCpfListaNegra->newEntity();
-        if ($this->request->is('post')) {
+        if ($this->request->is(Request::METHOD_POST)) {
+            $postData = $this->request->getData();
+
+            $cpfIsValid = NumberUtil::validarCPF($postData["cpf"]);
+
+            if (!$cpfIsValid["status"]) {
+                throw new Exception($cpfIsValid["message"]);
+            }
+
+            $redesCpfListaNegra = new RedesCpfListaNegra();
+            $redesCpfListaNegra->cpf = $postData["cpf"];
+
             $redesCpfListaNegra = $this->RedesCpfListaNegra->patchEntity($redesCpfListaNegra, $this->request->getData());
             if ($this->RedesCpfListaNegra->save($redesCpfListaNegra)) {
                 $this->Flash->success(__('The redes cpf lista negra has been saved.'));

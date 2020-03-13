@@ -18,6 +18,8 @@ $
         var redesSelectedItem = {};
         var pesquisarBtn = $("#btn-pesquisar");
         var dataTable = $("#data-table");
+        var newBtn = $("#new-button");
+        var backBtn = $("#back-button");
 
         // #endregion
 
@@ -30,6 +32,11 @@ $
             // Inicializa campos date
             redesSelectListBox.unbind("change");
             redesSelectListBox.on("change", redesSelectListBoxOnChange);
+
+            newBtn.unbind("click");
+            newBtn.on("click", showNewRegion);
+            backBtn.unbind("click");
+            backBtn.on("click", showIndexRegion);
 
             // Atribuições de clicks aos botões de obtenção de relatório
             pesquisarBtn.on("click", pesquisar);
@@ -46,7 +53,7 @@ $
          */
         async function pesquisar() {
             try {
-                let response = await getListaNegraCPF(form.redesId, form.dataInicio, form.dataFim, "Table");
+                let response = await getCPFBlackList(form.redesId, form.dataInicio, form.dataFim, "Table");
 
                 if (response === undefined || response === null) {
                     return false;
@@ -105,7 +112,35 @@ $
             }
         }
 
+        function showIndexRegion() {
+            newBtn.css("display", "block");
+            backBtn.css("display", "none");
+        }
+
+        function showNewRegion() {
+            $("#dados").hide();
+            $("#region-add").show();
+
+            newBtn.css("display", "none");
+            backBtn.css("display", "block");
+        }
+
         // #region Get / Set REST Services
+
+        function saveUpdate(redesId, cpf, typeRequest) {
+            var cpf = $("#cpf-save");
+            var text = cpf.val();
+            var data = {
+                redes_id: 0,
+                cpf: text
+            }
+            return Promise.resolve($.ajax({
+                type: typeRequest,
+                url: "/api/redes_cpf_lista_negra",
+                data: data,
+                dataType: "JSON"
+            }));
+        }
 
         /**
          * Obtem dados de Balanço Geral de Estabelecimentos
@@ -117,7 +152,7 @@ $
          *
          * @returns $promise Retorna uma jqAjax Promise
          */
-        function getListaNegraCPF(redesId, dataInicio, dataFim, tipoExportacao) {
+        function getCPFBlackList(redesId, dataInicio, dataFim, tipoExportacao) {
             var data = {
                 redes_id: redesId,
                 data_inicio: dataInicio,
@@ -208,8 +243,6 @@ $
                 }
             });
         }
-
-
 
         // #endregion
 

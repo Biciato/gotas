@@ -1158,7 +1158,6 @@ class ClientesController extends AppController
                     $reportData[] = $reportItem;
                 }
 
-
                 $headerReportGifts = new stdClass();
                 $headerReportGifts->nome_fantasia = "Estabelecimento";
                 $headerReportGifts->brinde_nome = "Brinde Mais Resgatado";
@@ -1213,10 +1212,10 @@ class ClientesController extends AppController
 
                     $itemFuncionario = new stdClass();
                     $itemFuncionario->nome_fantasia = $data->cliente->nome_fantasia;
-                    $itemFuncionario->funcionario_brindes_nome =  !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->funcionarios_nome : "";
-                    $itemFuncionario->funcionario_brindes_qte =  !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->count : 0;
-                    $itemFuncionario->funcionario_gotas_nome =  !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->funcionarios_nome : "";
-                    $itemFuncionario->funcionario_gotas_qte =  !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->count : 0;
+                    $itemFuncionario->funcionario_brindes_nome = !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->funcionarios_nome : "";
+                    $itemFuncionario->funcionario_brindes_qte = !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->count : 0;
+                    $itemFuncionario->funcionario_gotas_nome = !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->funcionarios_nome : "";
+                    $itemFuncionario->funcionario_gotas_qte = !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->count : 0;
                     $dataEmployee[] = $itemFuncionario;
 
                     $sumBrindeQte += $itemBrinde->brinde_qte;

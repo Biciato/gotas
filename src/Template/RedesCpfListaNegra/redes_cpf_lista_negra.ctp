@@ -3,9 +3,9 @@
 /**
  * index.ctp
  *
- * View para redes_cpf_lista_negra/index
+ * View para redes_cpf_lista_negra/redes_cpf_lista_negra
  *
- * @filesource src\Template\RedesCpfListaNegra\index.ctp
+ * @filesource src\Template\RedesCpfListaNegra\redes_cpf_lista_negra.ctp
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 1.1.8
  * @date 2020-03-11
@@ -77,30 +77,34 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 </div>
             </div>
         </div>
+
+        <h4>CPF's Bloqueados:</h4>
+        <table class="table table-striped table-hover table-condensed table-responsive brindes-list" id="data-table">
+            <thead>
+                <tr>
+                    <th>CPF</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 
-    <div id='data-table' class="table table-bordered table-condensed table-hover">
-
-    </div>
 
     <div id="region-add" class="region-add">
         <legend>Adicionar CPF</legend>
-        <label for="postos_rede">Lista de Unidades:</label>
-        <select name="postos_rede" id="postos-rede" class="form-control"></select>
-
-        <div class="form-group">
-            <div class="brindes-container">
-                <h4>Brindes do Posto:</h4>
-                <table class="table table-striped table-hover table-condensed table-responsive brindes-list" id="brindes-list">
-                    <thead>
-                        <tr>
-                            <th>CPF</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+        <div class="form-group row">
+            <div class="col-lg-12">
+                <label for="cpf_save"></label>
+                <input type="text" class="form-control" name="cpf_save" id="cpf-save" title="CPF à ser adicionado" placeholder="CPF à ser adicionado..." />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-lg-12 text-right">
+                <div class="btn btn-primary" id="btn-salvar">
+                    <span class="fas fa-save"></span> Salvar
+                </div>
             </div>
         </div>
     </div>
@@ -134,6 +138,6 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
 
 ?>
 
-<script src="/webroot/js/scripts/redes_cpf_lista_negra/index<?= $extensionDebug ?>.js"></script>
+<script src="/webroot/js/scripts/redes_cpf_lista_negra/redes_cpf_lista_negra<?= $extensionDebug ?>.js"></script>
 
-<link rel="stylesheet" href="/webroot/css/styles/redes_cpf_lista_negra/index<?= $extensionDebug ?>.css" />
+<link rel="stylesheet" href="/webroot/css/styles/redes_cpf_lista_negra/redes_cpf_lista_negra<?= $extensionDebug ?>.css" />
