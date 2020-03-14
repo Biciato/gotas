@@ -873,15 +873,12 @@ class GotasController extends AppController
      */
     public function atribuirGotas()
     {
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioLogado = $this->usuarioLogado;
 
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
-            $usuarioLogado = $usuarioAdministrar;
-        }
+        // if ($usuarioAdministrador) {
+        //     $this->usuarioLogado = $usuarioAdministrar;
+        //     $usuarioLogado = $usuarioAdministrar;
+        // }
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
@@ -923,6 +920,7 @@ class GotasController extends AppController
             "clientesCNPJ",
             'funcionario',
             'estado_funcionario',
+            "usuarioLogado",
             'usuarioLogadoTipoPerfil',
             "transportadoraPath",
             "veiculoPath"

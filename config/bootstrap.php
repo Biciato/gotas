@@ -638,6 +638,12 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
 #endregion
 
+#region Redes CPF Lista Negra
+
+const MSG_CPF_BLACKLIST = "Este cliente não pode pontuar na rede, CPF bloqueado!";
+const MSG_CPF_BLACKLIST_CODE = "0x001D0001";
+#endregion
+
 #region Top Brindes
 
 const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";

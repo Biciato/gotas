@@ -1847,15 +1847,16 @@ class PontuacoesComprovantesController extends AppController
 
             if (strlen($cpf) > 11) {
                 Log::write("info", "CNPJ Identificado: " . $cpf);
-
-                // @todo Adicionar return response informnado que não será cadastrado para CNPJ
             }
 
             $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($rede->id, $cpf);
 
             if (!empty($cpfIsBlackListed)) {
-                // @TODO Adicionar validação de CPF se está na lista negra da rede.
+                // CPF está na lista negra da rede, não pode pontuar
+                $errors[] = MSG_CPF_BLACKLIST;
+                $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
 
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
             }
 
             // Se usuário não encontrado, cadastra para futuro acesso
@@ -2649,6 +2650,18 @@ class PontuacoesComprovantesController extends AppController
         // Se cnpj for nulo, a pesquisa deverá ser feita sob todos os cnpjs , e depois, pesquisar eles na nota
         if (!empty($clienteCNPJ)) {
             $cliente = $this->Clientes->getClienteByCNPJ($clienteCNPJ);
+        }
+
+        // Faz validação de CPF na lista negra
+
+        $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($cliente->redes_has_cliente->rede->id, $usuario->cpf);
+
+        if (!empty($cpfIsBlackListed)) {
+            // CPF está na lista negra da rede, não pode pontuar
+            $errors[] = MSG_CPF_BLACKLIST;
+            $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
+
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
         }
 
         $isEstadoGoias = false;
