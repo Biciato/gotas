@@ -61,13 +61,13 @@ class RedesCpfListaNegraController extends AppController
             if ($this->request->is(Request::METHOD_GET)) {
                 $data = $this->request->getQueryParams();
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $redesId;
-                $cpf = !empty($data["cpf"]) ? preg_replace('/[^0-9]/', "", $data["cpf"]) : null;
+
 
                 if (empty($redesId)) {
                     throw new Exception(MSG_REDES_ID_EMPTY, MSG_REDES_ID_EMPTY_CODE);
                 }
 
-                $redesCpfListaNegra = $this->RedesCpfListaNegra->getCpfsByNetwork($redesId, $cpf);
+                $redesCpfListaNegra = $this->RedesCpfListaNegra->getCpfsByNetwork($redesId);
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $redesCpfListaNegra]);
             }
@@ -97,11 +97,7 @@ class RedesCpfListaNegraController extends AppController
      */
     public function view($id = null)
     {
-        $redesCpfListaNegra = $this->RedesCpfListaNegra->get($id, [
-            'contain' => ['Redes', 'Usuarios']
-        ]);
-
-        $this->set('redesCpfListaNegra', $redesCpfListaNegra);
+        throw new Exception("Not yet implemented!");
     }
 
     /**
@@ -143,7 +139,7 @@ class RedesCpfListaNegraController extends AppController
                 // Verifica se registro já existe
 
                 if (!empty($cpf)) {
-                    $recordCheck = $this->RedesCpfListaNegra->getCpfsByNetwork($redesId, $cpf)->first();
+                    $recordCheck = $this->RedesCpfListaNegra->getCpfInNetwork($redesId, $cpf);
 
                     if (!empty($recordCheck)) {
                         $errors[] = MSG_RECORD_ALREADY_EXISTS;
@@ -179,10 +175,10 @@ class RedesCpfListaNegraController extends AppController
             }
 
             for ($i = 0; $i < count($errors); $i++) {
-                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
             }
 
-            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -226,12 +222,4 @@ class RedesCpfListaNegraController extends AppController
             return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, [$th->getMessage()]);
         }
     }
-
-    // public function beforeFilter(Event $event)
-    // {
-    //     // parent::beforeFilter($event);
-
-    //     $sessaoUsuario = $this->getSessionUserVariables();
-    //     // $usuarioLogado;
-    // }
 }

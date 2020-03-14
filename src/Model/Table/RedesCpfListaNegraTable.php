@@ -108,6 +108,42 @@ class RedesCpfListaNegraTable extends Table
     #region Read
 
     /**
+     * Obtem cpf na rede
+     *
+     * Obtem registro de cpf na rede
+     *
+     * @param integer $redesId Id da Rede
+     * @param string $cpf CPF
+     * @return \App\Model\Entity\RedesCpfListaNegra $item
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     * @date 2020-03-14
+     */
+    public function getCpfInNetwork(int $redesId, string $cpf)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $cpf) {
+                $exp->eq("RedesCpfListaNegra.redes_id", $redesId);
+                if (!empty($cpf)) {
+                    $exp->like("RedesCpfListaNegra.cpf", $cpf);
+                }
+
+                return $exp;
+            };
+
+            return $this
+                ->find("all")
+                ->where($where)
+                ->first();
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
+        }
+    }
+
+    /**
      * Obtem lista de cpf
      *
      * Obtem lista de cpf pela rede e pelo cpf
@@ -120,15 +156,12 @@ class RedesCpfListaNegraTable extends Table
      * @since 1.1.8
      * @date 2020-03-12
      */
-    public function getCpfsByNetwork(int $redesId, string $cpf = null)
+    public function getCpfsByNetwork(int $redesId)
     {
         try {
-            $where = function (QueryExpression $exp) use ($redesId, $cpf) {
+            $where = function (QueryExpression $exp) use ($redesId) {
                 $exp->eq("RedesCpfListaNegra.redes_id", $redesId);
 
-                if (!empty($cpf)) {
-                    $exp->like("RedesCpfListaNegra.cpf", $cpf);
-                }
 
                 return $exp;
             };

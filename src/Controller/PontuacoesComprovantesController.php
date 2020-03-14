@@ -1710,6 +1710,7 @@ class PontuacoesComprovantesController extends AppController
             $errors = array();
             $errorCodes = [];
             $sessao = $this->getSessionUserVariables();
+            $rede = $this->rede;
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
@@ -1778,6 +1779,9 @@ class PontuacoesComprovantesController extends AppController
             if (empty($cliente)) {
                 $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
                 $errorCodes[] = 0;
+            } elseif (empty($rede)) {
+                // caso na session não tenha a rede (duvido que isso aconteça, talvez um erro de session), obtem o que está vinculado ao CNPJ
+                $rede = $cliente->redes_has_cliente->rede;
             }
 
             $chave = "";
@@ -1843,6 +1847,15 @@ class PontuacoesComprovantesController extends AppController
 
             if (strlen($cpf) > 11) {
                 Log::write("info", "CNPJ Identificado: " . $cpf);
+
+                // @todo Adicionar return response informnado que não será cadastrado para CNPJ
+            }
+
+            $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($rede->id, $cpf);
+
+            if (!empty($cpfIsBlackListed)) {
+                // @TODO Adicionar validação de CPF se está na lista negra da rede.
+
             }
 
             // Se usuário não encontrado, cadastra para futuro acesso
@@ -1872,53 +1885,11 @@ class PontuacoesComprovantesController extends AppController
 
             #region Pesquisa por todos os produtos extras para gravar se a configuração da rede está definida
 
-            // @TODO conferir!
             $pontuacaoExtra = $this->processaProdutosExtras($cliente, $usuario, $funcionario, $gotasCliente, $gotasAbastecidasClienteFinal, TRANSMISSION_MODE_DIRECT);
 
             if (!empty($pontuacaoExtra)) {
                 $pontuacoes[] = $pontuacaoExtra;
             }
-
-            // $gotasPontosExtras = new Gota();
-
-            // // return ResponseUtil::successAPI('', ['data' => $cliente]);
-            // $quantidadeExtra = 0;
-            // $pontosExtras = 0;
-            // $isPontuacaoExtraProdutoGenerico = $cliente->redes_has_cliente->rede->pontuacao_extra_produto_generico;
-
-            // // Se a rede está com a pontuação extra habilitada, atribui
-            // if ($isPontuacaoExtraProdutoGenerico) {
-            //     foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
-            //         $gota = array_filter($gotasCliente, function ($item) use ($gotaUsuario) {
-            //             return $gotaUsuario["gotas_nome"] == $item["nome_parametro"];
-            //         });
-
-            //         $gota = array_values($gota);
-
-            //         if (empty($gota)) {
-            //             $quantidadeExtra += $gotaUsuario["gotas_qtde"];
-            //             $pontosExtras += $gotaUsuario["gotas_vl_unit"];
-            //         }
-            //     }
-
-            //     $gotaBonificacaoPontosExtras = $this->Gotas->getGotaClienteByName($cliente->id, GOTAS_BONUS_EXTRA_POINTS_SEFAZ);
-
-            //     // só adiciona a bonificação se o registro existir, para não dar exception
-            //     if (!empty($gotaBonificacaoPontosExtras)) {
-            //         $pontuacao = new Pontuacao();
-            //         $pontuacao->quantidade_multiplicador = $quantidadeExtra;
-            //         $pontuacao->clientes_id = $cliente->id;
-            //         $pontuacao->usuarios_id = $usuario->id;
-            //         $pontuacao->funcionarios_id = $funcionario->id;
-            //         $pontuacao->gotas_id = $gotaBonificacaoPontosExtras->id;
-            //         $pontuacao->data = $data;
-            //         $pontuacao->quantidade_gotas = floor($pontosExtras);
-            //         $pontuacao->valor_gota_sefaz = $pontosExtras;
-
-            //         // Adiciona registro para posterior processamento
-            //         $pontuacoes[] = $pontuacao;
-            //     }
-            // }
 
             #endregion
 

@@ -40,9 +40,8 @@ $
 
             cpfFormSearch.mask('999.999.999-99');
             cpfFormSave.mask('999.999.999-99');
-
-            cpfFormSearch.unbind("change");
-            cpfFormSearch.on("change", cpfFormSearchOnChange);
+            cpfFormSave.unbind("keydown");
+            cpfFormSave.on("keydown", cpfFormSearchOnChange);
 
             newBtn.unbind("click");
             newBtn.on("click", showNewRegion);
@@ -69,8 +68,12 @@ $
          * @since 1.1.8
          * @date 2020-03-13
          */
-        function cpfFormSearchOnChange() {
+        function cpfFormSearchOnChange(event) {
             formSearch.cpf = this.value;
+
+            if (event.keyCode === 13) {
+                saveCpf();
+            }
         }
 
         /**
@@ -144,6 +147,8 @@ $
 
                         $("#modal-remover").modal();
 
+                        $("#modal-remover #nome-registro").text(cpfSelectedItem.cpf);
+
                     });
                 }, 300);
 
@@ -208,6 +213,8 @@ $
 
             newBtn.css("display", "none");
             backBtn.css("display", "block");
+
+            cpfFormSave.val(null);
         };
 
         /**
@@ -244,9 +251,10 @@ $
             try {
                 let promise = await restSaveCpf();
 
-                callModalSave(promise.mensagem.message);
+                callModalSave();
                 showIndexRegion();
                 pesquisar();
+                cpfFormSave.val(null);
 
             } catch (error) {
                 console.log(error);

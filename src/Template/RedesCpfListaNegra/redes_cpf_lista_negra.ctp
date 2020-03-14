@@ -97,7 +97,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <legend>Adicionar CPF</legend>
         <div class="form-group row">
             <div class="col-lg-12">
-                <label for="cpf_save"></label>
+                <label for="cpf_save">CPF:</label>
                 <input type="text" class="form-control" name="cpf_save" id="cpf-save" title="CPF à ser adicionado" placeholder="CPF à ser adicionado..." />
             </div>
         </div>
