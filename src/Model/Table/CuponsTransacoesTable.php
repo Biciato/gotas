@@ -514,7 +514,7 @@ class CuponsTransacoesTable extends GenericTable
         try {
             return $this->save($cupomTransacao);
         } catch (Exception $e) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $e->getMessage());
             Log::write("error", $message);
             throw new Exception($message, $e->getCode());
         }

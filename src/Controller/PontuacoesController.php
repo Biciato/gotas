@@ -608,7 +608,7 @@ class PontuacoesController extends AppController
 
         $clientesId = $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL ? $cliente->id : null;
 
-        $arraySet = ["clientesId"];
+        $arraySet = ["clientesId", "usuarioLogado"];
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }

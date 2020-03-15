@@ -8,6 +8,7 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
 
 // $tipoPerfil = isset($usuarioLogado) ? $usuarioLogado["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
 
+
 // @todo Ajustar este menu
 // $usuarioAdministrar = $this->request->session()->read("Usuario.Administrar");
 

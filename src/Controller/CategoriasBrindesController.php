@@ -283,10 +283,10 @@ class CategoriasBrindesController extends AppController
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['data' => $retorno]);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()]);
         }
     }
 
@@ -354,7 +354,7 @@ class CategoriasBrindesController extends AppController
                 $categoriaBrinde = $this->CategoriasBrindes->saveUpdate($categoriaBrinde);
 
                 if (!$categoriaBrinde) {
-                    throw new Exception(MESSAGE_SAVED_EXCEPTION, MESSAGE_SAVED_EXCEPTION_CODE);
+                    throw new Exception(MSG_SAVED_EXCEPTION, MSG_SAVED_EXCEPTION_CODE);
                 }
 
                 $retorno = ['categoria_brinde' => $categoriaBrinde];
@@ -362,11 +362,11 @@ class CategoriasBrindesController extends AppController
                 return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['data' => $retorno]);
             }
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             $errorCodes = $th->getCode();
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$errorCodes]);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()], [], [$errorCodes]);
         }
     }
 

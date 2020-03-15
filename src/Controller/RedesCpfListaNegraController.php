@@ -8,6 +8,7 @@ use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\RedesCpfListaNegra;
 use Cake\Http\Client\Request;
 use Cake\Log\Log;
+use DateTime;
 use Exception;
 
 /**
@@ -60,13 +61,13 @@ class RedesCpfListaNegraController extends AppController
             if ($this->request->is(Request::METHOD_GET)) {
                 $data = $this->request->getQueryParams();
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $redesId;
-                $cpf = !empty($data["cpf"]) ? preg_replace('/[^0-9]/', "", $data["cpf"]) : null;
+
 
                 if (empty($redesId)) {
                     throw new Exception(MSG_REDES_ID_EMPTY, MSG_REDES_ID_EMPTY_CODE);
                 }
 
-                $redesCpfListaNegra = $this->RedesCpfListaNegra->getCpfsByNetwork($redesId, $cpf);
+                $redesCpfListaNegra = $this->RedesCpfListaNegra->getCpfsByNetwork($redesId);
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $redesCpfListaNegra]);
             }
@@ -96,69 +97,89 @@ class RedesCpfListaNegraController extends AppController
      */
     public function view($id = null)
     {
-        $redesCpfListaNegra = $this->RedesCpfListaNegra->get($id, [
-            'contain' => ['Redes', 'Usuarios']
-        ]);
-
-        $this->set('redesCpfListaNegra', $redesCpfListaNegra);
+        throw new Exception("Not yet implemented!");
     }
 
     /**
-     * Add method
+     * Action de adicionar registro
      *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
+     * @param $post["redes_id"]
+     * @param $post["cpf"] CPF do usuário
+     * @return json_encode $response success|fail Resposta
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     * @date 2020-03-13
      */
     public function add()
     {
-        if ($this->request->is(Request::METHOD_POST)) {
-            $postData = $this->request->getData();
+        $errors = [];
+        $errorCodes = [];
 
-            $cpfIsValid = NumberUtil::validarCPF($postData["cpf"]);
+        try {
+            if ($this->request->is(Request::METHOD_POST)) {
+                $postData = $this->request->getData();
 
-            if (!$cpfIsValid["status"]) {
-                throw new Exception($cpfIsValid["message"]);
+                $redesId = $postData["redes_id"];
+                // Considera a rede que está definida na sessão do usuário
+                $redesId = !empty($this->rede) ? $this->rede->id : $redesId;
+                $cpfIsValid = NumberUtil::validarCPF($postData["cpf"]);
+                $cpf = NumberUtil::limparFormatacaoNumeros($postData["cpf"]);
+
+                if (!$cpfIsValid["status"]) {
+                    $errors[] = $cpfIsValid["message"];
+                    $errorCodes[] = 0;
+                }
+
+                if (empty($redesId)) {
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+
+                // Verifica se registro já existe
+
+                if (!empty($cpf)) {
+                    $recordCheck = $this->RedesCpfListaNegra->getCpfInNetwork($redesId, $cpf);
+
+                    if (!empty($recordCheck)) {
+                        $errors[] = MSG_RECORD_ALREADY_EXISTS;
+                        $errorCodes[] = MSG_RECORD_ALREADY_EXISTS_CODE;
+                    }
+                }
+
+                // Se rede não informada ou cpf não válido, retorna exception
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_SAVED_EXCEPTION, MSG_SAVED_EXCEPTION_CODE);
+                }
+
+                $redesCpfListaNegra = new RedesCpfListaNegra();
+                $redesCpfListaNegra->audit_user_insert_id = !empty($this->usuarioAdministrar) ? $this->usuarioAdministrar->id : $this->usuarioLogado->id;
+                $redesCpfListaNegra->cpf = NumberUtil::limparFormatacaoNumeros($postData["cpf"]);
+                $redesCpfListaNegra->data = new DateTime('now');
+                $redesCpfListaNegra->redes_id = $redesId;
+                $record = $this->RedesCpfListaNegra->saveUpdate($redesCpfListaNegra);
+
+                if ($record) {
+                    return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+                }
+
+                throw new Exception(MSG_SAVED_EXCEPTION, MSG_SAVED_EXCEPTION_CODE);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            $redesCpfListaNegra = new RedesCpfListaNegra();
-            $redesCpfListaNegra->cpf = $postData["cpf"];
-
-            $redesCpfListaNegra = $this->RedesCpfListaNegra->patchEntity($redesCpfListaNegra, $this->request->getData());
-            if ($this->RedesCpfListaNegra->save($redesCpfListaNegra)) {
-                $this->Flash->success(__('The redes cpf lista negra has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
             }
-            $this->Flash->error(__('The redes cpf lista negra could not be saved. Please, try again.'));
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
-        $redes = $this->RedesCpfListaNegra->Redes->find('list', ['limit' => 200]);
-        $usuarios = $this->RedesCpfListaNegra->Usuarios->find('list', ['limit' => 200]);
-        $this->set(compact('redesCpfListaNegra', 'redes', 'usuarios'));
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Redes Cpf Lista Negra id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $redesCpfListaNegra = $this->RedesCpfListaNegra->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $redesCpfListaNegra = $this->RedesCpfListaNegra->patchEntity($redesCpfListaNegra, $this->request->getData());
-            if ($this->RedesCpfListaNegra->save($redesCpfListaNegra)) {
-                $this->Flash->success(__('The redes cpf lista negra has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The redes cpf lista negra could not be saved. Please, try again.'));
-        }
-        $redes = $this->RedesCpfListaNegra->Redes->find('list', ['limit' => 200]);
-        $usuarios = $this->RedesCpfListaNegra->Usuarios->find('list', ['limit' => 200]);
-        $this->set(compact('redesCpfListaNegra', 'redes', 'usuarios'));
     }
 
     /**
@@ -168,24 +189,37 @@ class RedesCpfListaNegraController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete($id)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $redesCpfListaNegra = $this->RedesCpfListaNegra->get($id);
-        if ($this->RedesCpfListaNegra->delete($redesCpfListaNegra)) {
-            $this->Flash->success(__('The redes cpf lista negra has been deleted.'));
-        } else {
-            $this->Flash->error(__('The redes cpf lista negra could not be deleted. Please, try again.'));
+
+
+        try {
+            if ($this->request->is("delete")) {
+
+                Log::write("info", sprintf("Info de %s: %s - %s.", Request::METHOD_DELETE, __CLASS__, __METHOD__));
+                Log::write("info", "Id sendo removido: " . $id);
+            }
+
+            $redesCpfListaNegra = $this->RedesCpfListaNegra->get($id);
+            $userValidation = !empty($this->usuarioAdministrar) ? $this->usuarioAdministrar : $this->usuarioLogado;
+
+            if ($userValidation->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER && $this->rede->id !== $redesCpfListaNegra->redes_id) {
+                throw new Exception(MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK);
+            }
+
+            $success = $this->RedesCpfListaNegra->delete($redesCpfListaNegra);
+
+            if (!$success) {
+                throw new Exception(MESSAGE_CONTACT_SUPPORT);
+            }
+
+            return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_DELETE_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, [$th->getMessage()]);
         }
-
-        return $this->redirect(['action' => 'index']);
     }
-
-    // public function beforeFilter(Event $event)
-    // {
-    //     // parent::beforeFilter($event);
-
-    //     $sessaoUsuario = $this->getSessionUserVariables();
-    //     // $usuarioLogado;
-    // }
 }
