@@ -2650,19 +2650,19 @@ class PontuacoesComprovantesController extends AppController
         // Se cnpj for nulo, a pesquisa deverá ser feita sob todos os cnpjs , e depois, pesquisar eles na nota
         if (!empty($clienteCNPJ)) {
             $cliente = $this->Clientes->getClienteByCNPJ($clienteCNPJ);
+
+            // Se encontrou o estabelecimento, Faz validação de CPF na lista negra
+            $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($cliente->redes_has_cliente->rede->id, $usuario->cpf);
+
+            if (!empty($cpfIsBlackListed)) {
+                // CPF está na lista negra da rede, não pode pontuar
+                $errors[] = MSG_CPF_BLACKLIST;
+                $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+            }
         }
 
-        // Faz validação de CPF na lista negra
-
-        $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($cliente->redes_has_cliente->rede->id, $usuario->cpf);
-
-        if (!empty($cpfIsBlackListed)) {
-            // CPF está na lista negra da rede, não pode pontuar
-            $errors[] = MSG_CPF_BLACKLIST;
-            $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
-
-            return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
-        }
 
         $isEstadoGoias = false;
         if ($estado == "GO") {
@@ -2681,7 +2681,6 @@ class PontuacoesComprovantesController extends AppController
         // $webContent["content"] = null;
 
         if ($webContent["statusCode"] == 200) {
-
             // Verifica se retorno contêm palavras chave informando que o CF não foi encontrado, e retorna exatamente esta mensagem
 
             $msgSefazNotFound = [
@@ -2693,7 +2692,6 @@ class PontuacoesComprovantesController extends AppController
 
                 // Se encontrar a mensagem, grava o registro para posterior processamento e retorna erro
                 if ($searchMsg) {
-
                     if (!$processamentoPendente) {
                         $pontuacaoPendente = new PontuacoesPendente();
                         // não haverá cliente pois não obteve cnpj, mas tenta localizar se for funcionario normal
@@ -2799,6 +2797,14 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (empty($cliente)) {
+                    // Não encontrou o estabelecimento, então a nota fiscal não deve ficar armazenada no sistema.
+                    if ($pontuacaoPendente) {
+                        $pendingCheck = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($url, $chave, $estado);
+
+                        if ($pendingCheck) {
+                            $this->PontuacoesPendentes->delete($pendingCheck);
+                        }
+                    }
                     $errors = array(__(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave));
                     $mensagem = array(
                         "status" => 0,
@@ -2815,6 +2821,17 @@ class PontuacoesComprovantesController extends AppController
                     Log::write("info", $errors);
 
                     return ResponseUtil::errorAPI($mensagem["message"], $errors, [], []);
+                } else {
+                    // Se encontrou o estabelecimento, Faz validação de CPF na lista negra
+                    $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($cliente->redes_has_cliente->rede->id, $usuario->cpf);
+
+                    if (!empty($cpfIsBlackListed)) {
+                        // CPF está na lista negra da rede, não pode pontuar
+                        $errors[] = MSG_CPF_BLACKLIST;
+                        $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
+
+                        return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+                    }
                 }
             }
 
@@ -2837,9 +2854,7 @@ class PontuacoesComprovantesController extends AppController
             // Verifica se usuário estourou o limite de pontuações diarias
 
             $rede = $cliente->redes_has_cliente->rede;
-
             $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
-
             $qteInsercaoGotas = $this->PontuacoesComprovantes->getCountPontuacoesComprovantesOfUsuario($usuario->id, $clientesIds);
 
             // Se não for processamento pendente e a quantidade de pontuações do usuário é maior que o permitido pela rede
@@ -3285,7 +3300,6 @@ class PontuacoesComprovantesController extends AppController
      */
     private function processaProdutosExtras($cliente, $usuario, $funcionario, $gotasCliente, $gotasAbastecidasClienteFinal, $modoTransmissao)
     {
-        $nomeParametro = $modoTransmissao === TRANSMISSION_MODE_DIRECT ? "gotas_nome" : "descricao";
         $parameterSearch = new stdClass();
 
         if ($modoTransmissao === TRANSMISSION_MODE_DIRECT) {
