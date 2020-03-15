@@ -3225,7 +3225,7 @@ class UsuariosController extends AppController
                 $errors[] = MSG_USUARIOS_CPF_ALREADY_EXISTS;
                 $errorCodes[] = MSG_USUARIOS_CPF_ALREADY_EXISTS_CODE;
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
             }
 
             if ((isset($tipoPerfil) && $tipoPerfil >= PROFILE_TYPE_DUMMY_WORKER) || !$usuario->conta_ativa) {

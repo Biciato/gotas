@@ -322,7 +322,7 @@ class ClientesTable extends GenericTable
 
             return $result;
         } catch (\Exception $e) {
-            $stringError = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
+            $stringError = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $e->getMessage());
             Log::write('error', $stringError);
             throw new Exception($stringError);
         }
@@ -1090,7 +1090,7 @@ class ClientesTable extends GenericTable
 
             return $this->save($clienteToUpdate);
         } catch (\Exception $e) {
-            $stringError = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
+            $stringError = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $e->getMessage());
             Log::write('error', $stringError);
 
             throw new \Exception($stringError);

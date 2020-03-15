@@ -779,6 +779,7 @@ class CuponsController extends AppController
             "tituloTurno",
             "dataInicio",
             "dataFim",
+            "usuarioLogado",
             "tipoFiltroList",
             "tipoFiltroSelecionado",
             "turnos"

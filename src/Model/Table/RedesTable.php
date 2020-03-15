@@ -612,7 +612,6 @@ class RedesTable extends GenericTable
     public function updateRede(\App\Model\Entity\Rede $rede)
     {
         try {
-
             return $this->save($rede);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -647,9 +646,7 @@ class RedesTable extends GenericTable
     public function deleteRedesById(int $id)
     {
         try {
-
-            return
-                $this->deleteAll(['id' => $id]);
+            return $this->deleteAll(['id' => $id]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

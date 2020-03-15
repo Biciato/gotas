@@ -152,6 +152,37 @@ Router::scope("/api", function ($routes) {
         ]
     );
 
+    $routes->resources("Clientes", array(
+        "map" => array(
+            "balancoGeralAPI" => [
+                "action" => "balancoGeralAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/balanco_geral"
+            ],
+            "enviaImagemPropagandaAPI" => array(
+                "action" => "enviaImagemPropagandaAPI",
+                "method" => Request::METHOD_POST,
+                "path" => "/envia_imagem_propaganda"
+            ),
+            // utilizado pelo Angular
+            "getClientesListAPI" => array(
+                "action" => "getClientesListAPI",
+                "method" => "GET",
+                "path" => "/get_clientes_list"
+            ),
+            "getPostoFuncionarioAPI" => array(
+                "action" => "getPostoFuncionarioAPI",
+                "method" => "GET",
+                "path" => "/get_posto_funcionario"
+            ),
+            "rankingOperacoesAPI" => [
+                "action" => "rankingOperacoesAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/ranking_operacoes"
+            ],
+        )
+    ));
+
     $routes->resources(
         "Cupons",
         [
@@ -191,20 +222,23 @@ Router::scope("/api", function ($routes) {
         ]
     );
 
-    $routes->resources("Gotas", [
-        "map" => [
-            "getGotasClientesAPI" => [
-                "action" => "getGotasClientesAPI",
-                "method" => Request::METHOD_GET,
-                "path" => "/get_gotas_clientes"
-            ],
-            "setGotasClientesAPI" => [
-                "action" => "setGotasClientesAPI",
-                "method" => Request::METHOD_POST,
-                "path" => "/set_gotas_clientes"
-            ],
+    $routes->resources(
+        "Gotas",
+        [
+            "map" => [
+                "getGotasClientesAPI" => [
+                    "action" => "getGotasClientesAPI",
+                    "method" => Request::METHOD_GET,
+                    "path" => "/get_gotas_clientes"
+                ],
+                "setGotasClientesAPI" => [
+                    "action" => "setGotasClientesAPI",
+                    "method" => Request::METHOD_POST,
+                    "path" => "/set_gotas_clientes"
+                ],
+            ]
         ]
-    ]);
+    );
 
     $routes->resources(
         "Pontuacoes",
@@ -319,36 +353,8 @@ Router::scope("/api", function ($routes) {
         ]
     ]);
 
-    $routes->resources("Clientes", array(
-        "map" => array(
-            "balancoGeralAPI" => [
-                "action" => "balancoGeralAPI",
-                "method" => Request::METHOD_GET,
-                "path" => "/balanco_geral"
-            ],
-            "enviaImagemPropagandaAPI" => array(
-                "action" => "enviaImagemPropagandaAPI",
-                "method" => Request::METHOD_POST,
-                "path" => "/envia_imagem_propaganda"
-            ),
-            // utilizado pelo Angular
-            "getClientesListAPI" => array(
-                "action" => "getClientesListAPI",
-                "method" => "GET",
-                "path" => "/get_clientes_list"
-            ),
-            "getPostoFuncionarioAPI" => array(
-                "action" => "getPostoFuncionarioAPI",
-                "method" => "GET",
-                "path" => "/get_posto_funcionario"
-            ),
-            "rankingOperacoesAPI" => [
-                "action" => "rankingOperacoesAPI",
-                "method" => Request::METHOD_GET,
-                "path" => "/ranking_operacoes"
-            ],
-        )
-    ));
+    $routes->resources("RedesCpfListaNegra");
+
 
     $routes->resources("RedesHasClientes", [
         "map" => array(

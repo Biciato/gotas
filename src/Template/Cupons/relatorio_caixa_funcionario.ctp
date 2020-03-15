@@ -6,7 +6,7 @@
  * @date     06/08/2017
  *
  * Tela de Relatório de Caixa dos Funcionários de um Posto. Visualizado por um mesmo funcionário
- * 
+ *
  */
 
 use Cake\Core\Configure;
@@ -16,7 +16,7 @@ $debug = Configure::read("debug");
 $title = "Relatório de Caixa de Funcionários";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
-// echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
@@ -138,7 +138,7 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                                 <?php if ($cupom["resgatados"] > 0 || $cupom["usados"] > 0) : ?>
                                     <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> / Validados: <?= $cupom["usados"] ?> </li>
                                 <?php endif; ?>
-                                
+
                                 <?php if ($cupom["gotas"] > 0) : ?>
                                     <!-- Qte de gotas recebido -->
                                     <li class="list-group-item">Gotas Resgatadas: <?= $cupom["gotas"] ?> </li>

@@ -57,6 +57,13 @@ class AppController extends Controller
     protected $webTools = null;
     protected $cryptUtil = null;
 
+    protected $sessaoUsuario = null;
+    protected $usuarioLogado = null;
+    protected $usuarioAdministrar = null;
+    protected $rede = null;
+    protected $cliente = null;
+
+
     /**
      * Initialization hook method.
      *
@@ -234,6 +241,17 @@ class AppController extends Controller
             return $this->checkAuthentication();
         }
         // $this->Security->requireSecure();
+
+        $sessao = $this->getSessionUserVariables();
+        $this->sessaoUsuario = $sessao;
+        $this->usuarioLogado = $sessao["usuarioLogado"];
+        $this->usuarioAdministrar = $sessao["usuarioAdministrar"];
+        $this->rede = $sessao["rede"];
+        $this->cliente = $sessao["cliente"];
+
+        if ($this->usuarioAdministrar) {
+            $this->usuarioLogado = $this->usuarioAdministrar;
+        }
     }
 
     private function checkAuthentication()
@@ -486,8 +504,8 @@ class AppController extends Controller
             "cliente"
         );
 
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
+        // $this->set(compact($arraySet));
+        // $this->set("_serialize", $arraySet);
 
         return array(
             "usuarioAdministrador" => $usuarioAdministrador,

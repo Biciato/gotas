@@ -223,9 +223,9 @@ class PontuacoesComprovantesTable extends GenericTable
 
             return $this->save($pontuacoesComprovante);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
-            throw new Exception($message, MESSAGE_SAVED_EXCEPTION_CODE);
+            throw new Exception($message, MSG_SAVED_EXCEPTION_CODE);
         }
     }
 

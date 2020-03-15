@@ -33,14 +33,16 @@ class StringUtil
      * Construtor
      */
     function __construct()
-    { }
+    {
+    }
 
     /**
-     * StringUtil::validarCPF
+     * StringUtil::gerarNomeArquivoAleatorio
      *
      * Função que gera nome do arquivo com diretorio e extensao
      *
-     * @param string $cpf CPF à ser validado
+     * @param string $diretorio Diretório
+     * @param string $extensao Extensão do arquivo
      *
      * @author @rafael-neri
      * @link https://gist.github.com/rafael-neri/ab3e58803a08cb4def059fce4e3c0e40

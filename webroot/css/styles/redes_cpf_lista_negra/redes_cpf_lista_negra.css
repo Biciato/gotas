@@ -1,0 +1,10 @@
+.region-add {
+    display: none;
+    /* overflow-y: auto; */
+    /* zoom: 95%;
+    max-width: 100%;; */
+}
+
+#back-button{
+    display: none;
+}

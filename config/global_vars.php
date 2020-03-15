@@ -80,6 +80,7 @@ Configure::write(
             "PontuacoesComprovantes",
             "PontuacoesPendentes",
             "Redes",
+            "RedesCpfListaNegra",
             "RedesHasClientes",
             "RedesHasClientesAdministradores",
             "TiposBrindesRedes",

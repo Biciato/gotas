@@ -1269,10 +1269,10 @@ class PontuacoesComprovantesController extends AppController
         } catch (\Throwable $th) {
             $errors[] = $th->getMessage();
             $errorCodes[] = $th->getCode();
-            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+            $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
         }
 
         if ($this->request->is(Request::METHOD_POST)) {
@@ -1376,10 +1376,10 @@ class PontuacoesComprovantesController extends AppController
 
                 return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
             } catch (\Throwable $th) {
-                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
                 Log::write("error", $message);
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
             }
         }
     }
@@ -1414,10 +1414,10 @@ class PontuacoesComprovantesController extends AppController
         } catch (\Throwable $th) {
             $errors[] = $th->getMessage();
             $errorCodes[] = $th->getCode();
-            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+            $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
         }
 
         if ($this->request->is(Request::METHOD_POST)) {
@@ -1462,11 +1462,11 @@ class PontuacoesComprovantesController extends AppController
                 for ($i = 0; $i < $count; $i++) {
                     $error = $errors[$i];
                     $errorCode = $errorCodes[$i];
-                    $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $errorCode, $error);
+                    $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $errorCode, $error);
                     Log::write("error", $message);
                 }
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
             }
 
             // Se vazio ou não é um link, o titulo será definido automaticamente
@@ -1481,10 +1481,10 @@ class PontuacoesComprovantesController extends AppController
                 $cliente = $this->Clientes->get($clientesId);
                 $usuario = $this->Usuarios->get($usuariosId);
             } catch (\Throwable $th) {
-                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
                 Log::write("error", $message);
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
             }
 
             $funcionariosId = $usuarioLogado->id;
@@ -1540,10 +1540,10 @@ class PontuacoesComprovantesController extends AppController
 
                 return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
             } catch (\Throwable $th) {
-                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                $message = sprintf("[%s] %s: %s", MSG_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
                 Log::write("error", $message);
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
             }
         }
     }
@@ -1710,6 +1710,7 @@ class PontuacoesComprovantesController extends AppController
             $errors = array();
             $errorCodes = [];
             $sessao = $this->getSessionUserVariables();
+            $rede = $this->rede;
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
@@ -1778,6 +1779,9 @@ class PontuacoesComprovantesController extends AppController
             if (empty($cliente)) {
                 $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
                 $errorCodes[] = 0;
+            } elseif (empty($rede)) {
+                // caso na session não tenha a rede (duvido que isso aconteça, talvez um erro de session), obtem o que está vinculado ao CNPJ
+                $rede = $cliente->redes_has_cliente->rede;
             }
 
             $chave = "";
@@ -1845,6 +1849,16 @@ class PontuacoesComprovantesController extends AppController
                 Log::write("info", "CNPJ Identificado: " . $cpf);
             }
 
+            $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($rede->id, $cpf);
+
+            if (!empty($cpfIsBlackListed)) {
+                // CPF está na lista negra da rede, não pode pontuar
+                $errors[] = MSG_CPF_BLACKLIST;
+                $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+            }
+
             // Se usuário não encontrado, cadastra para futuro acesso
             if (empty($usuario)) {
                 $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
@@ -1872,53 +1886,11 @@ class PontuacoesComprovantesController extends AppController
 
             #region Pesquisa por todos os produtos extras para gravar se a configuração da rede está definida
 
-            // @TODO conferir!
             $pontuacaoExtra = $this->processaProdutosExtras($cliente, $usuario, $funcionario, $gotasCliente, $gotasAbastecidasClienteFinal, TRANSMISSION_MODE_DIRECT);
 
             if (!empty($pontuacaoExtra)) {
                 $pontuacoes[] = $pontuacaoExtra;
             }
-
-            // $gotasPontosExtras = new Gota();
-
-            // // return ResponseUtil::successAPI('', ['data' => $cliente]);
-            // $quantidadeExtra = 0;
-            // $pontosExtras = 0;
-            // $isPontuacaoExtraProdutoGenerico = $cliente->redes_has_cliente->rede->pontuacao_extra_produto_generico;
-
-            // // Se a rede está com a pontuação extra habilitada, atribui
-            // if ($isPontuacaoExtraProdutoGenerico) {
-            //     foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
-            //         $gota = array_filter($gotasCliente, function ($item) use ($gotaUsuario) {
-            //             return $gotaUsuario["gotas_nome"] == $item["nome_parametro"];
-            //         });
-
-            //         $gota = array_values($gota);
-
-            //         if (empty($gota)) {
-            //             $quantidadeExtra += $gotaUsuario["gotas_qtde"];
-            //             $pontosExtras += $gotaUsuario["gotas_vl_unit"];
-            //         }
-            //     }
-
-            //     $gotaBonificacaoPontosExtras = $this->Gotas->getGotaClienteByName($cliente->id, GOTAS_BONUS_EXTRA_POINTS_SEFAZ);
-
-            //     // só adiciona a bonificação se o registro existir, para não dar exception
-            //     if (!empty($gotaBonificacaoPontosExtras)) {
-            //         $pontuacao = new Pontuacao();
-            //         $pontuacao->quantidade_multiplicador = $quantidadeExtra;
-            //         $pontuacao->clientes_id = $cliente->id;
-            //         $pontuacao->usuarios_id = $usuario->id;
-            //         $pontuacao->funcionarios_id = $funcionario->id;
-            //         $pontuacao->gotas_id = $gotaBonificacaoPontosExtras->id;
-            //         $pontuacao->data = $data;
-            //         $pontuacao->quantidade_gotas = floor($pontosExtras);
-            //         $pontuacao->valor_gota_sefaz = $pontosExtras;
-
-            //         // Adiciona registro para posterior processamento
-            //         $pontuacoes[] = $pontuacao;
-            //     }
-            // }
 
             #endregion
 
@@ -2678,7 +2650,19 @@ class PontuacoesComprovantesController extends AppController
         // Se cnpj for nulo, a pesquisa deverá ser feita sob todos os cnpjs , e depois, pesquisar eles na nota
         if (!empty($clienteCNPJ)) {
             $cliente = $this->Clientes->getClienteByCNPJ($clienteCNPJ);
+
+            // Se encontrou o estabelecimento, Faz validação de CPF na lista negra
+            $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($cliente->redes_has_cliente->rede->id, $usuario->cpf);
+
+            if (!empty($cpfIsBlackListed)) {
+                // CPF está na lista negra da rede, não pode pontuar
+                $errors[] = MSG_CPF_BLACKLIST;
+                $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+            }
         }
+
 
         $isEstadoGoias = false;
         if ($estado == "GO") {
@@ -2697,7 +2681,6 @@ class PontuacoesComprovantesController extends AppController
         // $webContent["content"] = null;
 
         if ($webContent["statusCode"] == 200) {
-
             // Verifica se retorno contêm palavras chave informando que o CF não foi encontrado, e retorna exatamente esta mensagem
 
             $msgSefazNotFound = [
@@ -2709,7 +2692,6 @@ class PontuacoesComprovantesController extends AppController
 
                 // Se encontrar a mensagem, grava o registro para posterior processamento e retorna erro
                 if ($searchMsg) {
-
                     if (!$processamentoPendente) {
                         $pontuacaoPendente = new PontuacoesPendente();
                         // não haverá cliente pois não obteve cnpj, mas tenta localizar se for funcionario normal
@@ -2815,6 +2797,14 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (empty($cliente)) {
+                    // Não encontrou o estabelecimento, então a nota fiscal não deve ficar armazenada no sistema.
+                    if ($pontuacaoPendente) {
+                        $pendingCheck = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($url, $chave, $estado);
+
+                        if ($pendingCheck) {
+                            $this->PontuacoesPendentes->delete($pendingCheck);
+                        }
+                    }
                     $errors = array(__(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave));
                     $mensagem = array(
                         "status" => 0,
@@ -2831,6 +2821,17 @@ class PontuacoesComprovantesController extends AppController
                     Log::write("info", $errors);
 
                     return ResponseUtil::errorAPI($mensagem["message"], $errors, [], []);
+                } else {
+                    // Se encontrou o estabelecimento, Faz validação de CPF na lista negra
+                    $cpfIsBlackListed = $this->RedesCpfListaNegra->getCpfInNetwork($cliente->redes_has_cliente->rede->id, $usuario->cpf);
+
+                    if (!empty($cpfIsBlackListed)) {
+                        // CPF está na lista negra da rede, não pode pontuar
+                        $errors[] = MSG_CPF_BLACKLIST;
+                        $errorCodes[] = MSG_CPF_BLACKLIST_CODE;
+
+                        return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+                    }
                 }
             }
 
@@ -2853,9 +2854,7 @@ class PontuacoesComprovantesController extends AppController
             // Verifica se usuário estourou o limite de pontuações diarias
 
             $rede = $cliente->redes_has_cliente->rede;
-
             $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
-
             $qteInsercaoGotas = $this->PontuacoesComprovantes->getCountPontuacoesComprovantesOfUsuario($usuario->id, $clientesIds);
 
             // Se não for processamento pendente e a quantidade de pontuações do usuário é maior que o permitido pela rede
@@ -3301,7 +3300,6 @@ class PontuacoesComprovantesController extends AppController
      */
     private function processaProdutosExtras($cliente, $usuario, $funcionario, $gotasCliente, $gotasAbastecidasClienteFinal, $modoTransmissao)
     {
-        $nomeParametro = $modoTransmissao === TRANSMISSION_MODE_DIRECT ? "gotas_nome" : "descricao";
         $parameterSearch = new stdClass();
 
         if ($modoTransmissao === TRANSMISSION_MODE_DIRECT) {

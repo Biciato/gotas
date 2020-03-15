@@ -314,6 +314,11 @@ if (empty($usuarioLogado)) {
                     <!-- </li> -->
 
                     <li role="separator" class="divider" />
+                    <li>
+                        <a href="/redes-cpf-lista-negra/redes-cpf-lista-negra"><i class="fas fa-unlock-alt"></i> Lista Negra de CPF's</a>
+                    </li>
+
+                    <li role="separator" class="divider" />
 
                     <li>
                         <?php echo $this->Html->link('Relatório de Cupons Processados', ['controller' => 'Pontuacoes', 'action' => 'relatorio_cupons_processados']) ?>

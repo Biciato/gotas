@@ -826,7 +826,7 @@ class GotasController extends AppController
 
                 if (count($errors) > 0) {
                     // encontrou erros, dá exception
-                    throw new Exception(MESSAGE_SAVED_EXCEPTION, MESSAGE_SAVED_EXCEPTION_CODE);
+                    throw new Exception(MSG_SAVED_EXCEPTION, MSG_SAVED_EXCEPTION_CODE);
                 }
 
                 $countSucesso = 0;
@@ -847,7 +847,7 @@ class GotasController extends AppController
                     return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
                 }
 
-                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, []);
+                return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, []);
             } catch (\Throwable $th) {
                 for ($i = 0; $i < count($errors); $i++) {
                     Log::write("error", sprintf("[%s] %s %s", $th->getMessage(), $errors[$i], $errorCodes[$i]));
@@ -873,15 +873,12 @@ class GotasController extends AppController
      */
     public function atribuirGotas()
     {
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioLogado = $this->usuarioLogado;
 
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
-            $usuarioLogado = $usuarioAdministrar;
-        }
+        // if ($usuarioAdministrador) {
+        //     $this->usuarioLogado = $usuarioAdministrar;
+        //     $usuarioLogado = $usuarioAdministrar;
+        // }
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
@@ -923,6 +920,7 @@ class GotasController extends AppController
             "clientesCNPJ",
             'funcionario',
             'estado_funcionario',
+            "usuarioLogado",
             'usuarioLogadoTipoPerfil',
             "transportadoraPath",
             "veiculoPath"
