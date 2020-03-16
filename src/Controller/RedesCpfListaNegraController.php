@@ -22,26 +22,6 @@ class RedesCpfListaNegraController extends AppController
 {
 
     /**
-     * Index Web method
-     *
-     * @return \Cake\Http\Response|void
-     */
-    public function redesCpfListaNegra()
-    {
-        $redesId = !empty($this->rede) ? $this->rede->id : 0;
-
-        // Se não for adm devel e não tiver uma rede definida, não tem acesso
-        if ($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER && empty($redesId)) {
-            if ($this->request->getHeader("IsMobile") === 1) {
-                return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
-            }
-
-            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
-            return $this->redirect("/");
-        }
-    }
-
-    /**
      * List method
      *
      * @return \Cake\Http\Response|void
@@ -52,9 +32,29 @@ class RedesCpfListaNegraController extends AppController
         $errors = [];
         $errorCodes = [];
 
+        // Se a solicitação não for ajax e não ter o header, é pq é view via web, e verifica se o usuário tem acesso ou não
+        if (!$this->request->is('ajax') && empty($this->request->getHeader("IsMobile"))) {
+            // Se não for adm devel e não tiver uma rede definida, não tem acesso
+            if ($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER && empty($redesId)) {
+                if ($this->request->getHeader("IsMobile") === 1) {
+                    return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+                }
+
+                $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+                return $this->redirect("/");
+            }
+
+            return;
+        }
+
         // Se não for adm devel e não tiver uma rede definida, não tem acesso
-        if ($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER && empty($redesId)) {
-            return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+        if (($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER && empty($redesId)) || $this->usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_NETWORK) {
+            if ($this->request->getHeader("IsMobile") == true) {
+                return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            }
+
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            return $this->redirect("/");
         }
 
         try {

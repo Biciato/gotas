@@ -3,7 +3,7 @@
 /**
  * index.ctp
  *
- * View para redes_cpf_lista_negra/redes_cpf_lista_negra
+ * View para redes_cpf_lista_negra/index
  *
  * @filesource src\Template\RedesCpfListaNegra\redes_cpf_lista_negra.ctp
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -139,6 +139,6 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
 
 ?>
 
-<script src="/webroot/js/scripts/redes_cpf_lista_negra/redes_cpf_lista_negra<?= $extensionDebug ?>.js"></script>
+<script src="/webroot/js/scripts/redes_cpf_lista_negra/index<?= $extensionDebug ?>.js"></script>
 
-<link rel="stylesheet" href="/webroot/css/styles/redes_cpf_lista_negra/redes_cpf_lista_negra<?= $extensionDebug ?>.css" />
+<link rel="stylesheet" href="/webroot/css/styles/redes_cpf_lista_negra/index<?= $extensionDebug ?>.css" />
