@@ -1584,9 +1584,16 @@ class UsuariosController extends AppController
             $email = !empty($data["email"]) ? $data["email"] : null;
             $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
             $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
+            $errors = !empty($retornoLogin["errors"]) ? $retornoLogin["errors"] : [];
 
             if (empty($retornoLogin["usuario"])) {
-                $this->Flash->error(__($message));
+                $msg = $message;
+
+                if (count($errors) > 0) {
+                    $msg .= " " . implode(" - ", $errors);
+                }
+
+                $this->Flash->error(__($msg));
                 // return;
             }
         }
