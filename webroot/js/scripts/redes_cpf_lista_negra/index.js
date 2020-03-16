@@ -138,10 +138,7 @@ $
                 setTimeout(() => {
 
                     // Após renderizar a tabela, remove e reassocia evento de click dos botões
-                    var btnCpfDelete = $(".btn-cpf-delete");
-                    btnCpfDelete.unbind("click");
-
-                    btnCpfDelete.on("click", function () {
+                    $("#data-table tbody").on("click", "button", function () {
                         var id = $(this).data('id');
                         cpfSelectedItem = data.find(x => x.id === id);
 
