@@ -62,7 +62,6 @@ class RedesCpfListaNegraController extends AppController
                 $data = $this->request->getQueryParams();
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $redesId;
 
-
                 if (empty($redesId)) {
                     throw new Exception(MSG_REDES_ID_EMPTY, MSG_REDES_ID_EMPTY_CODE);
                 }
