@@ -640,7 +640,7 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
 #region Redes CPF Lista Negra
 
-const MSG_CPF_BLACKLIST = "Este cliente não pode pontuar na rede, CPF bloqueado!";
+const MSG_CPF_BLACKLIST = "Este cliente não pode pontuar na rede. Favor procurar o administrador!";
 const MSG_CPF_BLACKLIST_CODE = "0x001D0001";
 #endregion
 
