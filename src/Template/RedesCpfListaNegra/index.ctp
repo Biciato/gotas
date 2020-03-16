@@ -55,14 +55,14 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         <form id="form">
 
                             <div class="form-group row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-12">
                                     <label for="redes_list">Rede:</label>
                                     <select name="redes_list" id="redes-list" class="form-control"></select>
                                 </div>
-                                <div class="col-lg-6">
+                                <!-- <div class="col-lg-6">
                                     <label for="cpf_form_search">CPF:</label>
                                     <input type="text" name="cpf_form_search" id="cpf-form-search" class="form-control"></select>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="form-group row">
                                 <div class="col-lg-12 text-right">

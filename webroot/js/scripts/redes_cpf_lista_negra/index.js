@@ -17,7 +17,7 @@ $
         var redesSelectListBox = $("#redes-list");
         var redesSelectedItem = {};
         var cpfSelectedItem = {};
-        var cpfFormSearch = $("#cpf-form-search");
+        // var cpfFormSearch = $("#cpf-form-search");
         var pesquisarBtn = $("#btn-pesquisar");
         var dataTable = $("#data-table");
         var newBtn = $("#new-button");
@@ -38,10 +38,10 @@ $
             redesSelectListBox.unbind("change");
             redesSelectListBox.on("change", redesSelectListBoxOnChange);
 
-            cpfFormSearch.mask('999.999.999-99');
+            // cpfFormSearch.mask('999.999.999-99');
             cpfFormSave.mask('999.999.999-99');
             cpfFormSave.unbind("keydown");
-            cpfFormSave.on("keydown", cpfFormSearchOnChange);
+            cpfFormSave.on("keydown", cpfFormSaveOnChange);
 
             newBtn.unbind("click");
             newBtn.on("click", showNewRegion);
@@ -68,8 +68,8 @@ $
          * @since 1.1.8
          * @date 2020-03-13
          */
-        function cpfFormSearchOnChange(event) {
-            formSearch.cpf = this.value;
+        function cpfFormSaveOnChange(event) {
+            formSave.cpf = this.value;
 
             if (event.keyCode === 13) {
                 saveCpf();
@@ -85,7 +85,7 @@ $
          */
         async function pesquisar() {
             try {
-                let response = await getCPFBlackList(formSearch.redesId, formSearch.cpf);
+                let response = await getCPFBlackList(formSearch.redesId);
 
                 if (response === undefined || response === null || !response) {
                     return false;
@@ -138,10 +138,7 @@ $
                 setTimeout(() => {
 
                     // Após renderizar a tabela, remove e reassocia evento de click dos botões
-                    var btnCpfDelete = $(".btn-cpf-delete");
-                    btnCpfDelete.unbind("click");
-
-                    btnCpfDelete.on("click", function () {
+                    $("#data-table tbody").on("click", "button", function () {
                         var id = $(this).data('id');
                         cpfSelectedItem = data.find(x => x.id === id);
 
@@ -324,10 +321,9 @@ $
          *
          * @returns $promise Retorna uma jqAjax Promise
          */
-        function getCPFBlackList(redesId, cpf) {
+        function getCPFBlackList(redesId) {
             var data = {
-                redes_id: redesId,
-                cpf: cpf
+                redes_id: redesId
             };
 
             if (redesId === undefined || redesId === 0) {
