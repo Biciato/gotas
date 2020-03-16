@@ -16,6 +16,7 @@ use App\Model\Entity\Cliente;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 use stdClass;
+use Throwable;
 
 /**
  * Pontuacoes Controller
@@ -644,6 +645,18 @@ class PontuacoesController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
+    /**
+     * View para Saldo de Pontos
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.20.0
+     * @date 2020-03-16
+     *
+     * @return void
+     */
+    public function relSaldoPontos()
+    {
+    }
 
     /**
      * ------------------------------------------------------------
@@ -909,6 +922,16 @@ class PontuacoesController extends AppController
         return;
     }
 
+    /**
+     * Obtem Relatório de Pontos
+     *
+     * Obtem Relatório de Pontos de Entrada e Saída para Relatório de Ranking de Operações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.7
+     *
+     * @return json_encode(object|Html Table|Excel) Objeto / Tabela / Excel
+     */
     public function getPontuacoesRelatorioEntradaSaidaAPI()
     {
         $errors = [];
@@ -1392,6 +1415,58 @@ class PontuacoesController extends AppController
                 }
             }
         } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
+    /**
+     * Obtem Saldo de Pontos de Usuários
+     *
+     * Obtem Saldo de Pontos de Usuários pertencentes à uma rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.0
+     * @date 2020-03-16
+     *
+     * @return json_encode(object|Html Table|Excel) Objeto / Tabela / Excel
+     */
+    public function saldoPontosAPI()
+    {
+        $redesId = !empty($this->rede) ? $this->rede->id : 0;
+        $errors = [];
+        $errorCodes = [];
+
+        // Se não for adm devel e não tiver uma rede definida, não tem acesso
+        if ($this->usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_NETWORK) {
+            return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $get = $this->request->getQueryParams();
+
+                // se no get não tem a informação de redes_id, já nega.
+
+                $redesId = !empty($get["redes_id"]) ? $get["redes_id"] : $redesId;
+
+                if (empty($redesId)) {
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+            }
+        } catch (Throwable $th) {
             $errorMessage = $th->getMessage();
             $errorCode = $th->getCode();
 

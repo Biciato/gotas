@@ -98,9 +98,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
     <div class="print-region">
         <div class="form-group row">
-            <div id="container-report" class="col-lg-12">
-            </div>
-
+            <div id="container-report" class="col-lg-12"> </div>
         </div>
     </div>
 
