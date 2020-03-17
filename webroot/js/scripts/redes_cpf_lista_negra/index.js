@@ -13,6 +13,7 @@ $
         // #region Properties
 
         var formSearch = {};
+        var formSave = {};
         var redesList = [];
         var redesSelectListBox = $("#redes-list");
         var redesSelectedItem = {};
@@ -94,12 +95,13 @@ $
                 var data = [];
 
                 response.data.forEach(row => {
+                    var cpfFormatted = row.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
                     var selectButton =
-                        "<button class='btn btn-danger btn-xs btn-cpf-delete' data-id=" + row.id + " title='Remover'> <i class=' fas fa-trash'></i></button>";
+                        "<button class='btn btn-danger btn-xs btn-cpf-delete' data-id='" + row.id + "' data-cpf='" + cpfFormatted + "' title='Remover'> <i class=' fas fa-trash'></i></button>";
 
                     data.push({
                         id: row.id,
-                        cpf: row.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"),
+                        cpf: cpfFormatted,
                         acoes: selectButton
                     });
                 });
@@ -133,21 +135,20 @@ $
                     data: data
                 });
 
+                $("#data-table tbody").unbind("click", "button");
                 // para todo registro, ao chamar a modal questionando, atribui o id de registro e prepara o remove
+                // Após renderizar a tabela, remove e reassocia evento de click dos botões
+                $("#data-table tbody").on("click", "button", function () {
+                    var cpf = $(this).data('cpf');
+                    cpfSelectedItem = data.find(x => x.cpf === cpf);
+                    console.log(cpfSelectedItem);
 
-                setTimeout(() => {
-
-                    // Após renderizar a tabela, remove e reassocia evento de click dos botões
-                    $("#data-table tbody").on("click", "button", function () {
-                        var id = $(this).data('id');
-                        cpfSelectedItem = data.find(x => x.id === id);
-
+                    // Garante que o registro está selecionado
+                    if (cpfSelectedItem !== null && cpfSelectedItem !== undefined) {
                         $("#modal-remover").modal();
-
                         $("#modal-remover #nome-registro").text(cpfSelectedItem.cpf);
-
-                    });
-                }, 300);
+                    }
+                });
 
             } catch (error) {
                 var msg = {};
