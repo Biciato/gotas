@@ -13,6 +13,7 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Cliente;
+use App\Model\Entity\Usuario;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 use stdClass;
@@ -1458,13 +1459,36 @@ class PontuacoesController extends AppController
                 $get = $this->request->getQueryParams();
 
                 // se no get não tem a informação de redes_id, já nega.
-
                 $redesId = !empty($get["redes_id"]) ? $get["redes_id"] : $redesId;
+                $nomeUsuario = !empty($get["nome"]) ? $get["nome"] : null;
 
                 if (empty($redesId)) {
                     $errors[] = MSG_REDES_ID_EMPTY;
                     $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
                 }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                // Obtem lista de Usuários
+
+                $usersQuery = $this->ClientesHasUsuarios->getUsuariosInNetwork($redesId, [], $nomeUsuario);
+
+                $usuarios = [];
+
+                foreach ($usersQuery as $item) {
+                    $usuario = new Usuario();
+                    $usuario->id = $item->usuario->id;
+                    $usuario->nome = $item->usuario->nome;
+                    // $resumoGotas = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario->id, $redesId);
+                    // $usuario->saldo = $resumoGotas;
+                    $resumoGotas = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario->id, $redesId);
+                    $usuario->saldo = $resumoGotas["resumo_gotas"]["saldo"];
+                    $usuarios[] = $usuario;
+                }
+
+                return ResponseUtil::successAPI('', ['data' => $usuarios]);
             }
         } catch (Throwable $th) {
             $errorMessage = $th->getMessage();
