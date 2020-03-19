@@ -1461,34 +1461,68 @@ class PontuacoesController extends AppController
                 // se no get não tem a informação de redes_id, já nega.
                 $redesId = !empty($get["redes_id"]) ? $get["redes_id"] : $redesId;
                 $nomeUsuario = !empty($get["nome"]) ? $get["nome"] : null;
+                $typeExport = !empty($get["tipo_exportacao"]) ? $get["tipo_exportacao"] : null;
 
                 if (empty($redesId)) {
                     $errors[] = MSG_REDES_ID_EMPTY;
                     $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
                 }
 
+                if (empty($typeExport)) {
+                    $errors[] = TYPE_EXPORTATION_DATA_EMPTY;
+                    $errorCodes[] = TYPE_EXPORTATION_DATA_EMPTY_CODE;
+                }
+
                 if (count($errors) > 0) {
                     throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
 
+                $headersTable = new stdClass();
+                $headersTable->nome = "Nome";
+                $headersTable->saldo = "Saldo";
+                $rowTotal = new stdClass();
+
                 // Obtem lista de Usuários
 
                 $usersQuery = $this->ClientesHasUsuarios->getUsuariosInNetwork($redesId, [], $nomeUsuario);
-
-                $usuarios = [];
+                $data = [];
+                $sum = 0;
 
                 foreach ($usersQuery as $item) {
-                    $usuario = new Usuario();
-                    $usuario->id = $item->usuario->id;
+                    $usuario = new stdClass();
+                    // $usuario->id = $item->usuario->id;
                     $usuario->nome = $item->usuario->nome;
-                    // $resumoGotas = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario->id, $redesId);
-                    // $usuario->saldo = $resumoGotas;
-                    $resumoGotas = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario->id, $redesId);
+                    $resumoGotas = $this->Pontuacoes->getSumPontuacoesOfUsuario($item->usuario->id, $redesId);
                     $usuario->saldo = $resumoGotas["resumo_gotas"]["saldo"];
-                    $usuarios[] = $usuario;
+                    $sum += $usuario->saldo;
+                    $data[] = $usuario;
                 }
 
-                return ResponseUtil::successAPI('', ['data' => $usuarios]);
+                if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
+                    $report = new stdClass();
+                    $report->headers = $headersTable;
+                    $report->rows = $data;
+                    $rowTotal->sum = $sum;
+                    $report->total = $rowTotal;
+
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $report]);
+                } elseif (in_array($typeExport, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+                    $rowTotal->nome = "Total:";
+                    $rowTotal->saldo = $sum;
+                    $data[] = $rowTotal;
+                    $table = HtmlUtil::generateHTMLTable("Saldo de Pontos de Usuários da Rede", $headersTable, $data, true);
+
+                    if ($typeExport === TYPE_EXPORTATION_DATA_EXCEL) {
+                        $table = HtmlUtil::wrapContentToHtml($table);
+                    }
+
+                    $report = new stdClass();
+                    $report->relatorio = $table;
+
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $report]);
+                }
+
+                throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
             }
         } catch (Throwable $th) {
             $errorMessage = $th->getMessage();

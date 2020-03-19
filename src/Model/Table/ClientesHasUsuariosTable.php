@@ -16,6 +16,8 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use Cake\Database\Expression\QueryExpression;
+use Cake\Database\Type;
+use Cake\Database\TypeMap;
 use DateTime;
 use Exception;
 use Throwable;
@@ -745,7 +747,7 @@ class ClientesHasUsuariosTable extends Table
                 }
 
                 if (!empty($nome)) {
-                    $exp->like("Usuarios.nome", $nome);
+                    $exp->like("Usuarios.nome", sprintf("%%%s%%", $nome));
                 }
 
                 $exp->eq("Usuarios.tipo_perfil", PROFILE_TYPE_USER);

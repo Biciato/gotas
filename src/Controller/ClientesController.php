@@ -850,6 +850,11 @@ class ClientesController extends AppController
                     $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
                 }
 
+                if (empty($typeExport)) {
+                    $errors[] = TYPE_EXPORTATION_DATA_EMPTY;
+                    $errorCodes[] = TYPE_EXPORTATION_DATA_EMPTY_CODE;
+                }
+
                 if (count($errors) > 0) {
                     throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
@@ -938,7 +943,7 @@ class ClientesController extends AppController
                     }
                 }
 
-                throw new Exception(TYPE_EXPORTATION_DATA_EMPTY, TYPE_EXPORTATION_DATA_EMPTY_CODE);
+                throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
