@@ -2436,8 +2436,8 @@ class CuponsController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
-                        "errors" => array("Este cupom já foi usado pelo usuário!"),
-                        "error_codes" => []
+                        "errors" => [MSG_CUPONS_ALREADY_USED],
+                        "error_codes" => [MSG_CUPONS_ALREADY_USED_CODE]
                     );
                     $resultado = array(
                         "recibo_baixa_cupons" => $dadosCupons
