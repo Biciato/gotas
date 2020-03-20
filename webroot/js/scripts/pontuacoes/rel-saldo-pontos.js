@@ -39,7 +39,6 @@ $
             printBtn.addClass("disabled");
             printBtn.addClass("readonly");
             printBtn.unbind("click");
-            printBtn.on("click", function () { printRegion("#" + printBtn.attr('id'));});
             exportBtn.addClass("disabled");
             exportBtn.addClass("readonly");
             exportBtn.unbind("click");
@@ -122,7 +121,9 @@ $
                 printBtn.removeClass("disabled");
                 printBtn.removeClass("readonly");
                 printBtn.unbind("click");
-                printBtn.on("click", print);
+                printBtn.on("click", function () {
+                    printRegion(".print-region");
+                });
                 exportBtn.removeClass("disabled");
                 exportBtn.removeClass("readonly");
                 exportBtn.unbind("click");

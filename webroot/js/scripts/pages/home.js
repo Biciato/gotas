@@ -953,8 +953,7 @@ var initializeTimePicker = function (
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 1.2.0
  */
-function printRegion(region) {
-
+var printRegion = function(region) {
     if ((region.indexOf(".") < 0 && region.indexOf("#") < 0) || region === undefined) {
         window.alert("Necessário informar region para impressão!");
         return false;

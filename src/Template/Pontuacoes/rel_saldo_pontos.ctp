@@ -94,6 +94,6 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
 
 ?>
 
-<script src="/webroot/js/scripts/pontuacoes/rel-saldo-pontos<?= $extensionDebug ?>.js"></script>
+<script src="/webroot/js/scripts/pontuacoes/rel-saldo-pontos<?= $extensionDebug ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
 
-<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/rel-saldo-pontos<?= $extensionDebug ?>.css" />
+<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/rel-saldo-pontos<?= $extensionDebug ?>.css?version=<?= SYSTEM_VERSION ?>" />
