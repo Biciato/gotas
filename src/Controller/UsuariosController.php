@@ -3978,7 +3978,11 @@ class UsuariosController extends AppController
                     }
 
                     $usuario->tentativas_login = $usuario->tentativas_login + 1;
-                    $this->Usuarios->save($usuario);
+                    try {
+                        $this->Usuarios->save($usuario);
+                    } catch (\Throwable $th) {
+                        Log::write("info", $th);
+                    }
                 }
 
                 $status = false;

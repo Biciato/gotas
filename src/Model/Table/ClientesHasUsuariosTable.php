@@ -16,8 +16,11 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use Cake\Database\Expression\QueryExpression;
+use Cake\Database\Type;
+use Cake\Database\TypeMap;
 use DateTime;
 use Exception;
+use Throwable;
 
 /**
  * ClientesHasUsuarios Model
@@ -717,6 +720,90 @@ class ClientesHasUsuariosTable extends Table
         }
 
         return $usuarios;
+    }
+
+    /**
+     * Pesquisa usuários de uma rede
+     *
+     * Obtem os Usuários de uma Rede ou de um a mais estabelecimentos,
+     * agrupado por Usuário
+     *
+     * @param integer $redesId Id da Rede
+     * @param array $clientesIds Ids de clientes
+     * @param string $nome Nome do Usuário
+     * @return Cake\ORM\Query|\App\Model\Entity\Usuario[] lista de Usuários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.0
+     */
+    public function getUsuariosInNetwork(int $redesId, array $clientesIds = [], string $nome = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesIds, $nome) {
+                $exp->eq("Redes.id", $redesId);
+
+                if (count($clientesIds) > 0) {
+                    $exp->in("Clientes.id", $clientesIds);
+                }
+
+                if (!empty($nome)) {
+                    $exp->like("Usuarios.nome", sprintf("%%%s%%", $nome));
+                }
+
+                $exp->eq("Usuarios.tipo_perfil", PROFILE_TYPE_USER);
+
+                return $exp;
+            };
+
+            $select =  [
+                "Usuarios.id",
+                "Usuarios.nome",
+                "Usuarios.cpf",
+                "Usuarios.tipo_perfil",
+                "Usuarios.telefone",
+                "Usuarios.audit_insert",
+                "Usuarios.audit_update",
+                "Usuarios.data_nasc",
+                "Clientes.id",
+                "Clientes.nome_fantasia",
+                "ClientesHasUsuarios.clientes_id",
+                "ClientesHasUsuarios.usuarios_id",
+                "ClientesHasUsuarios.conta_ativa",
+                "ClientesHasUsuarios.audit_insert",
+                "ClientesHasUsuarios.audit_update",
+                "RedesHasClientes.id",
+                "RedesHasClientes.redes_id",
+                "RedesHasClientes.clientes_id",
+                "Redes.id",
+                "Redes.nome_rede"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain(
+                    [
+                        "Clientes.RedesHasClientes.Redes",
+                        "Usuarios"
+                    ]
+                )
+                ->select($select)
+                ->order([
+                    "Usuarios.nome" => "ASC"
+                ])
+                ->group(
+                    [
+                        // "ClientesHasUsuarios.clientes_id",
+                        "ClientesHasUsuarios.usuarios_id"
+                    ]
+                );
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            throw new Exception($message, $code);
+        }
     }
 
     /**
