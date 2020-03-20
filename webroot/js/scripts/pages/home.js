@@ -944,6 +944,28 @@ var initializeTimePicker = function (
 };
 
 /**
+ * Imprime uma region HTML
+ *
+ * @param {id|class} region
+ *
+ * @returns void
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 1.2.0
+ */
+function printRegion(region) {
+
+    if ((region.indexOf(".") < 0 && region.indexOf("#") < 0) || region === undefined) {
+        window.alert("Necessário informar region para impressão!");
+        return false;
+    }
+
+    setTimeout($(region).printThis({
+        importCss: false
+    }), 100);
+}
+
+/**
  * home::updateDatePicker
  *
  * Atualiza o valor do campo de data do tipo date picker

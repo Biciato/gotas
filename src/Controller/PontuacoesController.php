@@ -1510,7 +1510,7 @@ class PontuacoesController extends AppController
                     $rowTotal->nome = "Total:";
                     $rowTotal->saldo = $sum;
                     $data[] = $rowTotal;
-                    $table = HtmlUtil::generateHTMLTable("Saldo de Pontos de Usuários da Rede", $headersTable, $data, true);
+                    $table = HtmlUtil::generateHTMLTable("Saldo de Pontos de Usuários", $headersTable, $data, true);
 
                     if ($typeExport === TYPE_EXPORTATION_DATA_EXCEL) {
                         $table = HtmlUtil::wrapContentToHtml($table);

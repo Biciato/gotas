@@ -1,10 +1,11 @@
 /**
- * @file webroot\js\scripts\redes_cpf_lista_negra\index.js
+ * @file webroot\js\scripts\pontuacoes\rel-saldo-pontos.js
  *
- * Arquivo de funções para Lista Negra de CPF
+ * Arquivo de funções para View de src\Template\Pontuacoes\rel_saldo_pontos.ctp
  *
  * @author  Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 2020-03-09
+ * @since 1.2.0
+ * @date 2020-03-17
  */
 
 $
@@ -30,20 +31,15 @@ $
          * Constructor
          */
         function init() {
-            // Inicializa campos date
+            // Atribuições de functions
             redesSelectListBox.unbind("change");
             redesSelectListBox.on("change", redesSelectListBoxOnChange);
-
             nomeFormSearch.on("keydown", nomeFormSearchOnChange);
-
-            // Atribuições de clicks aos botões de obtenção de relatório
             searchBtn.on("click", search);
-
-            // Atribuições de clicks aos botões de obtenção de relatório
             printBtn.addClass("disabled");
             printBtn.addClass("readonly");
             printBtn.unbind("click");
-            printBtn.on("click", print);
+            printBtn.on("click", function () { printRegion("#" + printBtn.attr('id'));});
             exportBtn.addClass("disabled");
             exportBtn.addClass("readonly");
             exportBtn.unbind("click");
@@ -51,7 +47,6 @@ $
 
             getRedesList();
         }
-
 
         /**
          * Gera Excel
@@ -63,22 +58,20 @@ $
          */
         async function exportExcel() {
             try {
-                let response = await getSaldoPontos(form.redesId, form.nome, "Excel");
-                // let response = await getRankingOperacoes(form.redesId, form.clientesId, "", "", "Table");
+                let response = await getSaldoPontos(formSearch.redesId, formSearch.nome, "Excel");
 
                 if (response === undefined || response === null) {
                     return false;
                 }
 
-                var content = "data:application/vnd.ms-excel," + encodeURIComponent(response.data);
+                var content = "data:application/vnd.ms-excel," + encodeURIComponent(response.data.relatorio);
                 var downloadLink = document.createElement("a");
                 downloadLink.href = content;
-                downloadLink.download = "Relatório de Saldo de Pontos de Usuário.xls";
+                downloadLink.download = "Relatório de Saldo de Pontos de Usuários.xls";
 
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
-
             } catch (error) {
                 var msg = {};
                 if (error.responseJSON !== undefined) {
@@ -111,18 +104,12 @@ $
             }
         }
 
-        function print() {
-            setTimeout($(".print-region").printThis({
-                importCss: false
-            }), 100);
-        }
-
         /**
          * Realiza pesquisa dos dados
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 1.1.6
-         * @date 2020-03-05
+         * @since 1.2.0
+         * @date 2020-03-19
          */
         async function search() {
             try {
@@ -208,7 +195,9 @@ $
          */
         function getSaldoPontos(redesId, nome, tipoExportacao) {
             var data = {
-                redes_id: redesId
+                redes_id: redesId,
+                nome: nome,
+                tipo_exportacao: tipoExportacao
             };
 
             if (redesId === undefined || redesId === 0) {
