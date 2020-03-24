@@ -382,11 +382,14 @@ class PontuacoesTable extends GenericTable
                 "usuario" => "Usuarios.nome"
             ];
 
+            $orderBy = ["sum" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->select($select)
                 ->group(["Pontuacoes.gotas_id"])
+                ->order($orderBy)
                 ->limit($limit);
         } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
@@ -452,11 +455,14 @@ class PontuacoesTable extends GenericTable
                 "funcionarios_nome" => "Funcionarios.nome"
             ];
 
+            $order = ["count" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->select($select)
                 ->group(["funcionarios_id"])
+                ->order($order)
                 ->limit($limit);
         } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
@@ -590,12 +596,14 @@ class PontuacoesTable extends GenericTable
                 "nome" => "Usuarios.nome"
             ];
 
+            $order = ["sum" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->select($select)
                 ->group(["Pontuacoes.usuarios_id"])
-                ->order(["SUM" => "DESC"])
+                ->order($order)
                 ->limit($limit);
         } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());

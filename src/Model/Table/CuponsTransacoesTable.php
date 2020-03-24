@@ -421,12 +421,14 @@ class CuponsTransacoesTable extends GenericTable
             $groupBy = [
                 "Brindes.id"
             ];
+            $orderBy = ["count" => "DESC"];
 
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->group($groupBy)
                 ->select($selectFields)
+                ->order($orderBy)
                 ->limit($limit);
         } catch (Exception $e) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
@@ -487,11 +489,14 @@ class CuponsTransacoesTable extends GenericTable
                 "CuponsTransacoes.funcionarios_id"
             ];
 
+            $orderBy = ["count" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->group($groupBy)
                 ->select($selectFields)
+                ->order($orderBy)
                 ->limit($limit);
         } catch (Exception $e) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
