@@ -325,7 +325,7 @@ if (empty($usuarioLogado)) {
                         <a href="/clientes/rel-balanco-geral">Balanço Geral</a>
                         <a href="/pontuacoes/relGestaoGotas">Gestão de Gotas</a>
                         <a href="/pontuacoes/relatorioPontuacaoSimplificado">Relatório de Pontuação Simplificado</a>
-                        <a href="/clientes/relRankingOperacoes">Relatório de Ranking de Operações</a>
+                        <a href="/clientes/relRankingOperacoes"><i class="fas fa-chart-line"></i> Relatório de Ranking de Operações</a>
                         <a href="/pontuacoes/rel-saldo-pontos"><i class="fas fa-chart-line"></i> Relatório de Saldo de Pontos</a>
                         <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>

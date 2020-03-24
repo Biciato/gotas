@@ -7,8 +7,7 @@
  * @since 2020-03-09
  */
 
-$
-    (function () {
+$(function () {
         'use strict';
         // #region Properties
 
@@ -18,6 +17,9 @@ $
         var redesSelectedItem = {};
         var clientesSelectListBox = $("#clientes-list");
         var clientesSelectedItem = {};
+        var topRecordsList = [];
+        var topRecordsSelectBox = $("#top-records-list");
+        var topRecordsSelectedItem = {};
         var clientesList = [];
         var containerReport = $("#container-report");
         var pesquisarBtn = $("#btn-pesquisar");
@@ -73,6 +75,19 @@ $
             redesSelectListBox.on("change", redesSelectListBoxOnChange);
             clientesSelectListBox.unbind("change");
             clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
+
+            topRecordsList = getTopRecordsList();
+
+            topRecordsList.forEach(item => {
+                var option = document.createElement("option");
+                option.value = item.id;
+                option.textContent = item.text;
+                topRecordsSelectBox.append(option);
+            });
+
+            topRecordsSelectBox.unbind("change");
+            topRecordsSelectBox.on("change", topRecordsSelectBoxOnChange);
+            topRecordsSelectBox.change();
 
             // Atribuições de clicks aos botões de obtenção de relatório
             pesquisarBtn.on("click", pesquisar);
@@ -167,7 +182,7 @@ $
          */
         async function exportarExcel() {
             try {
-                let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, "Excel");
+                let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, form.topRegistros, "Excel");
                 // let response = await getRankingOperacoes(form.redesId, form.clientesId, "", "", "Table");
 
                 if (response === undefined || response === null) {
@@ -205,17 +220,21 @@ $
          * @param {int} clientesId Id do Estabelecimento. Se não informado, pesquisa por todos da rede
          * @param {DateTime} dataInicio Data de Início da pesquisa
          * @param {DateTime} dataFim Data de Fim da pesquisa
+         * @param {int} topRegistros Número de registros iniciais
          * @param {string} tipoExportacao Tipo de Exportação (Table / Excel / Object)
          *
          * @returns $promise Retorna uma jqAjax Promise
          */
-        function getRankingOperacoes(redesId, clientesId, dataInicio, dataFim, tipoExportacao) {
+        function getRankingOperacoes(redesId, clientesId, dataInicio, dataFim, topRegistros, tipoExportacao) {
             var data = {
                 redes_id: redesId,
                 data_inicio: dataInicio,
                 data_fim: dataFim,
-                tipo_exportacao: tipoExportacao
+                limit: topRegistros,
+                tipo_exportacao: tipoExportacao,
             };
+
+            console.log(data);
 
             if (clientesId !== undefined && clientesId > 0) {
                 data.clientes_id = form.clientesId;
@@ -257,7 +276,7 @@ $
          */
         async function pesquisar() {
             try {
-                let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, "Table");
+                let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, form.topRegistros, "Table");
                 // let response = await getRankingOperacoes(form.redesId, form.clientesId, "", "", "Table");
 
                 if (response === undefined || response === null) {
@@ -327,6 +346,32 @@ $
                 clientesList = [];
                 clientesSelectListBox.empty();
                 clientesSelectListBox.append(option);
+            }
+        }
+
+        /**
+         * Evento On Change para topRecordsSelectBox
+         *
+         * @param {Event} evt
+         * @returns void
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 1.2.0
+         * @date 2020-03-23
+         */
+        function topRecordsSelectBoxOnChange(evt) {
+            var numberRecords = parseInt(this.value);
+
+            if (isNaN(numberRecords)) {
+                numberRecords = 1;
+            }
+
+            topRecordsSelectedItem = topRecordsList.find(x => x.id == numberRecords);
+
+            if (topRecordsSelectedItem.id > 0) {
+                form.topRegistros = topRecordsSelectedItem.id;
+            } else {
+                form.topRegistros = 0;
             }
         }
 
@@ -476,13 +521,52 @@ $
             });
         }
 
+        /**
+         * Gera lista de top registros
+         *
+         * @returns {list} id|text
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 1.2.0
+         * @date 2020-03-23
+         */
+        function getTopRecordsList() {
+            var list = [{
+                    id: 1,
+                    text: 1
+                },
+                {
+                    id: 3,
+                    text: 3
+                },
+                {
+                    id: 5,
+                    text: 5
+                },
+                {
+                    id: 10,
+                    text: 10
+                },
+                {
+                    id: 25,
+                    text: 25
+                },
+                {
+                    id: 50,
+                    text: 50
+                },
+            ];
+
+            return list;
+
+        }
+
         // #endregion
 
         // #endregion
 
         // "Constroi" a tela
         init();
-    })
-    .ajaxStart(callLoaderAnimation)
+    }).ajaxStart(callLoaderAnimation)
     .ajaxStop(closeLoaderAnimation)
     .ajaxError(closeLoaderAnimation);
