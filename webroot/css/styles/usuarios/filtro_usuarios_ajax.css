@@ -1,11 +1,11 @@
-.user-result{
+.user-selected{
+	/* display: none; */
+}
+
+.user-selected-names{
 	display: none;
 }
 
-.user-result-names{
-	display: none;
-}
-
-.user-result-plates{
+.user-selected-plates{
 	display: none;
 }
