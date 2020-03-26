@@ -204,10 +204,15 @@ class BrindesPrecosController extends AppController
             $valorMoedaVenda = !empty($data["valor_moeda_venda"]) ? $data["valor_moeda_venda"] : 0;
             $errors = array();
 
-            $preco = floatval(preg_replace("/[^-0-9\.]/", "", $preco));
-            $data["preco"] = $preco;
-            $valorMoedaVenda = floatval(preg_replace("/[^-0-9\.]/", "", $valorMoedaVenda));
-            $data["valor_moeda_venda"] = $valorMoedaVenda;
+            if (!empty($preco)) {
+                $preco = floatval(preg_replace("/[^-0-9\.]/", "", $preco));
+                $data["preco"] = $preco;
+            }
+
+            if (!empty($valorMoedaVenda)) {
+                $valorMoedaVenda = floatval(preg_replace("/[^-0-9\.]/", "", $valorMoedaVenda));
+                $data["valor_moeda_venda"] = $valorMoedaVenda;
+            }
 
             // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
             if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty((float) $preco) || empty((float) $valorMoedaVenda))) {

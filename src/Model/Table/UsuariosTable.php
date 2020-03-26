@@ -702,6 +702,8 @@ class UsuariosTable extends GenericTable
                 array(
                     "nome" => "Usuário Aguardando Cadastramento",
                     "cpf" => $cpf,
+                    // salva o cpf como e-mail, pois este é o login do mesmo
+                    "email" => $cpf,
                     "senha" => $pass,
                     "confirm_senha" => $pass,
                     "tipo_perfil" => PROFILE_TYPE_USER,

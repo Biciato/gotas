@@ -681,16 +681,35 @@ class PontuacoesController extends AppController
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuario = $sessaoUsuario["usuarioLogado"];
 
-            $sessaoUsuario = $this->getSessionUserVariables();
-            $usuario = $sessaoUsuario["usuarioLogado"];
-
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
                 Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
                 Log::write("info", $data);
 
-                $redesId = $data["redes_id"];
+                $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+
+                $isWorkerNetwork = in_array(
+                    $this->usuarioLogado->tipo_perfil,
+                    [
+                        PROFILE_TYPE_ADMIN_NETWORK,
+                        PROFILE_TYPE_ADMIN_REGIONAL,
+                        PROFILE_TYPE_ADMIN_LOCAL,
+                        PROFILE_TYPE_MANAGER,
+                        PROFILE_TYPE_WORKER
+                    ]
+                );
+
+                // die($this->rede);
+                // die($redesId);
+                // die($isWorkerNetwork);
+
+                if (empty($redesId) && $isWorkerNetwork) {
+                    // se é um funcionário à procura, ele está obrigatóriamente vinculado à uma rede na session
+                    $redesId = $this->rede->id;
+                }
+
+
                 $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
                 // $redesId = 2;
 

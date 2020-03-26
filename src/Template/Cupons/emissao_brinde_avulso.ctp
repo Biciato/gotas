@@ -24,8 +24,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <input type="hidden" id="restrict_query" class="restrict_query" value="<?php $restrict_query ?>" />
         <input type="hidden" id="venda_avulsa" class="venda_avulsa" value="true" />
-        <input type="hidden" name="tipo_pagamento" id="tipo-pagamento" class="tipo-pagamento" readonly="readonly" value="<?= TYPE_PAYMENT_MONEY?>">
-        <input type="hidden" name="tipo_venda" id="tipo-venda" class="tipo-venda" readonly="readonly" value="<?= TYPE_SELL_CURRENCY_OR_POINTS_TEXT ?>">
+        <input type="hidden" name="tipo_pagamento" id="tipo-pagamento" class="tipo-pagamento" readonly="readonly" value="<?= TYPE_PAYMENT_MONEY ?>" />
+        <input type="hidden" name="tipo_venda" id="tipo-venda" class="tipo-venda" readonly="readonly" value="<?= TYPE_SELL_CURRENCY_OR_POINTS_TEXT ?>" />
 
         <!-- Id de Usuários -->
         <?= $this->Form->text(
@@ -37,7 +37,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             )
         ); ?>
 
-        <div class="form-group row">
+        <div>
             <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 1)); ?>
         </div>
 
@@ -55,27 +55,23 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
 
         <div class="gifts-query-region">
+            <div class="form-group">
+                <div class="text-right">
+                    <button type="button" id="print_gift" class="print-gift-shower btn btn-primary">
+                        <i class="fa fa-print"></i>
+                        Imprimir
+                    </button>
 
-            <div class="col-lg-12 text-right">
-                <button type="button"
-                    id="print_gift"
-                    class="print-gift-shower btn btn-primary" >
-                    <i class="fa fa-print"></i>
-                    Imprimir
-                </button>
-
-                <button type="button"
-                    class="print-gift-cancel btn btn-default" id="print-gift-cancel">
-                <i class="fa fa-trash"></i>
-                Limpar
-                </button>
-
-                <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
-                <?= $this->Html->tag('/div') ?>
+                    <button type="button" class="print-gift-cancel btn btn-default" id="print-gift-cancel">
+                        <i class="fa fa-trash"></i>
+                        Limpar
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
 
-     <!-- Confirmação cupom -->
+    <!-- Confirmação cupom -->
     <?php
     echo $this->element("../Cupons/confirmacao_emissao_cupom");
     ?>
@@ -84,10 +80,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     <?php
     echo $this->element("../Cupons/confirmacao_canhoto");
     ?>
-    </div>
-
-
 </div>
+
 
 <?php
 echo $this->element('../Cupons/impressao_brinde_layout');

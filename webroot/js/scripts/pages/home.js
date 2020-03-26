@@ -564,7 +564,6 @@ var formatDateTimeToDate = function (data) {
 
 var generateQRCode = function (element, value) {
     // https://larsjung.de/jquery-qrcode/
-    console.log("teste");
     var options = {
         // render method: 'canvas', 'image' or 'div'
         render: "image",

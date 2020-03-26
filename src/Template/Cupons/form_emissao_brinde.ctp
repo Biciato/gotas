@@ -29,13 +29,13 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
 <?php if ($showMenu) : ?>
 
     <?= $this->element(
-            '../Cupons/left_menu',
-            [
-                'mode' => 'print',
-                'controller' => 'Cupons',
-                'action' => 'emissao_brinde'
-            ]
-        ) ?>
+        '../Cupons/left_menu',
+        [
+            'mode' => 'print',
+            'controller' => 'Cupons',
+            'action' => 'emissao_brinde'
+        ]
+    ) ?>
 
     <div class="col-lg-9 col-md-10 columns">
 
@@ -47,7 +47,7 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
             <legend><?= __("Resgate de Brinde") ?></legend>
 
             <?= $this->Form->create(); ?>
-            <div class="row">
+            <div>
                 <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
             </div>
 
@@ -107,14 +107,8 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
 
         <?= $this->element('../Cupons/validar_brinde_canhoto_impressao') ?>
 
-        <?php if (Configure::read('debug') == true) : ?>
-            <?= $this->Html->script('scripts/cupons/imprime_brinde') ?>
-            <?= $this->Html->css('styles/cupons/imprime_brinde') ?>
-        <?php else : ?>
-            <?= $this->Html->script('scripts/cupons/imprime_brinde.min') ?>
-            <?= $this->Html->css('styles/cupons/imprime_brinde.min') ?>
-        <?php endif; ?>
-
-
-        <?= $this->fetch('script') ?>
-        <?= $this->fetch('css') ?>
+        <?php
+        $extension = Configure::read("debug") ? ""  : ".min";
+        ?>
+        <script src="/webroot/js/scripts/cupons/imprime_brinde<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+        <link rel="stylesheet" href="/webroot/css/styles/cupons/imprime_brinde<?= $extension ?>.css?<?= SYSTEM_VERSION ?>">

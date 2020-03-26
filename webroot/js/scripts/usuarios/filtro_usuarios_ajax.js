@@ -102,11 +102,28 @@ $(document).ready(function () {
                 dataToSend.placa = usuarioParameterSearch.val().trim();
             }
 
+            var createUser = parseInt($("#cria-usuario-cpf-pesquisa").val());
+
+            // Se no DOM está definido para criar o registro e a opção é CPF, então envia como criação.
+            if ((createUser !== undefined && createUser !== null) && usuarioParameterOptions.val() == "cpf") {
+                dataToSend.create_user = createUser == 1;
+            } else {
+                dataToSend.create_user = false;
+            }
+
             veiculoRegion.hide();
 
             usuariosSelectedItem = {};
             usuarioNome.val(null);
             usuarioSaldo.val(null);
+
+            // Limpa os dados do usuário selecionado em nova pesquisa
+            setUsuariosInfo(null, null);
+
+            // Caso especial para telas são de localizar usuário para pontuar, desabilita-se em nova pesquisa
+            $(".user-btn-proceed").addClass("disabled");
+            $(".user-btn-proceed").attr("disabled", true);
+            $(".user-selected").hide();
 
             $.ajax({
                 type: "GET",
@@ -201,20 +218,22 @@ $(document).ready(function () {
                         usuarioButtonSelect.on("click", function () {
 
                             var id = $(this).data('id');
-                            usuariosSelectedItem = usuariosList.find(x => x.id === id);
+                            usuariosSelectedItem = usuarioData.find(x => x.id === id);
 
                             if (usuariosSelectedItem !== undefined) {
                                 usuarioNome.val(usuariosSelectedItem.nome);
                                 getUsuarioPontuacoes(usuariosSelectedItem.id, redesId);
                                 veiculoRegion.hide();
                                 usuariosRegion.hide();
+                                console.log(usuariosSelectedItem);
+
+                                setUsuariosInfo(usuariosSelectedItem, contaAvulsa);
 
                                 // Caso especial para telas são de localizar usuário para pontuar, deve-se habilitar um botão
-
-                                setUsuariosInfo(result, contaAvulsa);
-
                                 $(".user-btn-proceed").removeClass("disabled");
                                 $(".user-btn-proceed").attr("disabled", false);
+                                $(".user-selected").show();
+
                             }
                         });
                     }, 300);
@@ -253,7 +272,15 @@ $(document).ready(function () {
 
             // Adiciona enter ao element de pesquisa
             textElement.on("keydown", function (evt) {
-                if (evt.keyCode === 13 && clearNumbers(valueElement.value.length > 3)) {
+                var list = ["nome", "placa"];
+
+                if (list.includes(listElement.val())) {
+                    valueElement = textElement.val();
+                } else {
+                    valueElement = clearNumbers(textElement.val());
+                }
+
+                if (evt.keyCode === 13 && valueElement.length > 3) {
                     searchButton.click();
                 };
             });
@@ -465,127 +492,10 @@ $(document).ready(function () {
 
         $(".opcoes").change();
 
-        var searchUsuario = function () {
-            $(".user-result").hide();
-
-            callLoaderAnimation();
-
-            var parametro = $(".user-query-region .parametro").val();
-            var opcao = $(".user-query-region .opcoes").val();
-
-            var data = {
-                parametro: $(".user-query-region .parametro").val(),
-                clientes_id: $("#clientes_id").val(),
-                opcao: $("#opcoes").val(),
-                clientes_id: $("#clientes_id").val(),
-                restrict_query: $("#restrict_query").length > 0 ? $("#restrict_query").val() : null,
-                cria_usuario_cpf_pesquisa: $("#cria-usuario-cpf-pesquisa").val(),
-                _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)
-
-            };
-
-            if (data.parametro.length <= 3) {
-                callModalError("O tamanho do parâmetro deve ser maior ou igual a 3 dígitos");
-            } else if (opcao == "cpf" && parametro.match(/(\d+)/gm).join('').length < 11) {
-                callModalError("Para consultar o CPF, é necessário informar completamente o mesmo.");
-            } else {
-                $.ajax({
-                    url: '/Usuarios/findUsuario',
-                    type: 'POST',
-                    data: JSON.stringify(data),
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Accept", "application/json");
-                        xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-                    },
-                    error: function (e) {
-                        console.log(e);
-                        closeLoaderAnimation();
-
-                    },
-                    success: function (e) {
-                        console.log(e.user);
-                    }
-                }).done(function (result) {
-
-                    closeLoaderAnimation();
-
-                    if (result.error) {
-                        callModalError(result.message);
-                    } else {
-
-                        if ($("#opcoes").val() == "placa" && result.veiculoEncontrado === null) {
-                            callModalError("Veículo não encontrado! Se usuário já está cadastrado, adicione um novo veículo para este usuário.");
-                            return;
-                        }
-                        if (result.usuarios === null) {
-
-                            callModalError("Cliente não encontrado!");
-                            return;
-
-                        } else {
-                            if (result.count == 1) {
-                                if (typeof (result.usuarios === 'object')) {
-                                    if (result.usuarios.length !== undefined) {
-                                        setUsuariosInfo(result.usuarios[0], contaAvulsa);
-                                    } else {
-                                        setUsuariosInfo(result.usuarios, contaAvulsa);
-
-                                    }
-                                } else {
-                                    setUsuariosInfo(result.usuarios[0], contaAvulsa);
-
-                                }
-
-                            } else if (result.usuarios.length == 0) {
-                                callModalError("Não foi(foram) encontrado usuário(s) com o parâmetro fornecido!");
-                            } else {
-
-                                arrayUsuarios.set(result.usuarios);
-
-                                $("#user-result-names >tbody").html('');
-                                $("#user-result-plates >tbody").html('');
-
-                                if (result.veiculoEncontrado) {
-                                    var veiculo = result.veiculoEncontrado;
-                                    $("#veiculosPlaca").val(veiculo.placa);
-                                    $("#veiculosModelo").val(veiculo.modelo);
-                                    $("#veiculosFabricante").val(veiculo.fabricante);
-                                    $("#veiculosAno").val(veiculo.ano);
-
-                                    $(".user-result-plates").show();
-
-                                    $.each(result.usuarios, function (index, value) {
-
-                                        var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fas fa-check-circle'></i> Selecionar</div>" + "</td></tr>";
-                                        $("#user-result-plates ").append(html);
-                                    });
-                                } else {
-                                    $.each(result.usuarios, function (index, value) {
-
-                                        var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fas fa-check-circle'></i> Selecionar</div>" + "</td></tr>";
-
-                                        $("#user-result-names ").append(html);
-
-                                    });
-                                    $(".user-result-names").show();
-                                }
-
-                                initializeSelectClicks();
-                            }
-                        }
-                    }
-                }).fail(function (e) {
-                    console.log("error" + e.responseJSON.message);
-                }).always(function (e) {
-                    console.log("complete");
-                });
-            }
-        }
-
-
         // Chama o método construtor
         init();
-    }).ajaxStart(callLoaderAnimation)
+    })
+    .ajaxStart(callLoaderAnimation)
     .ajaxStop(closeLoaderAnimation);
 
 /**

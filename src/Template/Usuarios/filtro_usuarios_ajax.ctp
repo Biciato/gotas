@@ -12,7 +12,7 @@ use Cake\Routing\Router;
 $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 ?>
 
-<div class="form-group" id="form">
+<div id="form">
 
     <div class="form-group row">
 
@@ -102,16 +102,16 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
             <input type="hidden" name="usuarios_id" id="usuarios-id" class="usuarios-id" value="<?php echo !empty($usuarios_id) ? $usuarios_id : null; ?>" />
             <div class="col-lg-4">
-                <label for="usuario-nome">Nome:</label>
-                <input type="text" name="usuario-nome" id="usuario-nome" class="form-control" placeholder="Nome do Usuário..." title="Nome do Usuário" disabled>
+                <label for="usuarios-nome">Nome:</label>
+                <input type="text" name="usuarios_nome" id="usuarios-nome" class="form-control" placeholder="Nome do Usuário..." title="Nome do Usuário" disabled>
             </div>
             <div class="col-lg-4">
-                <label for="usuario-data-nasc">Data Nascimento:</label>
-                <input type="text" name="usuario_data_nasc" id="usuario-data-nasc" class="form-control" placeholder="Data de Nascimento..." title="Data de Nascimento" disabled>
+                <label for="usuarios-data-nasc">Data Nascimento:</label>
+                <input type="text" name="usuarios_data_nasc" id="usuarios-data-nasc" class="form-control" placeholder="Data de Nascimento..." title="Data de Nascimento" disabled>
             </div>
             <div class="col-lg-4">
-                <label for="usuario-saldo">Saldo de Gotas:</label>
-                <input type="text" name="usuario-saldo" id="usuario-saldo" class="form-control" placeholder="Saldo de Pontos do Usuário.." title="Saldo de Pontos do Usuário" readonly disabled>
+                <label for="usuarios-saldo">Saldo de Gotas:</label>
+                <input type="text" name="usuarios_saldo" id="usuarios-saldo" class="form-control" placeholder="Saldo de Pontos do Usuário.." title="Saldo de Pontos do Usuário" readonly disabled>
             </div>
         </div>
     </div>
@@ -121,4 +121,4 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 $extension = Configure::read("debug") ? ""  : ".min";
 ?>
 <script src="/webroot/js/scripts/usuarios/filtro_usuarios_ajax<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/css/styles/usuarios/filtro_usuarios_ajax<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/filtro_usuarios_ajax<?= $extension ?>.css?<?= SYSTEM_VERSION ?>">

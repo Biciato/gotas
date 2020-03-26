@@ -361,15 +361,7 @@ use Cake\Core\Configure;
 
 <?php
 
-$debug = Configure::read('debug');
-
-$extensionJs = $debug ? ".js" : ".min.js";
-$extensionCss = $debug ? ".css" : ".min.css";
-
-// echo $this->Html->css("styles/gotas/gotas_input_form_sem_ocr" . $extensionCss);
-// echo $this->Html->script("scripts/gotas/gotas_input_form_sem_ocr" . $extensionJs);
-
 $extension = Configure::read("debug") ? ""  : ".min";
 ?>
 <script src="/webroot/js/scripts/gotas/atribuir_gotas_form<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/css/styles/gotas/atribuir_gotas_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">
+<link rel="stylesheet" href="/webroot/css/styles/gotas/atribuir_gotas_form<?= $extension ?>.css?<?= SYSTEM_VERSION ?>">
