@@ -2,13 +2,13 @@
  * @author Gustavo Souza Gonçalves
  * @file webroot\js\scripts\pontuacoes\alterar_cliente_pontuacao.js
  * @date 18/10/2017
- * 
+ *
  */
 
 $(document).ready(function () {
 
     // ----------------------------------------------------------------
-    // Funções de Inicialização 
+    // Funções de Inicialização
 
     /**
      * Verifica se o campo possui valor. Se possuir, libera o botão para alterar o usuário
@@ -17,12 +17,12 @@ $(document).ready(function () {
 
     setInterval(function () {
 
-        if ($("#usuarios_id").val().length > 0) {
-            $("#button_confirm").prop('disabled', false);
-            $("#button_confirm").prop('title', 'Clique para filtrar');
+        if ($("#usuarios-id").val().length > 0) {
+            $("#button-confirm").prop('disabled', false);
+            $("#button-confirm").prop('title', 'Clique para filtrar');
         } else {
-            $("#button_confirm").prop('disabled', true);
-            $("#button_confirm").prop('title', 'Selecione um usuário para Alterar a pontuação atribuída');
+            $("#button-confirm").prop('disabled', true);
+            $("#button-confirm").prop('title', 'Selecione um usuário para Alterar a pontuação atribuída');
         }
     }, 250);
 });
