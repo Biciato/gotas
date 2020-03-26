@@ -886,7 +886,8 @@ class GotasController extends AppController
 
         $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Rede.Grupo');
+        $rede = $this->rede;
+        $redes_id = $rede->id;
 
         // Pega unidades que tem acesso
         $clientesIds = [];
@@ -917,6 +918,7 @@ class GotasController extends AppController
             'usuario',
             'cliente',
             'clientes_id',
+            "redes_id",
             "clientesCNPJ",
             'funcionario',
             'estado_funcionario',

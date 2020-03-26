@@ -10,7 +10,7 @@ $(document).ready(function() {
     // Métodos de inicialização
 
     // se há valor, significa que foi filtrado novamente (post de filtro)
-    if ($("#usuarios_id").val() !== undefined && $("#usuarios_id").val().length > 0 && $("#usuarios_id").val() != "conta_avulsa") {
+    if ($("#usuarios-id").val() !== undefined && $("#usuarios-id").val().length > 0 && $("#usuarios-id").val() != "conta_avulsa") {
         callLoaderAnimation();
 
         $.ajax({
@@ -18,7 +18,7 @@ $(document).ready(function() {
             type: "POST",
             dataType: "json",
             data: {
-                usuarios_id: $("#usuarios_id").val(),
+                usuarios_id: $("#usuarios-id").val(),
                 clientes_id: $("#clientes_id").val(),
                 _Token: document.cookie.substr(
                     document.cookie.indexOf("csrfToken=") + "csrfToken=".length
@@ -303,7 +303,7 @@ $(document).ready(function() {
             $(".usuarios_id_brinde_shower").val(data.id);
 
             // $(".brinde .usuariosNome").val(data.nome);
-            $("#usuariosNome").val(data.nome);
+            $("#usuarios-nome").val(data.nome);
             $(".brinde .usuariosDataNasc").val(data.data_nasc);
 
             $("#sexo_brinde_shower").val(data.sexo == true ? 1 : 0);
@@ -320,7 +320,7 @@ $(document).ready(function() {
         } else {
             $(".usuarios_id_brinde_shower").empty();
 
-            $("#usuariosNome").val(null);
+            $("#usuarios-nome").val(null);
             $("#usuariosDataNasc").val(null);
             $("#usuariosPontuacoes").val(null);
             $("#sexo").val(null);
@@ -328,13 +328,13 @@ $(document).ready(function() {
         }
     };
     var resetUserFilter = function() {
-        if ($(".usuarios_id").val() !== "conta_avulsa") {
-            $(".usuarios_id").val(null);
+        if ($(".usuarios-id").val() !== "conta_avulsa") {
+            $(".usuarios-id").val(null);
         }
 
         $("#brindes_id").val(null);
 
-        $("#usuariosNome").val(null);
+        $("#usuarios-nome").val(null);
         $("#usuariosDataNasc").val(null);
         $("#usuariosPontuacoes").val(null);
         $(".list-gifts").val(null);
@@ -355,7 +355,7 @@ $(document).ready(function() {
                 "É necessário selecionar um brinde para continuar. <br />";
         }
 
-        if ($("#usuarios_id").val().length == 0 && !usuarioIsAvulso) {
+        if ($("#usuarios-id").val().length == 0 && !usuarioIsAvulso) {
             message +=
                 "Necessário selecionar um cliente para imprimir o ticket. <br />";
         }
@@ -398,9 +398,9 @@ $(document).ready(function() {
         $(".container-confirmacao-cupom").hide();
         $(".container-confirmacao-canhoto").show();
 
-        var nome = $("#usuariosNome").val();
+        var nome = $("#usuarios-nome").val();
         nome = nome.substr(0, 35);
-        var data = $(".impressao-cupom #print_data_emissao").text();
+        var data = $(".impressao-cupom #print_data_emissao").first().text();
         var tempo = $(".impressao-cupom #rti_shower_minutos").text();
 
         $(".impressao-canhoto .print-area .usuarios-nome").text(nome);
@@ -454,7 +454,7 @@ $(document).ready(function() {
                 brindes_id: $("#brindes_id").val(),
                 clientes_id: $("#clientes_id").val(),
                 funcionarios_id: $("#funcionarios_id").val(),
-                usuarios_id: $(".usuarios_id").val(),
+                usuarios_id: $(".usuarios-id").val(),
                 tipo_pagamento: $(".tipo-pagamento").val(),
                 venda_avulsa: $(".venda_avulsa").val(),
                 current_password: $("#current_password").val(),

@@ -43,4 +43,4 @@ $extension = Configure::read("debug") ? ""  : ".min";
 ?>
 
 <script src="/webroot/js/scripts/usuarios/edit<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension ?>.css?<?= SYSTEM_VERSION ?>">

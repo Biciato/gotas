@@ -73,7 +73,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </div>
                             <div class="col-lg-2">
                                 <label for="data-fim">Data Fim:</label>
-                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Início...">
+                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Fim...">
                             </div>
                         </div>
                         <div class="form-group row">

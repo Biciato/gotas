@@ -7,6 +7,7 @@
  *
  * Arquivo para atribuir gotas de cliente na view de funcionário
  */
+
 use Cake\Core\Configure;
 
 
@@ -21,13 +22,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 <?php if (isset($clientes_id)) : ?>
 
-<?= $this->Form->input('clientes_id', [
-    'type' => 'text',
-    'class' => 'hidden',
-    'id' => 'clientes_id',
-    'value' => $clientes_id,
-    'label' => false
-]) ?>
+    <?= $this->Form->input('clientes_id', [
+        'type' => 'text',
+        'class' => 'hidden',
+        'id' => 'clientes_id',
+        'value' => $clientes_id,
+        'label' => false
+    ]) ?>
 <?php endif; ?>
 
 <?= $this->Form->input(
@@ -57,18 +58,17 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 ) ?>
 
 
-<input type="hidden" name="tipo_pagamento" id="tipo-pagamento" class="tipo-pagamento" readonly="readonly" value="<?= TYPE_PAYMENT_POINTS?>">
+<input type="hidden" name="tipo_pagamento" id="tipo-pagamento" class="tipo-pagamento" readonly="readonly" value="<?= TYPE_PAYMENT_POINTS ?>">
 <input type="hidden" name="tipo_venda" id="tipo-venda" class="tipo-venda" readonly="readonly" value="<?php echo implode(",", [TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_FREE_TEXT]) ?>">
 <!-- <input type="hidden" name="tipo_venda" id="tipo-venda" class="tipo-venda" readonly="readonly" value="<?php echo implode(",", [TYPE_SELL_CURRENCY_OR_POINTS_TEXT]) ?>"> -->
 <?php echo $this->element("../Cupons/form_emissao_brinde", array('showMenu' => false, 'show_breadcrumbs' => false, "tipoPagamento" => TYPE_PAYMENT_POINTS)); ?>
 
-<?php if (Configure::read('debug') == true) : ?>
-<?= $this->Html->script('scripts/brindes/resgate_brinde') ?>
-<?= $this->Html->css('styles/brindes/resgate_brinde') ?>
-<?php else : ?>
-<?= $this->Html->script('scripts/brindes/resgate_brinde.min') ?>
-<?= $this->Html->css('styles/brindes/resgate_brinde.min') ?>
-<?php endif; ?>
+<?php
+
+$extension = Configure::read("debug") ? ""  : ".min";
+?>
+<script src="/webroot/js/scripts/brindes/resgate_brinde<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/brindes/resgate_brinde<?= $extension ?>.css?<?= SYSTEM_VERSION ?>">
 
 <?= $this->fetch('script') ?>
 <?= $this->fetch('css') ?>
