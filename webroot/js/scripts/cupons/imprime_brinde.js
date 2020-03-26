@@ -641,7 +641,8 @@ $(document).ready(function() {
 
     var exibirConfirmacaoImpressaoCanhoto = function () {
         $(".container-confirmacao-cupom").hide();
-        $(".container-confirmacao-emissao-canhoto").show();
+        $(".container-confirmacao-canhoto").show();
+        // $(".container-confirmacao-emissao-canhoto").show();
     };
 
     /**

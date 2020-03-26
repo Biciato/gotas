@@ -100,7 +100,7 @@ use Cake\Core\Configure;
             </table>
         </div>
 
-<!--
+        <!--
         <p>
             <div class="print-barcode-ticket">
                 <center>
@@ -110,15 +110,15 @@ use Cake\Core\Configure;
         </p> -->
 
         <p>
-            <div text="<?= isset($cupom_emitido) ? $cupom_emitido : null ?>"
-                class="cupom_emitido">
-                <div class="print-pdf417-ticket">
-                    <center>
-                        <canvas id='canvas_origin'></canvas>
-                        <div id='canvas_destination'></div>
-                        <img id="canvas_img" src="" />
-                    </center>
-                </div>
+            <span class="hidden cupom_emitido" id="cupom-emitido">
+                <?= isset($cupom_emitido) ? $cupom_emitido : null ?>"
+            </span>
+            <div class="print-pdf417-ticket">
+                <center>
+                    <canvas id='canvas_origin'></canvas>
+                    <div id='canvas_destination'></div>
+                    <img id="canvas_img" src="" />
+                </center>
             </div>
         </p>
 
@@ -139,11 +139,11 @@ use Cake\Core\Configure;
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>
-		<?= $this->Html->css('styles/cupons/impressao_brinde_layout') ?>
-		<?= $this->Html->script('scripts/cupons/impressao_brinde_layout') ?>
+    <?= $this->Html->css('styles/cupons/impressao_brinde_layout') ?>
+    <?= $this->Html->script('scripts/cupons/impressao_brinde_layout') ?>
 <?php else : ?>
-		<?= $this->Html->css('styles/cupons/impressao_brinde_layout.min') ?>
-		<?= $this->Html->script('scripts/cupons/impressao_brinde_layout.min') ?>
+    <?= $this->Html->css('styles/cupons/impressao_brinde_layout.min') ?>
+    <?= $this->Html->script('scripts/cupons/impressao_brinde_layout.min') ?>
 <?php endif; ?>
 
 <?= $this->fetch('css') ?>

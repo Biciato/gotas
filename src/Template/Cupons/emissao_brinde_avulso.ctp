@@ -80,6 +80,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     <?php
     echo $this->element("../Cupons/confirmacao_canhoto");
     ?>
+
+    <?= $this->element('../Cupons/validar_brinde_canhoto_impressao') ?>
 </div>
 
 
