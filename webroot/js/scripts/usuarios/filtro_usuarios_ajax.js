@@ -17,6 +17,7 @@ $(document).ready(function () {
         var usuariosList = [];
         var usuariosSelectedItem = {};
         var usuariosTable = $("#usuarios-table");
+        var usuariosTableBody = $("#usuarios-table tbody");
         var usuariosRegion = $("#usuarios-region");
         var veiculoRegion = $("#veiculo-region");
         var redesId = parseInt($("#redes-id").val());
@@ -209,34 +210,31 @@ $(document).ready(function () {
                         data: usuarioData
                     });
 
-                    setTimeout(() => {
+                    // Após renderizar a tabela, remove e reassocia evento de click dos botões
 
-                        // Após renderizar a tabela, remove e reassocia evento de click dos botões
-                        var usuarioButtonSelect = $(".usuario-button-select");
-                        usuarioButtonSelect.unbind("click");
+                    usuariosTableBody.unbind("click");
 
-                        usuarioButtonSelect.on("click", function () {
+                    usuariosTableBody.on("click", ".btn", function () {
 
-                            var id = $(this).data('id');
-                            usuariosSelectedItem = usuarioData.find(x => x.id === id);
+                        var id = $(this).data('id');
+                        usuariosSelectedItem = usuarioData.find(x => x.id === id);
 
-                            if (usuariosSelectedItem !== undefined) {
-                                usuarioNome.val(usuariosSelectedItem.nome);
-                                getUsuarioPontuacoes(usuariosSelectedItem.id, redesId);
-                                veiculoRegion.hide();
-                                usuariosRegion.hide();
-                                console.log(usuariosSelectedItem);
+                        if (usuariosSelectedItem !== undefined) {
+                            usuarioNome.val(usuariosSelectedItem.nome);
+                            getUsuarioPontuacoes(usuariosSelectedItem.id, redesId);
+                            veiculoRegion.hide();
+                            usuariosRegion.hide();
+                            console.log(usuariosSelectedItem);
 
-                                setUsuariosInfo(usuariosSelectedItem, contaAvulsa);
+                            setUsuariosInfo(usuariosSelectedItem, contaAvulsa);
 
-                                // Caso especial para telas são de localizar usuário para pontuar, deve-se habilitar um botão
-                                $(".user-btn-proceed").removeClass("disabled");
-                                $(".user-btn-proceed").attr("disabled", false);
-                                $(".user-selected").show();
+                            // Caso especial para telas são de localizar usuário para pontuar, deve-se habilitar um botão
+                            $(".user-btn-proceed").removeClass("disabled");
+                            $(".user-btn-proceed").attr("disabled", false);
+                            $(".user-selected").show();
 
-                            }
-                        });
-                    }, 300);
+                        }
+                    });
                 },
                 error: function (res) {
                     var mensagem = res.responseJSON.mensagem;
@@ -322,11 +320,6 @@ $(document).ready(function () {
                                 textElement.mask("(99)99999-9999");
                             }
                         }
-
-                        if (valueElement.length <= 3)
-                            return;
-
-                        searchButton.click();
                     } else {
                         textElement.unmask();
                     }

@@ -45,8 +45,8 @@ use Cake\Routing\Router;
     <div class="container-emissao-resgate-cupom">
         <legend>Confirme os dados para resgate</legend>
 
-        <div class="col-lg-9">
-            <h4>Cliente:</h4>
+        <h4>Cliente:</h4>
+        <div class="form-group row">
             <div class="col-lg-4">
                 <?= $this->Form->input(
                     'nome',
@@ -83,8 +83,10 @@ use Cake\Routing\Router;
                     ]
                 ) ?>
             </div>
+        </div>
 
 
+        <div class="form-group row">
             <?= $this->Form->input(
                 'cupom_resgatar',
                 [
@@ -103,7 +105,9 @@ use Cake\Routing\Router;
                 ]
             ) ?>
 
-            <h4>Brindes solicitados</h4>
+            <div class="col-lg-12">
+                <h4>Brindes solicitados</h4>
+            </div>
 
             <div class="col-lg-12">
                 <table class="table table-hover table-condensed table-responsive table-bordered tabela-produtos ">
@@ -120,14 +124,18 @@ use Cake\Routing\Router;
                 </table>
             </div>
 
-            <div class="col-lg-12">
+        </div>
+        <div class="form-group row">
+            <div class="col-lg-2">
+
                 <?= $this->Html->tag('div', __(
                     "{0} Resgatar",
                     $this->Html->tag('i', '', ['class' => 'fa fa-checkout'])
                 ), ['class' => 'btn btn-primary resgatar-cupom', 'escape' => false]) ?>
             </div>
-
         </div>
+
+
     </div>
 </div>
 
