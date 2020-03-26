@@ -7,8 +7,7 @@
  * @since 2020-03-09
  */
 
-$
-    (function () {
+$(function () {
         'use strict';
         // #region Properties
 

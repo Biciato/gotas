@@ -1,11 +1,19 @@
-.user-result{
-	display: none;
+.user-selected {
+    display: none;
 }
 
-.user-result-names{
-	display: none;
+.user-selected-names {
+    display: none;
 }
 
-.user-result-plates{
-	display: none;
+.user-selected-plates {
+    display: none;
+}
+
+#usuarios-region {
+    display: none;
+}
+
+#veiculo-region {
+    display: none;
 }

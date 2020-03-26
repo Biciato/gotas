@@ -795,7 +795,7 @@ class UsuariosController extends AppController
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "transportadora", "veiculo");
+        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "usuarioLogado", "transportadora", "veiculo");
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Usuarios->TransportadorasHasUsuarios->newEntity();
         $veiculo = $this->Usuarios->UsuariosHasVeiculos->newEntity();
@@ -4943,16 +4943,6 @@ class UsuariosController extends AppController
      **/
     public function getUsuariosFinaisAPI()
     {
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $rede = $sessaoUsuario["rede"];
-
-        if ($usuarioAdministrar) {
-            $this->usuarioLogado = $usuarioAdministrar;
-            $usuarioLogado = $usuarioAdministrar;
-        }
-
         $errors = [];
         $errorCodes = [];
 
@@ -4967,7 +4957,10 @@ class UsuariosController extends AppController
                 $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
                 $email = !empty($data["email"]) ? $data["email"] : null;
                 $telefone = !empty($data["telefone"]) ? $data["telefone"] : null;
-                $redesId = !empty($rede) ? $rede->id : null;
+                $redesId = !empty($this->rede) ? $this->rede->id : null;
+
+                // parâmetros especiais
+                $createUser = !empty($data["create_user"]) ? $data["create_user"] : false;
 
                 foreach ($data as $key => $value) {
                     if (strlen($value) == 0) {
@@ -4996,7 +4989,29 @@ class UsuariosController extends AppController
                 $contaAtiva = !empty($cpf) ? null : true;
                 // Se CPF informado, o usuário não precisa estar vinculado à rede
                 $redesId = !empty($cpf) ? null : $redesId;
+                // Realiza pesquisa
                 $users = $this->Usuarios->findAllUsuarios($redesId, [], $nome, $email, $telefone, [PROFILE_TYPE_USER], null, null, $cpf, null, $contaAtiva, true, [], true);
+
+                // Se foi especificado a opção de criar o usuário no formulário, o cpf não está vazio, e não achou usuário, faz a criação
+                if ($createUser && !empty($cpf) && count($users->toArray()) == 0) {
+                    // Validação de CPF
+                    $cpfValido = NumberUtil::validarCPF($cpf);
+
+                    if (!$cpfValido["status"]) {
+                        throw new Exception(__($cpfValido["message"], $cpf));
+                    }
+
+                    // Criação de novo usuário para futuro acesso
+                    $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
+
+                    // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente), obtendo informações da session
+                    if ($usuario && !empty($this->cliente)) {
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($this->cliente->id, $usuario["id"], 0);
+                    }
+
+                    // Faz a pesquisa novamente
+                    $users = $this->Usuarios->findAllUsuarios($redesId, [], $nome, $email, $telefone, [PROFILE_TYPE_USER], null, null, $cpf, null, $contaAtiva, true, [], true);
+                }
 
                 if (count($users->toArray()) === 0) {
                     throw new Exception(MSG_LOAD_DATA_NOT_FOUND, MSG_LOAD_DATA_NOT_FOUND_CODE);
