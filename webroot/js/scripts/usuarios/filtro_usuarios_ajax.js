@@ -12,8 +12,8 @@ $(document).ready(function () {
         var usuarioParameterOptions = $("#usuario-options-search");
         var usuarioParameterSearch = $("#usuario-parameter-search");
         var usuarioParameterButton = $("#usuario-parameter-button-search");
-        var usuarioNome = $("#usuario-nome");
-        var usuarioSaldo = $("#usuario-saldo");
+        var usuariosNome = $("#usuarios-nome");
+        var usuariosSaldo = $("#usuarios-saldo");
         var usuariosList = [];
         var usuariosSelectedItem = {};
         var usuariosTable = $("#usuarios-table");
@@ -40,9 +40,9 @@ $(document).ready(function () {
             usuarioParameterButton.bind("click", usuarioParameterButtonOnClick);
 
 
-            usuarioNome.val(null);
+            usuariosNome.val(null);
             usuarioParameterSearch.val(null);
-            usuarioSaldo.val(null);
+            usuariosSaldo.val(null);
         }
 
 
@@ -115,8 +115,8 @@ $(document).ready(function () {
             veiculoRegion.hide();
 
             usuariosSelectedItem = {};
-            usuarioNome.val(null);
-            usuarioSaldo.val(null);
+            usuariosNome.val(null);
+            usuariosSaldo.val(null);
 
             // Limpa os dados do usuário selecionado em nova pesquisa
             setUsuariosInfo(null, null);
@@ -220,7 +220,7 @@ $(document).ready(function () {
                         usuariosSelectedItem = usuarioData.find(x => x.id === id);
 
                         if (usuariosSelectedItem !== undefined) {
-                            usuarioNome.val(usuariosSelectedItem.nome);
+                            usuariosNome.val(usuariosSelectedItem.nome);
                             getUsuarioPontuacoes(usuariosSelectedItem.id, redesId);
                             veiculoRegion.hide();
                             usuariosRegion.hide();
@@ -421,7 +421,7 @@ $(document).ready(function () {
 
                 if (dataReturn !== undefined && dataReturn !== null) {
                     var saldo = dataReturn.resumo_gotas != undefined ? dataReturn.resumo_gotas.saldo : 0;
-                    usuarioSaldo.val(saldo);
+                    usuariosSaldo.val(saldo);
                 }
 
             } catch (error) {
