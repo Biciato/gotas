@@ -564,33 +564,37 @@ class CuponsTransacoesTable extends GenericTable
     }
 
     public function getCuponsClienteFinal($redesId, $dataInicio, $dataFim, $clientesId, $usuarioId)
-      {
+    {
         try {
-            $conds = 
-            [
-                'Redes.id' => $redesId,
-                'CuponsTransacoes.data >=' => $dataInicio,
-                'CuponsTransacoes.data <=' => $dataFim,
-                'Clientes.id' => $clientesId,
-                'CuponsTransacoes.tipo_operacao' => TYPE_OPERATION_RETRIEVE,
-                'Usuarios.id' => $usuarioId
-            ];
-            $joins = 
-            [
-                'Cupons' =>
-                  [
-                    'Funcionarios',
-                    'Usuarios'
-                  ],
-                'Clientes' =>
-                  [
-                    'RedesHasClientes' =>
-                      [
-                        'Redes'
-                      ]
-                  ],
-                'Brindes',
-            ];
+            $conds =
+                [
+                    'Redes.id' => $redesId,
+                    'CuponsTransacoes.data >=' => $dataInicio,
+                    'CuponsTransacoes.data <=' => $dataFim,
+                    'CuponsTransacoes.tipo_operacao' => TYPE_OPERATION_RETRIEVE,
+                    'Usuarios.id' => $usuarioId
+                ];
+
+            if (!empty($clientesId)) {
+                $conds['Clientes.id'] = $clientesId;
+            }
+
+            $joins =
+                [
+                    'Cupons' =>
+                    [
+                        'Funcionarios',
+                        'Usuarios'
+                    ],
+                    'Clientes' =>
+                    [
+                        'RedesHasClientes' =>
+                        [
+                            'Redes'
+                        ]
+                    ],
+                    'Brindes',
+                ];
             $order = ['CuponsTransacoes.data ASC'];
             return $this->find('all')->where($conds)->contain($joins)->order($order)->toArray();
         } catch (\Throwable $th) {
@@ -598,15 +602,15 @@ class CuponsTransacoesTable extends GenericTable
             Log::write("error", $message);
             throw new Exception($message, $th->getCode());
         }
-      }
+    }
     public function getCuponRelacionado($cupom)
-      {
-        $where = 
-          [
-             'cupons_id' => $cupom,
-             'tipo_operacao' => TYPE_OPERATION_USE
-          ];
+    {
+        $where =
+            [
+                'cupons_id' => $cupom,
+                'tipo_operacao' => TYPE_OPERATION_USE
+            ];
         return $this->find('all')->where($where)->first();
-      }
+    }
     #endregion
 }

@@ -7,8 +7,7 @@
  * @since 2020-03-21
  */
 
-$
-    (function () {
+$(function () {
         'use strict';
         // #region Properties
 
@@ -34,12 +33,13 @@ $
         var usuariosList = [];
         var usuariosSelectedItem = null;
         var usuariosTable = $("#usuarios-table");
+        var usuariosTableBody = $("#usuarios-table tbody");
         var selectedUser = $("#usuario-selecionado");
 
         var dataAtual = moment().format("DD/MM/YYYY");
 
         var valorDataInicio = new Date();
-        valorDataInicio.setDate(valorDataInicio.getDate()-30);
+        valorDataInicio.setDate(valorDataInicio.getDate() - 30);
 
         var dataInicio = $("#data-inicio").datepicker({
             minView: 2,
@@ -109,7 +109,7 @@ $
             exportarBtn.unbind("click");
             exportarBtn.on("click", exportarExcel);
 
-            
+
 
             getRedesList();
         }
@@ -294,7 +294,7 @@ $
                 var content = "data:application/vnd.ms-excel," + encodeURIComponent(response.data);
                 var downloadLink = document.createElement("a");
                 downloadLink.href = content;
-                downloadLink.download = "Relatório de Ranking de Operações.xls";
+                downloadLink.download = "Relatório de Cliente Final.xls";
 
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
@@ -353,11 +353,11 @@ $
         }
 
         function buscarUsuariosOnClick() {
-            
+
             var url = pesquisarPor.val() === "placa" ? "/api/veiculos/get_usuarios_by_veiculo" : "/api/usuarios/get_usuarios_finais";
-            
+
             var dataToSend = {};
-            
+
             if (pesquisarPor.val() === "nome") {
                 dataToSend.nome = termoPesquisa.val().trim();
             } else if (pesquisarPor.val() === "cpf") {
@@ -367,13 +367,13 @@ $
             } else if (pesquisarPor.val() === "placa") {
                 dataToSend.placa = termoPesquisa.val().trim();
             }
-            
+
             veiculoRegion.hide();
-            
+
             usuariosSelectedItem = {};
             usuarioNome.val(null);
             usuarioSaldo.val(null);
-            
+
             $.ajax({
                 type: "GET",
                 url: url,
@@ -392,30 +392,30 @@ $
 
                     usuariosRegion.show();
                     var veiculo = {};
-                    
+
                     usuariosList = [];
-                    
+
                     if (pesquisarPor.val() === "placa") {
                         veiculo = res.data.veiculo;
                         veiculoRegion.show();
-                        
+
                         updateVeiculosDetails(veiculo);
                         veiculo.usuarios_has_veiculos.forEach(item => {
-                            
+
                             usuariosList.push(item.usuario);
                         });
                     } else
-                    usuariosList = res.data.usuarios;
-                    
+                        usuariosList = res.data.usuarios;
+
                     var usuarioData = [];
                     usuariosList.forEach(usuario => {
-                        
+
                         var selectButton = "<div data-id='" + usuario.id + "' class='btn btn-primary usuario-button-select' title='Selecionar'><i class='fas fa-check-circle'></i></div>";
-                        
+
                         usuarioData.push({
                             id: usuario.id,
                             nome: usuario.nome,
-                            telefone: usuario.telefone === undefined || usuario.telefone === null ? "" :  convertTextToPhone(usuario.telefone),
+                            telefone: usuario.telefone === undefined || usuario.telefone === null ? "" : convertTextToPhone(usuario.telefone),
                             data_nasc: usuario.data_nasc === undefined || usuario.data_nasc === null ? "" : moment(usuario.data_nasc, "YYYY-MM-DD").format("DD/MM/YYYY"),
                             acoes: selectButton
                         });
@@ -461,23 +461,21 @@ $
                         data: usuarioData
                     });
 
-                    setTimeout(() => {
 
-                        // Após renderizar a tabela, remove e reassocia evento de click dos botões
-                        var usuarioButtonSelect = $(".usuario-button-select");
-                        usuarioButtonSelect.unbind("click");
 
-                        usuarioButtonSelect.on("click", function () {
+                    // Após renderizar a tabela, remove e reassocia evento de click dos botões
+                    usuariosTableBody.unbind("click");
 
-                            var id = $(this).data('id');
-                            usuariosSelectedItem = id;
-                            var tds = $(this).parent().parent().children();
-                            selectedUser.val(tds[0].textContent);
-                            usuariosRegion.slideUp();
-                            veiculoRegion.slideUp();
+                    usuariosTableBody.on("click", ".btn", function () {
 
-                        });
-                    }, 300);
+                        var id = $(this).data('id');
+                        usuariosSelectedItem = id;
+                        var tds = $(this).parent().parent().children();
+                        selectedUser.val(tds[0].textContent);
+                        usuariosRegion.slideUp();
+                        veiculoRegion.slideUp();
+
+                    });
 
 
                 },
@@ -521,7 +519,7 @@ $
          * @since 1.1.4
          */
         function usuarioParameterOptionsOnChange(e) {
-           
+
         }
         /**
          * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::imprimirRelatorio

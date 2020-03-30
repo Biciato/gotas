@@ -53,7 +53,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <div class="panel-body">
                     <form id="form">
 
-                        <input type="hidden" name="cliente-selected" id="cliente-selected" value="<?= $clientesId ?>">
+                        <input type="hidden" name="cliente-selected" id="cliente-selected" value="<?= $clientesId ?? null; ?>">
                         <div class="form-group row">
                             <div class="col-lg-3">
                                 <label for="redes_list">Rede:</label>
@@ -77,11 +77,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 <label for="usuario-cpf">Dados de Pesquisa do Usuário:</label>
                                 <input type="text" name="usuario-parameter-search" id="usuario-parameter-search" class="form-control" placeholder="" title="">
                             </div>
-                            
+
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-12 text-right">
-                            <div class="btn btn-primary" id="btn-buscar-usuarios">
+                                <div class="btn btn-primary" id="btn-buscar-usuarios">
                                     <span class="fa fa-search"></span>
                                     Buscar usuários
                                 </div>
@@ -180,4 +180,4 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/app_gotas/js/scripts/clientes/rel_cliente_final<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<script src="/webroot/js/scripts/clientes/rel_cliente_final<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>

@@ -2277,31 +2277,35 @@ class PontuacoesTable extends GenericTable
     #endregion
 
     public function getPontuacoesClienteFinal($redesId, $dataInicio, $dataFim, $clientesId, $usuarioId)
-      {
+    {
         try {
-            $conds = 
-            [
-                'Redes.id' => $redesId,
-                'Pontuacoes.data >=' => $dataInicio,
-                'Pontuacoes.data <=' => $dataFim,
-                'Clientes.id' => $clientesId,
-                'Pontuacoes.gotas_id IS NOT NULL',
-                'Usuarios.id' => $usuarioId
-            ];
-            $joins = 
-            [
-              'PontuacoesComprovantes',
-              'Clientes' =>
-              [
-                'RedesHasClientes' => 
+            $conds =
                 [
-                    'Redes'
-                ],
-              ],
-              'Funcionarios',
-              'Usuarios',
-              'Gotas'
-            ];
+                    'Redes.id' => $redesId,
+                    'Pontuacoes.data >=' => $dataInicio,
+                    'Pontuacoes.data <=' => $dataFim,
+                    'Pontuacoes.gotas_id IS NOT NULL',
+                    'Usuarios.id' => $usuarioId
+                ];
+
+            if (!empty($clientesId)) {
+                $conds['Clientes.id'] = $clientesId;
+            }
+
+            $joins =
+                [
+                    'PontuacoesComprovantes',
+                    'Clientes' =>
+                    [
+                        'RedesHasClientes' =>
+                        [
+                            'Redes'
+                        ],
+                    ],
+                    'Funcionarios',
+                    'Usuarios',
+                    'Gotas'
+                ];
             $order = ['Pontuacoes.data ASC'];
             return $this->find('all')->where($conds)->contain($joins)->order($order)->toArray();
         } catch (\Throwable $th) {
@@ -2309,5 +2313,5 @@ class PontuacoesTable extends GenericTable
             Log::write("error", $message);
             throw new Exception($message, $th->getCode());
         }
-      }
+    }
 }
