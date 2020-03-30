@@ -648,6 +648,8 @@ const MSG_CPF_BLACKLIST_CODE = "0x001D0001";
 
 const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
 const MESSAGE_TOP_BRINDES_REDES_ID_NOT_EMPTY = "O campo REDES_ID deve ser informado!";
+const MSG_TOP_BRINDES_TYPE_EMPTY = "O Tipo de Top Brindes (Nacional/Posto) precisa ser informado!";
+const MSG_TOP_BRINDES_TYPE_EMPTY_CODE = 0x00140002;
 
 const MESSAGE_TOP_BRINDES_ITEMS_REQUIRED = "Necessário informar brindes que deseja reposicionar!";
 const MESSAGE_TOP_BRINDES_MAX = 4;
@@ -729,6 +731,9 @@ const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT = "Este brinde é limitado a 1 (uma) 
 
 const MSG_VEICULOS_PLACA_EMPTY = 'O campo PLACA deve ser informado!';
 const MSG_VEICULOS_PLACA_EMPTY_CODE = 0x001C0001;
+const MSG_VEICULOS_PLACA_LENGTH = "Favor informar a identificação da placa inteira para consulta!";
+const MSG_VEICULOS_PLACA_LENGTH_CODE = 0x001C0002;
+
 #endregion
 
 #endregion
@@ -774,6 +779,6 @@ const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
  * y = alteração de banco de dados (tabelas novas, campos novos)
  * z = alterações pequenas do sistema (ajuste de campos, pequenas novas funcionalidades)
  */
-const SYSTEM_VERSION = "1.2.1";
+const SYSTEM_VERSION = "1.2.3";
 
 #endregion

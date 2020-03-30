@@ -289,7 +289,8 @@ $(function() {
 
         if (clientesId !== undefined && clientesId > 0) {
             var data = {
-                clientes_id: clientesId
+                clientes_id: clientesId,
+                tipo_top_brinde: "Nacional"
             };
 
             callLoaderAnimation();
