@@ -713,6 +713,18 @@ class ClientesController extends AppController
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
+    
+    /** 
+     * Action para o Relatório de cliente final
+     * @return void
+     * @author Vinícius Carvalho de Abreu <vinicius@aigen.com.br>
+     * @since 1.1.6
+     * @date 2020-03-23
+    */
+    public function relClienteFinal()
+    {
+        
+    }
 
     /**
      * Action para Relatório de Ranking de Operações
@@ -1317,6 +1329,212 @@ class ClientesController extends AppController
                         return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataToReturn]);
                     } else {
                         $allTables = sprintf("%s%s%s%s", $dataToReturn->brinde, $dataToReturn->gota, $dataToReturn->usuario, $dataToReturn->funcionario);
+                        $excel = HtmlUtil::wrapContentToHtml($allTables);
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $excel]);
+                    }
+                }
+
+                // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['headers' => $titleReportColumns, 'rows' => $reportData]);
+            }
+
+            throw new Exception(TYPE_EXPORTATION_DATA_EMPTY, TYPE_EXPORTATION_DATA_EMPTY_CODE);
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
+   
+    public function clienteFinalAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $errors = [];
+        $errorCodes = [];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+                $typeExport = !empty($data["tipo_exportacao"]) ? $data["tipo_exportacao"] : TYPE_EXPORTATION_DATA_OBJECT;
+                $pesquisarPor = !empty($data['pesquisar_por']) ? $data['pesquisar_por'] : null;
+                $termo = !empty($data['termo_pesquisa']) ? $data['termo_pesquisa'] : null;
+                $usuario = !empty($data['usuario_selecionado']) ? $data['usuario_selecionado'] : null;
+                // Se usuário logado for Adm Rede ou Regional, não precisa estar preso a um posto a pesquisa
+                if (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+                    $cliente = null;
+                }
+
+                $redesId = !empty($rede) ? $rede->id : $redesId;
+                $clientesId = !empty($cliente) ? $cliente->id : $clientesId;
+
+                if (empty($redesId)) {
+                    // Necessário ter uma
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($usuario)) {
+                    $errors[] = MSG_USUARIOS_ID_EMPTY;
+                    $errorCodes[] = MSG_USUARIOS_ID_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                
+                $reportData = [];
+
+                $entradas = $this->Pontuacoes->getPontuacoesClienteFinal($redesId, $dataInicio, $dataFim, $clientesId, $usuario);
+                
+                $saidas = $this->CuponsTransacoes->getCuponsClienteFinal($redesId, $dataInicio, $dataFim, $clientesId, $usuario);
+
+                $headersRelEntrada = new stdClass();
+                $headersRelEntrada->nome_rede = 'Rede';
+                $headersRelEntrada->estabelecimento = 'Estabelecimento';
+                $headersRelEntrada->usuario = 'Usuário';
+                $headersRelEntrada->produto = 'Produto';
+                $headersRelEntrada->quantidade_pontos = 'Qtd. Pontos';
+                $headersRelEntrada->data = 'Data';
+
+                $dadosEntrada = [];
+
+                $headersRelSaida = new stdClass();
+                $headersRelSaida->nome_rede = 'Rede';
+                $headersRelSaida->estabelecimento = 'Estabelecimento';
+                $headersRelSaida->usuario = 'Usuário';
+                $headersRelSaida->brinde = 'Brinde';
+                $headersRelSaida->pontos = 'Pontos';
+                $headersRelSaida->reais = 'Reais';
+                $headersRelSaida->data_resgate = 'Data resgate';
+                $headersRelSaida->data_uso = 'Data uso';
+
+                $dadosSaida = [];
+
+                $totalPontosEntrada = 0;
+                $totalPontosSaida = 0;
+                $totalReaisSaida = 0;
+
+                foreach ($entradas as $entrada) 
+                  {
+                    $itemEntrada = new stdClass();
+                    $itemEntrada->nome_rede = $entrada->cliente->redes_has_cliente->rede->nome_rede;
+                    $itemEntrada->estabelecimento = $entrada->cliente->nome_fantasia;
+                    $itemEntrada->usuario = $entrada->usuario->nome;
+                    $itemEntrada->produto = $entrada->gota->nome_parametro;
+                    $itemEntrada->quantidade_pontos = $entrada->quantidade_gotas;
+                    $itemEntrada->data = $entrada->data->format('d/m/Y');
+                    
+                    $totalPontosEntrada += (int)$entrada->quantidade_gotas;
+
+                    $dadosEntrada[] = $itemEntrada;
+                  }
+                foreach ($saidas as $saida)
+                  {
+                    $itemSaida = new stdClass();
+                    $itemSaida->nome_rede = $saida->cliente->redes_has_cliente->rede->nome_rede;
+                    $itemSaida->estabelecimento = $saida->cliente->nome_fantasia;
+                    $itemSaida->usuario = $saida->cupon->usuario->nome;
+                    $itemSaida->brinde = $saida->brinde->nome;
+                    $itemSaida->pontos = $saida->cupon->valor_pago_gotas;
+                    $itemSaida->reais = $saida->cupon->valor_pago_reais;
+                    $itemSaida->data_resgate = $saida->data->format('d/m/Y');
+
+                    $uso = $this->CuponsTransacoes->getCuponRelacionado($saida->cupons_id);
+                    
+                    $itemSaida->data_uso = (!is_null($uso)) ? $uso->data->format('d/m/Y') : "";
+
+                    $totalPontosSaida += (int)$saida->cupon->valor_pago_gotas;
+                    $totalReaisSaida += (int)$saida->cupon->valor_pago_reais;
+
+                    $dadosSaida[] = $itemSaida;
+                  }
+                
+                  $rowTotalEntrada = new stdClass();
+                  $rowTotalEntrada->nome_rede = "Total:";
+                  $rowTotalEntrada->estabelecimento = "";
+                  $rowTotalEntrada->usuario = "";
+                  $rowTotalEntrada->produto = "";
+                  $rowTotalEntrada->quantidade_pontos = $totalPontosEntrada;
+                  $rowTotalEntrada->data = "";
+
+                  $dadosEntrada[] = $rowTotalEntrada;
+
+                  $rowTotalSaida = new stdClass();
+                  $rowTotalSaida->nome_rede = "Total:";
+                  $rowTotalSaida->estabelecimento = "";
+                  $rowTotalSaida->usuario = "";
+                  $rowTotalSaida->brinde = "";
+                  $rowTotalSaida->pontos = $totalPontosSaida;
+                  $rowTotalSaida->reais  = $totalReaisSaida;
+                  $rowTotalSaida->data_resgate = "";
+                  $rowTotalSaida->data_uso = "";
+
+                  $dadosSaida[] = $rowTotalSaida;
+
+                if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
+                    $relEntrada = new stdClass();
+                    $relEntrada->headers = $headersRelEntrada;
+                    $relEntrada->rows = $dadosEntrada;
+
+                    $relSaida = new stdClass();
+                    $relSaida->headers = $headersRelSaida;
+                    $relSaida->rows = $dadosSaida;
+
+                    $dadosReturn = new stdClass();
+                    $tituloEntrada = sprintf("Entradas: %s (%s à %s)", "", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $dadosReturn->entrada = HtmlUtil::generateHTMLTable($tituloEntrada, $headersRelEntrada, $dadosEntrada, true);
+                    $tituloSaida = sprintf("Saídas: %s (%s à %s)", "", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $dadosReturn->saida = HtmlUtil::generateHTMLTable($tituloSaida, $headersRelSaida, $dadosSaida, true);
+                    // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dadosReturn);
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $dadosReturn]);
+                } elseif (in_array($typeExport, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+
+                    $dadosReturn = new stdClass();
+                    $tituloEntrada = sprintf("Entradas: %s (%s à %s)", "", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $tituloSaida = sprintf("Saídas: %s (%s à %s)", "", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $dadosReturn->entrada = HtmlUtil::generateHTMLTable($tituloEntrada, $headersRelEntrada, $dadosEntrada, true);
+                    $dadosReturn->saida = HtmlUtil::generateHTMLTable($tituloSaida, $headersRelSaida, $dadosSaida, true);
+
+                    if ($typeExport === TYPE_EXPORTATION_DATA_TABLE) {
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dadosReturn]);
+                    } else {
+                        $allTables = sprintf("%s%s", $dadosReturn->entrada, $dadosReturn->saida);
                         $excel = HtmlUtil::wrapContentToHtml($allTables);
                         return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $excel]);
                     }
