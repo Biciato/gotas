@@ -55,23 +55,25 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                         <input type="hidden" name="cliente-selected" id="cliente-selected" value="<?= $clientesId ?>">
                         <div class="form-group row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <label for="redes_list">Rede:</label>
                                 <select name="redes_list" id="redes-list" class="form-control"></select>
                             </div>
-                            <div class="col-lg-4">
-
+                            <div class="col-lg-3">
                                 <label for="clientes_list">Estabelecimento:</label>
                                 <select name="clientes_list" id="clientes-list" class="form-control"></select>
                             </div>
-
+                            <div class="col-lg-2">
+                                <label for="top_records_list">Top Registros:</label>
+                                <select name="top_records_list" id="top-records-list" class="form-control"></select>
+                            </div>
                             <div class="col-lg-2">
                                 <label for="data-inicio">Data Início:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-inicio" id="data-inicio" placeholder="Data Início...">
                             </div>
                             <div class="col-lg-2">
                                 <label for="data-fim">Data Fim:</label>
-                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Início...">
+                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Fim...">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -98,9 +100,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
     <div class="print-region">
         <div class="form-group row">
-            <div id="container-report" class="col-lg-12">
-            </div>
-
+            <div id="container-report" class="col-lg-12"> </div>
         </div>
     </div>
 

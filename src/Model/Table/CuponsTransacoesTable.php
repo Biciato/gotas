@@ -380,10 +380,13 @@ class CuponsTransacoesTable extends GenericTable
      *
      * @param integer $redesId
      * @param integer $clientesId
+     * @param DateTime $minDate Data mínima
+     * @param DateTime $maxDate Data máxima
+     * @param int $limit Limite de Registros
      *
      * @return \App\Model\Entity\CuponsTransacoes[] $transacoes
      */
-    public function getBestSellerBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    public function getBestSellerBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null, int $limit = 0)
     {
         try {
             $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
@@ -418,12 +421,15 @@ class CuponsTransacoesTable extends GenericTable
             $groupBy = [
                 "Brindes.id"
             ];
+            $orderBy = ["count" => "DESC"];
 
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->group($groupBy)
-                ->select($selectFields);
+                ->select($selectFields)
+                ->order($orderBy)
+                ->limit($limit);
         } catch (Exception $e) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
             Log::write("error", $message);
@@ -439,10 +445,13 @@ class CuponsTransacoesTable extends GenericTable
      *
      * @param integer $redesId
      * @param integer $clientesId
+     * @param DateTime $minDate Data mínima
+     * @param DateTime $maxDate Data máxima
+     * @param int $limit Limite de Registros
      *
-     * @return \App\Model\Entity\CuponsTransacoes[] $transacoes
+     * @return \Cake\ORM\Query|\App\Model\Entity\CuponsTransacoes[] $transacoes Transações
      */
-    public function getEmployeeMostSoldBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    public function getEmployeeMostSoldBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null, int $limit = 0)
     {
         try {
             $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
@@ -480,11 +489,15 @@ class CuponsTransacoesTable extends GenericTable
                 "CuponsTransacoes.funcionarios_id"
             ];
 
+            $orderBy = ["count" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->group($groupBy)
-                ->select($selectFields);
+                ->select($selectFields)
+                ->order($orderBy)
+                ->limit($limit);
         } catch (Exception $e) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
             Log::write("error", $message);

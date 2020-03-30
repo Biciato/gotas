@@ -564,7 +564,6 @@ var formatDateTimeToDate = function (data) {
 
 var generateQRCode = function (element, value) {
     // https://larsjung.de/jquery-qrcode/
-    console.log("teste");
     var options = {
         // render method: 'canvas', 'image' or 'div'
         render: "image",
@@ -942,6 +941,27 @@ var initializeTimePicker = function (
             }
         });
 };
+
+/**
+ * Imprime uma region HTML
+ *
+ * @param {id|class} region
+ *
+ * @returns void
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 1.2.0
+ */
+var printRegion = function(region) {
+    if ((region.indexOf(".") < 0 && region.indexOf("#") < 0) || region === undefined) {
+        window.alert("Necessário informar region para impressão!");
+        return false;
+    }
+
+    setTimeout($(region).printThis({
+        importCss: false
+    }), 100);
+}
 
 /**
  * home::updateDatePicker

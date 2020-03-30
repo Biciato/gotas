@@ -862,6 +862,11 @@ class ClientesController extends AppController
                     $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
                 }
 
+                if (empty($typeExport)) {
+                    $errors[] = TYPE_EXPORTATION_DATA_EMPTY;
+                    $errorCodes[] = TYPE_EXPORTATION_DATA_EMPTY_CODE;
+                }
+
                 if (count($errors) > 0) {
                     throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
@@ -950,7 +955,7 @@ class ClientesController extends AppController
                     }
                 }
 
-                throw new Exception(TYPE_EXPORTATION_DATA_EMPTY, TYPE_EXPORTATION_DATA_EMPTY_CODE);
+                throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
@@ -1065,17 +1070,18 @@ class ClientesController extends AppController
      */
     public function rankingOperacoesAPI()
     {
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $rede = $sessaoUsuario["rede"];
-        $cliente = $sessaoUsuario["cliente"];
+        // $sessaoUsuario = $this->getSessionUserVariables();
+        // $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        // $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        // $rede = $sessaoUsuario["rede"];
+        // $cliente = $sessaoUsuario["cliente"];
+        $cliente = $this->cliente;
         $errors = [];
         $errorCodes = [];
 
-        if ($usuarioAdministrar) {
-            $usuarioLogado = $usuarioAdministrar;
-        }
+        // if ($usuarioAdministrar) {
+        //     $usuarioLogado = $usuarioAdministrar;
+        // }
 
         try {
             if ($this->request->is(Request::METHOD_GET)) {
@@ -1085,16 +1091,18 @@ class ClientesController extends AppController
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
                 $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
                 $typeExport = !empty($data["tipo_exportacao"]) ? $data["tipo_exportacao"] : TYPE_EXPORTATION_DATA_OBJECT;
+                $limit = !empty($data["limit"]) ? $data["limit"] : 0;
+                // return ResponseUtil::successAPI('', ['data' => $data]);
                 // Se usuário logado for Adm Rede ou Regional, não precisa estar preso a um posto a pesquisa
-                if (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+                if (in_array($this->usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
                     $cliente = null;
                 }
 
-                $redesId = !empty($rede) ? $rede->id : $redesId;
+                $redesId = !empty($this->rede) ? $this->rede->id : $redesId;
                 $clientesId = !empty($cliente) ? $cliente->id : $clientesId;
 
                 if (empty($redesId)) {
-                    // Necessário ter uma
+                    // Necessário ter uma Rede selecionada
                     $errors[] = MSG_REDES_ID_EMPTY;
                     $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
                 }
@@ -1117,9 +1125,7 @@ class ClientesController extends AppController
 
                 if (empty($clientesId)) {
                     $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
-
                     $redesHasClientes = $redesHasClientesQuery->select(["Clientes.id", "Clientes.nome_fantasia"])->toArray();
-
                     $clientes = array_column($redesHasClientes, "Clientes");
                 } else {
                     $clienteTemp = $this->Clientes->get($clientesId);
@@ -1149,40 +1155,40 @@ class ClientesController extends AppController
                     $reportItem->cliente = $cliente;
 
                     // Brinde mais resgatado:
-                    $reportItem->brinde = new stdClass();
-                    $reportItem->brinde = $this->CuponsTransacoes->getBestSellerBrindes($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    $reportItem->brindes = $this->CuponsTransacoes->getBestSellerBrindes($redesId, $cliente->id, $dataInicio, $dataFim, $limit);
+                    // return ResponseUtil::successAPI('', ['data' => $reportItem]);
 
                     // Combustível mais utilizado
-                    $reportItem->gota = $this->Pontuacoes->getBestSellerGotas($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    $reportItem->gotas = $this->Pontuacoes->getBestSellerGotas($redesId, $cliente->id, $dataInicio, $dataFim, $limit);
 
                     // Usuário que mais pontuou
-                    $reportItem->usuario = $this->Pontuacoes->getUserHighestPointsIn($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    $reportItem->usuarios = $this->Pontuacoes->getUserHighestPointsIn($redesId, $cliente->id, $dataInicio, $dataFim, $limit);
 
                     // Funcionario que mais abasteceu clientes
-                    $employeeTopSoldProducts = $this->Pontuacoes->getEmployeeMostSoldGotas($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    $employeeTopSoldProducts = $this->Pontuacoes->getEmployeeMostSoldGotas($redesId, $cliente->id, $dataInicio, $dataFim, $limit);
                     // Funcionário que mais vendeu Brindes
-                    $employeeTopSoldGifts = $this->CuponsTransacoes->getEmployeeMostSoldBrindes($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    $employeeTopSoldGifts = $this->CuponsTransacoes->getEmployeeMostSoldBrindes($redesId, $cliente->id, $dataInicio, $dataFim, $limit);
 
-                    $reportItem->funcionario = new stdClass;
-                    $reportItem->funcionario->gota = $employeeTopSoldProducts;
-                    $reportItem->funcionario->brinde = $employeeTopSoldGifts;
+                    $reportItem->funcionarios = new stdClass();
+                    $reportItem->funcionarios->gotas = $employeeTopSoldProducts;
+                    $reportItem->funcionarios->brindes = $employeeTopSoldGifts;
 
                     $reportData[] = $reportItem;
                 }
 
                 $headerReportGifts = new stdClass();
                 $headerReportGifts->nome_fantasia = "Estabelecimento";
-                $headerReportGifts->brinde_nome = "Brinde Mais Resgatado";
+                $headerReportGifts->brinde_nome = "Brindes Mais Resgatados";
                 $headerReportGifts->brinde_qte = "Qte.";
 
                 $headerReportDrops = new stdClass();
                 $headerReportDrops->nome_fantasia = "Estabelecimento";
-                $headerReportDrops->gota_nome = "Produto Mais Resgatado";
+                $headerReportDrops->gota_nome = "Produtos Mais Resgatados";
                 $headerReportDrops->gota_qte = "Qte.";
 
                 $headerReportUser = new stdClass();
                 $headerReportUser->nome_fantasia = "Estabelecimento";
-                $headerReportUser->usuario_nome = "Usuário Mais Pontuado";
+                $headerReportUser->usuario_nome = "Usuários Mais Pontuados";
                 $headerReportUser->usuario_qte = "Qte.";
 
                 $headerReportEmployee = new stdClass();
@@ -1203,38 +1209,64 @@ class ClientesController extends AppController
                 $sumFuncionarioGotas = 0;
 
                 foreach ($reportData as $data) {
-                    $itemBrinde = new stdClass();
-                    // $item->cientes_id = $data->cliente->id;
-                    $itemBrinde->nome_fantasia = $data->cliente->nome_fantasia;
-                    $itemBrinde->brinde_nome = !empty($data->brinde) ? $data->brinde->nome : "";
-                    $itemBrinde->brinde_qte = !empty($data->brinde) ? $data->brinde->count : 0;
-                    $dataGifts[] = $itemBrinde;
+                    foreach ($data->brindes as $brinde) {
+                        $itemsBrindes = new stdClass();
+                        $itemsBrindes->nome_fantasia = $data->cliente->nome_fantasia;
+                        $itemsBrindes->brinde_nome = $brinde->nome;
+                        $itemsBrindes->brinde_qte = $brinde->count;
+                        $sumBrindeQte += $itemsBrindes->brinde_qte;
+                        $dataGifts[] = $itemsBrindes;
+                    }
 
-                    $itemGota = new stdClass();
-                    $itemGota->nome_fantasia = $data->cliente->nome_fantasia;
-                    $itemGota->gota_nome = !empty($data->gota) ? $data->gota->nome : "";
-                    $itemGota->gota_qte = !empty($data->gota) ? $data->gota->sum : 0;
-                    $dataDrops[] = $itemGota;
+                    foreach ($data->gotas as $gota) {
+                        $itemsGotas = new stdClass();
+                        $itemsGotas->nome_fantasia = $data->cliente->nome_fantasia;
+                        $itemsGotas->gota_nome = $gota->nome;
+                        $itemsGotas->gota_qte = $gota->sum;
+                        $dataDrops[] = $itemsGotas;
+                        $sumGotaQte += $gota->sum;
+                    }
 
-                    $itemUsuario = new stdClass();
-                    $itemUsuario->nome_fantasia = $data->cliente->nome_fantasia;
-                    $itemUsuario->usuario_nome = !empty($data->usuario) ? $data->usuario->nome : "";
-                    $itemUsuario->usuario_qte = !empty($data->usuario) ? $data->usuario->sum : 0;
-                    $dataUser[] = $itemUsuario;
+                    foreach ($data->usuarios as $usuario) {
+                        $itemsUsuarios = new stdClass();
+                        $itemsUsuarios->nome_fantasia = $data->cliente->nome_fantasia;
+                        $itemsUsuarios->usuario_nome = $usuario->nome;
+                        $itemsUsuarios->usuario_qte = $usuario->sum;
+                        $dataUser[] = $itemsUsuarios;
 
-                    $itemFuncionario = new stdClass();
-                    $itemFuncionario->nome_fantasia = $data->cliente->nome_fantasia;
-                    $itemFuncionario->funcionario_brindes_nome = !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->funcionarios_nome : "";
-                    $itemFuncionario->funcionario_brindes_qte = !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->count : 0;
-                    $itemFuncionario->funcionario_gotas_nome = !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->funcionarios_nome : "";
-                    $itemFuncionario->funcionario_gotas_qte = !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->count : 0;
-                    $dataEmployee[] = $itemFuncionario;
+                        $sumUsuarioQte += $usuario->sum;
+                    }
 
-                    $sumBrindeQte += $itemBrinde->brinde_qte;
-                    $sumGotaQte += $itemGota->gota_qte;
-                    $sumUsuarioQte += $itemUsuario->usuario_qte;
-                    $sumFuncionarioBrindes += $itemFuncionario->funcionario_brindes_qte;
-                    $sumFuncionarioGotas += $itemFuncionario->funcionario_gotas_qte;
+                    $brindesFuncionario = $data->funcionarios->brindes->toArray();
+                    $gotasFuncionario = $data->funcionarios->gotas->toArray();
+                    $lengthBrindes = count($brindesFuncionario);
+                    $lengthGotas = count($gotasFuncionario);
+                    for ($index = 0; $index < max($lengthBrindes, $lengthGotas); $index++) {
+                        $itemFuncionario = new stdClass();
+                        $itemFuncionario->nome_fantasia = $data->cliente->nome_fantasia;
+                        $brinde = !empty($brindesFuncionario[$index]) ? $brindesFuncionario[$index] : null;
+                        $gota = !empty($gotasFuncionario[$index]) ? $gotasFuncionario[$index] : null;
+
+                        if (!empty($brinde)) {
+                            $itemFuncionario->funcionario_brindes_nome = $brindesFuncionario[$index]->funcionarios_nome;
+                            $itemFuncionario->funcionario_brindes_qte = $brindesFuncionario[$index]->count;
+                            $sumFuncionarioBrindes += $itemFuncionario->funcionario_brindes_qte;
+                        } else {
+                            $itemFuncionario->funcionario_brindes_nome = "";
+                            $itemFuncionario->funcionario_brindes_qte = 0;
+                        }
+
+                        if (!empty($gota)) {
+                            $itemFuncionario->funcionario_gotas_nome = $gotasFuncionario[$index]->funcionarios_nome;
+                            $itemFuncionario->funcionario_gotas_qte = $gotasFuncionario[$index]->count;
+                            $sumFuncionarioGotas += $itemFuncionario->funcionario_gotas_qte;
+                        } else {
+                            $itemFuncionario->funcionario_gotas_nome = "";
+                            $itemFuncionario->funcionario_gotas_qte = 0;
+                        }
+
+                        $dataEmployee[] = $itemFuncionario;
+                    }
                 }
 
                 $totalGift = new stdClass();
@@ -1269,10 +1301,10 @@ class ClientesController extends AppController
                     $reportEmployee->total = $totalEmployee;
 
                     $dataToReturn = new stdClass();
-                    $dataToReturn->brinde = $reportGifts;
-                    $dataToReturn->gota = $reportDrops;
-                    $dataToReturn->usuario = $reportUser;
-                    $dataToReturn->funcionario = $reportEmployee;
+                    $dataToReturn->brindes = $reportGifts;
+                    $dataToReturn->gotas = $reportDrops;
+                    $dataToReturn->usuarios = $reportUser;
+                    $dataToReturn->funcionarios = $reportEmployee;
 
                     // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataToReturn);
                     return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $dataToReturn]);

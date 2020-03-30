@@ -13,9 +13,11 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Cliente;
+use App\Model\Entity\Usuario;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 use stdClass;
+use Throwable;
 
 /**
  * Pontuacoes Controller
@@ -644,6 +646,18 @@ class PontuacoesController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
+    /**
+     * View para Saldo de Pontos
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.20.0
+     * @date 2020-03-16
+     *
+     * @return void
+     */
+    public function relSaldoPontos()
+    {
+    }
 
     /**
      * ------------------------------------------------------------
@@ -667,16 +681,35 @@ class PontuacoesController extends AppController
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuario = $sessaoUsuario["usuarioLogado"];
 
-            $sessaoUsuario = $this->getSessionUserVariables();
-            $usuario = $sessaoUsuario["usuarioLogado"];
-
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
                 Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
                 Log::write("info", $data);
 
-                $redesId = $data["redes_id"];
+                $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+
+                $isWorkerNetwork = in_array(
+                    $this->usuarioLogado->tipo_perfil,
+                    [
+                        PROFILE_TYPE_ADMIN_NETWORK,
+                        PROFILE_TYPE_ADMIN_REGIONAL,
+                        PROFILE_TYPE_ADMIN_LOCAL,
+                        PROFILE_TYPE_MANAGER,
+                        PROFILE_TYPE_WORKER
+                    ]
+                );
+
+                // die($this->rede);
+                // die($redesId);
+                // die($isWorkerNetwork);
+
+                if (empty($redesId) && $isWorkerNetwork) {
+                    // se é um funcionário à procura, ele está obrigatóriamente vinculado à uma rede na session
+                    $redesId = $this->rede->id;
+                }
+
+
                 $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
                 // $redesId = 2;
 
@@ -909,6 +942,16 @@ class PontuacoesController extends AppController
         return;
     }
 
+    /**
+     * Obtem Relatório de Pontos
+     *
+     * Obtem Relatório de Pontos de Entrada e Saída para Relatório de Ranking de Operações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.7
+     *
+     * @return json_encode(object|Html Table|Excel) Objeto / Tabela / Excel
+     */
     public function getPontuacoesRelatorioEntradaSaidaAPI()
     {
         $errors = [];
@@ -1392,6 +1435,115 @@ class PontuacoesController extends AppController
                 }
             }
         } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
+    /**
+     * Obtem Saldo de Pontos de Usuários
+     *
+     * Obtem Saldo de Pontos de Usuários pertencentes à uma rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.0
+     * @date 2020-03-16
+     *
+     * @return json_encode(object|Html Table|Excel) Objeto / Tabela / Excel
+     */
+    public function saldoPontosAPI()
+    {
+        $redesId = !empty($this->rede) ? $this->rede->id : 0;
+        $errors = [];
+        $errorCodes = [];
+
+        // Se não for adm devel e não tiver uma rede definida, não tem acesso
+        if ($this->usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_NETWORK) {
+            return ResponseUtil::errorAPI(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $get = $this->request->getQueryParams();
+
+                // se no get não tem a informação de redes_id, já nega.
+                $redesId = !empty($get["redes_id"]) ? $get["redes_id"] : $redesId;
+                $nomeUsuario = !empty($get["nome"]) ? $get["nome"] : null;
+                $typeExport = !empty($get["tipo_exportacao"]) ? $get["tipo_exportacao"] : null;
+
+                if (empty($redesId)) {
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+
+                if (empty($typeExport)) {
+                    $errors[] = TYPE_EXPORTATION_DATA_EMPTY;
+                    $errorCodes[] = TYPE_EXPORTATION_DATA_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                $headersTable = new stdClass();
+                $headersTable->nome = "Nome";
+                $headersTable->saldo = "Saldo";
+                $rowTotal = new stdClass();
+
+                // Obtem lista de Usuários
+
+                $usersQuery = $this->ClientesHasUsuarios->getUsuariosInNetwork($redesId, [], $nomeUsuario);
+                $data = [];
+                $sum = 0;
+
+                foreach ($usersQuery as $item) {
+                    $usuario = new stdClass();
+                    // $usuario->id = $item->usuario->id;
+                    $usuario->nome = $item->usuario->nome;
+                    $resumoGotas = $this->Pontuacoes->getSumPontuacoesOfUsuario($item->usuario->id, $redesId);
+                    $usuario->saldo = $resumoGotas["resumo_gotas"]["saldo"];
+                    $sum += $usuario->saldo;
+                    $data[] = $usuario;
+                }
+
+                if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
+                    $report = new stdClass();
+                    $report->headers = $headersTable;
+                    $report->rows = $data;
+                    $rowTotal->sum = $sum;
+                    $report->total = $rowTotal;
+
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $report]);
+                } elseif (in_array($typeExport, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+                    $rowTotal->nome = "Total:";
+                    $rowTotal->saldo = $sum;
+                    $data[] = $rowTotal;
+                    $table = HtmlUtil::generateHTMLTable("Saldo de Pontos de Usuários", $headersTable, $data, true);
+
+                    if ($typeExport === TYPE_EXPORTATION_DATA_EXCEL) {
+                        $table = HtmlUtil::wrapContentToHtml($table);
+                    }
+
+                    $report = new stdClass();
+                    $report->relatorio = $table;
+
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $report]);
+                }
+
+                throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+            }
+        } catch (Throwable $th) {
             $errorMessage = $th->getMessage();
             $errorCode = $th->getCode();
 

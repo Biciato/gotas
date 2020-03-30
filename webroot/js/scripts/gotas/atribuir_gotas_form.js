@@ -212,7 +212,7 @@ $(document)
                 data: JSON.stringify({
                     qr_code: url,
                     clientes_cnpj: $("#clientesCNPJ").val(),
-                    usuarios_id: $("#usuarios_id").val(),
+                    usuarios_id: $("#usuarios-id").val(),
                     funcionarios_id: $("#funcionarios_id").val()
 
 

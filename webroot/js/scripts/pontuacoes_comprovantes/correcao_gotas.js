@@ -1,6 +1,5 @@
 var message = "";
-$
-    (function () {
+$(function () {
         "use strict";
 
         var quantidadeMultiplicador = $("#quantidade-multiplicador");
@@ -125,7 +124,7 @@ $
                         usuarioData.push({
                             id: usuario.id,
                             nome: usuario.nome,
-                            telefone: usuario.telefone === undefined || usuario.telefone === null ? "" :  convertTextToPhone(usuario.telefone),
+                            telefone: usuario.telefone === undefined || usuario.telefone === null ? "" : convertTextToPhone(usuario.telefone),
                             data_nasc: usuario.data_nasc === undefined || usuario.data_nasc === null ? "" : moment(usuario.data_nasc, "YYYY-MM-DD").format("DD/MM/YYYY"),
                             acoes: selectButton
                         });
@@ -224,6 +223,7 @@ $
             textElement.unbind("focus")
                 .unbind("blur")
                 .unbind("keyup")
+                .unbind("keydown")
                 .prop("maxlength", 100)
                 .unmask();
 
@@ -294,9 +294,7 @@ $
                     }
                 });
                 return false;
-
             }
-
         }
 
         /**

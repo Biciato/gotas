@@ -366,19 +366,34 @@ class VeiculosController extends AppController
                     throw new Exception(MSG_ERROR);
                 }
 
+                if (strlen($placa) < 7) {
+                    throw new Exception(MSG_VEICULOS_PLACA_LENGTH, MSG_VEICULOS_PLACA_LENGTH_CODE);
+                }
+
                 $vehicle = $this->Veiculos->getUsuariosByVeiculo(null, $placa, $redesId);
+
+                if (empty($vehicle)) {
+                    throw new Exception(MSG_LOAD_DATA_NOT_FOUND);
+                }
+
                 $result = ["data" => ["veiculo" => $vehicle]];
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $result);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
 
             for ($i = 0; $i < count($errors); $i++) {
                 Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
             }
 
-            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 

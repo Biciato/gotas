@@ -274,7 +274,7 @@ class UsuariosTable extends GenericTable
 
                     $data = !empty($context["data"]) ? $context["data"] : $context["providers"]["entity"];
 
-                    if (empty($data["tipo_perfil"])) {
+                    if (isset($data["tipo_perfil"]) && !empty($data) && !empty($data["id"])) {
                         $data = $this->get($data["id"]);
                     }
 
@@ -702,6 +702,8 @@ class UsuariosTable extends GenericTable
                 array(
                     "nome" => "Usuário Aguardando Cadastramento",
                     "cpf" => $cpf,
+                    // salva o cpf como e-mail, pois este é o login do mesmo
+                    "email" => $cpf,
                     "senha" => $pass,
                     "confirm_senha" => $pass,
                     "tipo_perfil" => PROFILE_TYPE_USER,

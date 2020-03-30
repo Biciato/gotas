@@ -34,6 +34,7 @@ use Cake\Core\Configure;
 
     <?php endif; ?>
 
+    <input type="hidden" name="redes_id" id="redes-id" value="<?= $redes_id ?>" />
     <input type="hidden" name="id" id="funcionarios_id" value="<?= $funcionario['id'] ?>" />
     <input type="hidden" name="estado_funcionario" id="estado_funcionario" value="<?= $estado_funcionario ?>" />
     <input type="hidden" name="image_name" id="image_name" />
@@ -47,25 +48,15 @@ use Cake\Core\Configure;
         <div class="col-lg-12 row-separator">
 
         </div>
-        <div class="form-group user-result">
-
+        <div class="form-group row user-selected">
             <div class="col-lg-12">
-
-                <div class="col-lg-10">
-
-                </div>
-                <div class="col-lg-2">
-                    <div>
-
-                        <button class="btn btn-default btn-block disabled user-btn-proceed" type="button">
-                            <div class="fa fa-2x fa-arrow-right"></div>
-                            <span>Prosseguir</span>
-                        </button>
-                    </div>
-
+                <div class="pull-right">
+                    <button class="btn btn-default btn-block disabled user-btn-proceed" type="button">
+                        <div class="fa fa-2x fa-arrow-right"></div>
+                        <span>Prosseguir</span>
+                    </button>
                 </div>
 
-                <!-- <div class="test-ajax btn btn-default">Test ajax</div> -->
             </div>
         </div>
     </div>
@@ -370,15 +361,7 @@ use Cake\Core\Configure;
 
 <?php
 
-$debug = Configure::read('debug');
-
-$extensionJs = $debug ? ".js" : ".min.js";
-$extensionCss = $debug ? ".css" : ".min.css";
-
-// echo $this->Html->css("styles/gotas/gotas_input_form_sem_ocr" . $extensionCss);
-// echo $this->Html->script("scripts/gotas/gotas_input_form_sem_ocr" . $extensionJs);
-
 $extension = Configure::read("debug") ? ""  : ".min";
 ?>
 <script src="/webroot/js/scripts/gotas/atribuir_gotas_form<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/css/styles/gotas/atribuir_gotas_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">
+<link rel="stylesheet" href="/webroot/css/styles/gotas/atribuir_gotas_form<?= $extension ?>.css?<?= SYSTEM_VERSION ?>">

@@ -276,6 +276,11 @@ Router::scope("/api", function ($routes) {
                     "method" => Request::METHOD_GET,
                     "path" => "/get_resumo_pontuacoes_estabelecimento"
                 ],
+                "saldoPontosAPI" => [
+                    "action" => "saldoPontosAPI",
+                    "method" => Request::METHOD_GET,
+                    "path" => "/saldo_pontos"
+                ],
             ]
         ]
     );

@@ -335,17 +335,17 @@ class PontuacoesTable extends GenericTable
      * @param integer $clientesId Id do Estabelecimento
      * @param DateTime $minDate Data de Início
      * @param DateTime $maxDate Data de Fim
-     * @return mixed[] $pontuacoes [sum_gotas|gota] Array contendo coluna de soma e gota
+     * @param int $limit Limite de registros
+     * @return \Cake\ORM\Query|\App\model\Entity\Pontuacao[] $pontuacoes [sum_gotas|gota] Array contendo coluna de soma e gota
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.1.6
      * @date 2020-03-08
      */
-    public function getBestSellerGotas(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    public function getBestSellerGotas(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null, int $limit = 0)
     {
         try {
             $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
-
                 $exp->eq("Redes.id", $redesId);
 
                 if (!empty($clientesId)) {
@@ -382,11 +382,15 @@ class PontuacoesTable extends GenericTable
                 "usuario" => "Usuarios.nome"
             ];
 
+            $orderBy = ["sum" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->select($select)
-                ->group(["Pontuacoes.gotas_id"]);
+                ->group(["Pontuacoes.gotas_id"])
+                ->order($orderBy)
+                ->limit($limit);
         } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -403,13 +407,14 @@ class PontuacoesTable extends GenericTable
      * @param integer $clientesId Id do Estabelecimento
      * @param DateTime $minDate Data de Início
      * @param DateTime $maxDate Data de Fim
-     * @return mixed[] $items [sum_gotas|id_funcionario|nome_funcionario] Array contendo coluna de quantidade de vezes atendida e funcionário
+     * @param int $limit Limite de registros
+     * @return \Cake\ORM\Query|\App\model\Entity\Pontuacao[] $items [sum_gotas|id_funcionario|nome_funcionario] Array contendo coluna de quantidade de vezes atendida e funcionário
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.1.6
      * @date 2020-03-08
      */
-    public function getEmployeeMostSoldGotas(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    public function getEmployeeMostSoldGotas(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null, int $limit = 0)
     {
         try {
             $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
@@ -450,11 +455,15 @@ class PontuacoesTable extends GenericTable
                 "funcionarios_nome" => "Funcionarios.nome"
             ];
 
+            $order = ["count" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->select($select)
-                ->group(["funcionarios_id"]);
+                ->group(["funcionarios_id"])
+                ->order($order)
+                ->limit($limit);
         } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -539,13 +548,14 @@ class PontuacoesTable extends GenericTable
      * @param integer $clientesId Id do Estabelecimento
      * @param DateTime $minDate Data de Início
      * @param DateTime $maxDate Data de Fim
-     * @return mixed[] $items [sum_gotas|usuarios_id|nome] Array contendo informações de pontuação e de usuário
+     * @param int $limit Limite de registros
+     * @return \Cake\ORM\Query|\App\model\Entity\Pontuacao[] [sum_gotas|usuarios_id|nome] Array contendo informações de pontuação e de usuário
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.1.6
      * @date 2020-03-09
      */
-    public function getUserHighestPointsIn(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    public function getUserHighestPointsIn(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null, int $limit = 0)
     {
         try {
             $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
@@ -586,12 +596,15 @@ class PontuacoesTable extends GenericTable
                 "nome" => "Usuarios.nome"
             ];
 
+            $order = ["sum" => "DESC"];
+
             return $this->find("all")
                 ->where($where)
                 ->contain($join)
                 ->select($select)
                 ->group(["Pontuacoes.usuarios_id"])
-                ->order(["SUM" => "DESC"]);
+                ->order($order)
+                ->limit($limit);
         } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);

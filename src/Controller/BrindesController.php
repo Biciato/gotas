@@ -1416,18 +1416,24 @@ class BrindesController extends AppController
 
         try {
             $clientesId = 0;
+            $tipoTopBrinde = null;
 
             if ($this->request->is("GET")) {
                 $data = $this->request->getQueryParams();
 
                 $clientesId = $data["clientes_id"] ?? 0;
+                $tipoTopBrinde = $data["tipo_top_brinde"] ?? null;
             }
 
             if (empty($clientesId)) {
                 throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
             }
 
-            $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId);
+            if (empty($tipoTopBrinde)) {
+                throw new Exception(MSG_TOP_BRINDES_TYPE_EMPTY, MSG_TOP_BRINDES_TYPE_EMPTY_CODE);
+            }
+
+            $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId, null, null, $tipoTopBrinde);
             $topBrindesAtuais = $topBrindesAtuais->select("Brinde.id");
             $idsTopBrindes = [];
 

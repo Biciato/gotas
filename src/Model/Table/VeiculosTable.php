@@ -385,6 +385,10 @@ class VeiculosTable extends GenericTable
                 ->where($where)
                 ->first();
 
+            if (empty($veiculo)) {
+                return null;
+            }
+
             $where = function (QueryExpression $exp) use ($redesId, $veiculo) {
 
                 if (!empty($redesId)) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -145,7 +146,7 @@ class BrindesPrecosController extends AppController
      */
     public function atualizarPreco($brindesId)
     {
-        $arraySet = array( 'brindesId', 'brinde', 'clientesId', "redesId",'novoPreco', "tipoVenda", "ultimoPreco", "ultimoPrecoAtualizadoGotas");
+        $arraySet = array('brindesId', 'brinde', 'clientesId', "redesId", 'novoPreco', "tipoVenda", "ultimoPreco", "ultimoPrecoAtualizadoGotas");
 
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -199,12 +200,22 @@ class BrindesPrecosController extends AppController
 
         if ($this->request->is(array('post', 'put'))) {
             $data = $this->request->getData();
-            $preco = !empty($data["preco"]) ? (float)$data["preco"] : 0;
-            $valorMoedaVenda = !empty($data["valor_moeda_venda"]) ? (float)$data["valor_moeda_venda"] : 0;
+            $preco = !empty($data["preco"]) ? $data["preco"] : 0;
+            $valorMoedaVenda = !empty($data["valor_moeda_venda"]) ? $data["valor_moeda_venda"] : 0;
             $errors = array();
 
+            if (!empty($preco)) {
+                $preco = floatval(preg_replace("/[^-0-9\.]/", "", $preco));
+                $data["preco"] = $preco;
+            }
+
+            if (!empty($valorMoedaVenda)) {
+                $valorMoedaVenda = floatval(preg_replace("/[^-0-9\.]/", "", $valorMoedaVenda));
+                $data["valor_moeda_venda"] = $valorMoedaVenda;
+            }
+
             // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-            if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty((float)$preco) || empty((float)$valorMoedaVenda))) {
+            if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty((float) $preco) || empty((float) $valorMoedaVenda))) {
                 $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
             }
             // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
@@ -267,8 +278,8 @@ class BrindesPrecosController extends AppController
             }
 
             // $novoPreco->preco = str_replace(",", "", $this->request->getData()['preco']);
-            $novoPreco["preco"] = (float)$data['preco'] != 0 ? (float)$data["preco"] : null;
-            $novoPreco["valor_moeda_venda"] = (float)$data['valor_moeda_venda'] != 0 ? (float)$data["valor_moeda_venda"] : null;
+            $novoPreco["preco"] = (float) $data['preco'] != 0 ? (float) $data["preco"] : null;
+            $novoPreco["valor_moeda_venda"] = (float) $data['valor_moeda_venda'] != 0 ? (float) $data["valor_moeda_venda"] : null;
 
             $novoPreco = $this->BrindesPrecos->addBrindePreco(
                 $brindesId,
@@ -288,10 +299,10 @@ class BrindesPrecosController extends AppController
                 // @warning Desativado por enquanto, ver com Samuel como ficará no futuro
 
                 /**
-                * Preco deve ser alertado aos Administradores da Rede caso
-                * quem alterou tiver um perfil de administrador comum e
-                * for fora da matriz.
-                */
+                 * Preco deve ser alertado aos Administradores da Rede caso
+                 * quem alterou tiver um perfil de administrador comum e
+                 * for fora da matriz.
+                 */
                 /**
                  * Se o preço é diferente, envia um e-mail para cada administrador
                  * da rede daquela rede informando à respeito da alteração do preço
@@ -527,7 +538,7 @@ class BrindesPrecosController extends AppController
 
                 $usuariosIds = array();
 
-                $rede = $this->Redes->getRedeById((int)$value);
+                $rede = $this->Redes->getRedeById((int) $value);
 
                 $redeItem = array();
 
@@ -614,7 +625,7 @@ class BrindesPrecosController extends AppController
                     // status autorização
 
                     if (strlen($data['statusAutorizacao']) > 0) {
-                        $whereConditions[] = ['status_autorizacao' => (int)$data['statusAutorizacao']];
+                        $whereConditions[] = ['status_autorizacao' => (int) $data['statusAutorizacao']];
                     }
 
                     $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));

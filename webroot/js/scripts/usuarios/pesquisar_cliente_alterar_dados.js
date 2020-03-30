@@ -16,20 +16,20 @@ $(document).ready(function () {
 
     setInterval(() => {
 
-        if ($("#usuarios_id").val().length !== 0) {
+        if ($("#usuarios-id").val().length !== 0) {
             $(".open-cadastro-usuario").removeClass('disabled');
             $(".open-cadastro-usuario").on('click', function (e) {
-                location.href = "/usuarios/editar_cadastro_usuario_final/" + $("#usuarios_id").val();
+                location.href = "/usuarios/editar_cadastro_usuario_final/" + $("#usuarios-id").val();
 
             });
             $(".open-cadastro-veiculos-usuario").removeClass('disabled');
             $(".open-cadastro-veiculos-usuario").on('click', function (e) {
-                location.href = "/veiculos/veiculos_usuario_final/" + $("#usuarios_id").val();
+                location.href = "/veiculos/veiculos_usuario_final/" + $("#usuarios-id").val();
 
             });
             $(".open-cadastro-transportadoras-usuario").removeClass('disabled');
             $(".open-cadastro-transportadoras-usuario").on('click', function (e) {
-                location.href = "/transportadoras/transportadorasUsuario/" + $("#usuarios_id").val();
+                location.href = "/transportadoras/transportadorasUsuario/" + $("#usuarios-id").val();
 
             });
 
