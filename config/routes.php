@@ -180,6 +180,11 @@ Router::scope("/api", function ($routes) {
                 "method" => Request::METHOD_GET,
                 "path" => "/ranking_operacoes"
             ],
+            "clienteFinalAPI" => [
+                "action" => "clienteFinalAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/cliente_final"
+            ],
         )
     ));
 
