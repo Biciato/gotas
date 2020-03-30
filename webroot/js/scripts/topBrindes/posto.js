@@ -340,7 +340,8 @@ $(function() {
             callLoaderAnimation("Obtendo brindes de unidade...");
 
             var data = {
-                clientes_id: clientesId
+                clientes_id: clientesId,
+                tipo_top_brinde: "Posto"
             };
 
             callLoaderAnimation();
