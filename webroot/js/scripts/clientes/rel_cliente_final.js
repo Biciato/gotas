@@ -186,12 +186,93 @@ $
         function pesquisarPorOnChange() {
             var pesquisar_por = this.value;
             form.pesquisarPor = pesquisar_por;
+            var textElement = termoPesquisa;
+            var valueElement = clearNumbers(textElement.val());
+            var listElement = pesquisarPor;
+            var searchButton = buscarUsuariosBtn;
+            textElement.val(null);
+            textElement.unbind("focus")
+                .unbind("blur")
+                .unbind("keyup")
+                .unbind("keydown")
+                .prop("maxlength", 100)
+                .unmask();
+
+            if (listElement.val() === "nome") {
+
+                return false;
+            } else if (listElement.val() === "cpf") {
+                textElement.mask("999.999.999-99");
+                return false;
+            } else if (listElement.val() === "telefone") {
+                textElement.prop("maxlength", 11);
+
+                textElement.on('focus', function () {
+                    textElement.prop("maxlength", 11);
+
+                }).on('focus', function () {
+                    textElement.unmask();
+
+                    textElement.prop("maxlength", 11);
+
+                }).on('blur', function () {
+                    if (this.value.length == 10) {
+                        textElement.mask("(99)9999-9999");
+                    } else {
+                        textElement.mask("(99)99999-9999");
+                    }
+                }).on("keyup", function (event) {
+                    // console.log(event);
+                    this.value = clearNumbers(event.target.value);
+
+                }).on("keydown", function (event) {
+                    textElement.prop("maxlength", 11);
+
+                    valueElement = clearNumbers(textElement.val());
+
+                    if (event.keyCode == 13) {
+
+                        if (listElement.val() === "telefone") {
+                            if (valueElement.length <= 10) {
+                                textElement.mask("(99)9999-9999");
+                            } else {
+                                textElement.mask("(99)99999-9999");
+                            }
+                        }
+
+                        searchButton.click();
+                    } else {
+                        textElement.unmask();
+                    }
+                });
+
+                return false;
+            } else {
+                textElement.mask("AAA9B99", {
+                    'translation': {
+                        A: {
+                            pattern: /[A-Za-z]/
+                        },
+                        9: {
+                            pattern: /[0-9]/
+                        },
+                        B: {
+                            pattern: /\D*/
+                        }
+                    },
+                    onKeyPress: function (value, event) {
+                        event.currentTarget.value = value.toUpperCase();
+                    }
+                });
+                return false;
+            }
         }
 
         function termoPesquisaOnChange() {
             var termo_pesquisa = this.value;
             form.termoPesquisa = termo_pesquisa;
         }
+
 
         /**
          * Gera Excel
@@ -265,7 +346,7 @@ $
 
             return Promise.resolve($.ajax({
                 type: "GET",
-                url: "/app_gotas/api/clientes/cliente_final",
+                url: "/api/clientes/cliente_final",
                 data: data,
                 dataType: "JSON",
             }));
@@ -273,7 +354,7 @@ $
 
         function buscarUsuariosOnClick() {
             
-            var url = pesquisarPor.val() === "placa" ? "/app_gotas/api/veiculos/get_usuarios_by_veiculo" : "/app_gotas/api/usuarios/get_usuarios_finais";
+            var url = pesquisarPor.val() === "placa" ? "/api/veiculos/get_usuarios_by_veiculo" : "/api/usuarios/get_usuarios_finais";
             
             var dataToSend = {};
             
@@ -301,6 +382,12 @@ $
                 success: function (res) {
                     containerReport.empty();
                     usuariosSelectedItem = null;
+                    imprimirBtn.addClass("disabled");
+                    imprimirBtn.addClass("readonly");
+                    imprimirBtn.unbind("click");
+                    exportarBtn.addClass("disabled");
+                    exportarBtn.addClass("readonly");
+                    exportarBtn.unbind("click");
                     selectedUser.val("");
 
                     usuariosRegion.show();
@@ -341,7 +428,7 @@ $
 
                     usuariosTable.DataTable({
                         language: {
-                            "url": "/app_gotas/js/DataTables/i18n/dataTables.pt-BR.lang",
+                            "url": "/js/DataTables/i18n/dataTables.pt-BR.lang",
                             // "url": "https://cdn.datatables.net/plug-ins/1.10.20/i18n/Portuguese-Brasil.json",
                         },
                         columns: [{
@@ -421,7 +508,21 @@ $
                 veiculoAno.val(data.ano);
             }
         }
-
+        /**
+         * Evento disparado ao digitar cpf do Usuário
+         *
+         * Ao digitar o cpf do usuário, busca o registro na base de dados se o CPF existir
+         *
+         * @param {Event} event Event
+         *
+         * @returns void
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 1.1.4
+         */
+        function usuarioParameterOptionsOnChange(e) {
+           
+        }
         /**
          * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::imprimirRelatorio
          *
@@ -535,7 +636,7 @@ $
         function getClientesList(redesId) {
             $.ajax({
                 type: "GET",
-                url: "/app_gotas/api/clientes/get_clientes_list",
+                url: "/api/clientes/get_clientes_list",
                 data: {
                     redes_id: redesId
                 },
@@ -606,7 +707,7 @@ $
         function getRedesList() {
             $.ajax({
                 type: "GET",
-                url: "/app_gotas/api/redes/get_redes_list",
+                url: "/api/redes/get_redes_list",
                 data: {},
                 dataType: "JSON",
                 success: function (response) {

@@ -69,7 +69,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 <select id="usuario-options-search" name="usuario-options-search" class="form-control" autofocus>
                                     <option value="nome">Nome</option>
                                     <option value="cpf">CPF</option>
-                                    <option value="telefone">Telefone</option>
+                                    <option value="telefone" selected>Telefone</option>
                                     <option value="placa">Placa</option>
                                 </select>
                             </div>
@@ -181,4 +181,3 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 
 <script src="/app_gotas/js/scripts/clientes/rel_cliente_final<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/app_gotas/css/styles/clientes/rel_ranking_operacoes<?= $debugExtension ?>.css?version=<?= SYSTEM_VERSION ?>" />
