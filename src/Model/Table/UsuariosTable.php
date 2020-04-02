@@ -1457,7 +1457,7 @@ class UsuariosTable extends GenericTable
 
             $usuarios->contain($arrayContain);
 
-            $usuariosSelectFields = array(
+            $usuariosSelectFields = [
                 "Usuarios.id",
                 "Usuarios.tipo_perfil",
                 "Usuarios.nome",
@@ -1486,8 +1486,10 @@ class UsuariosTable extends GenericTable
                 "Usuarios.conta_ativa",
                 "Usuarios.conta_bloqueada",
                 "Usuarios.tentativas_login",
-                "Usuarios.ultima_tentativa_login"
-            );
+                "Usuarios.ultima_tentativa_login",
+                "Usuarios.audit_insert",
+                "Usuarios.audit_update"
+            ];
 
             if ($tipoPerfilMin == PROFILE_TYPE_USER || $tipoPerfilMax == PROFILE_TYPE_USER) {
                 $usuarios = $usuarios->group(array(

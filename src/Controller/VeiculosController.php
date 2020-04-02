@@ -373,7 +373,7 @@ class VeiculosController extends AppController
                 $vehicle = $this->Veiculos->getUsuariosByVeiculo(null, $placa, $redesId);
 
                 if (empty($vehicle)) {
-                    throw new Exception(MSG_LOAD_DATA_NOT_FOUND);
+                    throw new Exception(MSG_LOAD_DATA_NOT_FOUND, MSG_LOAD_DATA_NOT_FOUND_CODE);
                 }
 
                 $result = ["data" => ["veiculo" => $vehicle]];
