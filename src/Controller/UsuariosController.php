@@ -966,7 +966,8 @@ class UsuariosController extends AppController
             // DebugUtil::printArray($usuario);
             // return ResponseUtil::successAPI('', $errors);
 
-            if ($usuario = $this->Usuarios->save($usuario)) {
+            $usuario = $this->Usuarios->save($usuario);
+            if ($usuario) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
                 // $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
 
@@ -1043,9 +1044,15 @@ class UsuariosController extends AppController
                         return $this->redirect(['controller' => 'pages', 'action' => 'index']);
                     }
                 }
-            }
+            } else {
+                $this->Flash->error(__('O usuário não pode ser registrado. '));
 
-            $this->Flash->error(__('O usuário não pode ser registrado. '));
+                if (!empty($usuario) && count($usuario->errors()) > 0) {
+                    foreach ($usuario->errors as $error) {
+                        $this->Flash->error($error);
+                    }
+                }
+            }
 
             // exibe os erros logo acima identificados
             foreach ($errors as $key => $error) {
@@ -5023,12 +5030,18 @@ class UsuariosController extends AppController
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
 
             for ($i = 0; $i < count($errors); $i++) {
                 Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
             }
 
-            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 

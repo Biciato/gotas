@@ -1012,14 +1012,14 @@ class PontuacoesTable extends GenericTable
                 $totalGotasExpiradas = !empty($sumTotalGotasExpiradas) ? $sumTotalGotasExpiradas : 0;
 
                 $mensagem = array(
-                    "status" => 1,
+                    "status" => true,
                     "message" => Configure::read("messageLoadDataWithSuccess"),
                     "errors" => array()
                 );
             } else {
                 // Se não tiver pontuações, retorna o erro
                 $mensagem = array(
-                    "status" => 0,
+                    "status" => false,
                     "message" => Configure::read("messageLoadDataWithError"),
                     "errors" => array(Configure::read("messageUsuarioNoPointsInNetwork"))
                 );
