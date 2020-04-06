@@ -1473,6 +1473,7 @@ class ClientesController extends AppController
                 $headersRelSaida->brinde = 'Brinde';
                 $headersRelSaida->pontos = 'Pontos';
                 $headersRelSaida->reais = 'Reais';
+                $headersRelSaida->unidades = 'Unidades';
                 $headersRelSaida->data_resgate = 'Data resgate';
                 $headersRelSaida->data_uso = 'Data uso';
 
@@ -1481,6 +1482,7 @@ class ClientesController extends AppController
                 $totalPontosEntrada = 0;
                 $totalPontosSaida = 0;
                 $totalReaisSaida = 0;
+                $totalQuantidadeSaida = 0;
 
                 foreach ($entradas as $entrada) 
                   {
@@ -1505,6 +1507,7 @@ class ClientesController extends AppController
                     $itemSaida->brinde = $saida->brinde->nome;
                     $itemSaida->pontos = $saida->cupon->valor_pago_gotas;
                     $itemSaida->reais = $saida->cupon->valor_pago_reais;
+                    $itemSaida->unidades = $saida->cupon->quantidade;
                     $itemSaida->data_resgate = $saida->data->format('d/m/Y');
 
                     $uso = $this->CuponsTransacoes->getCuponRelacionado($saida->cupons_id);
@@ -1513,6 +1516,7 @@ class ClientesController extends AppController
 
                     $totalPontosSaida += (int)$saida->cupon->valor_pago_gotas;
                     $totalReaisSaida += (int)$saida->cupon->valor_pago_reais;
+                    $totalQuantidadeSaida += (int)$saida->cupon->quantidade;
 
                     $dadosSaida[] = $itemSaida;
                   }
@@ -1534,6 +1538,7 @@ class ClientesController extends AppController
                   $rowTotalSaida->brinde = "";
                   $rowTotalSaida->pontos = $totalPontosSaida;
                   $rowTotalSaida->reais  = $totalReaisSaida;
+                  $rowTotalSaida->unidades  = $totalQuantidadeSaida;
                   $rowTotalSaida->data_resgate = "";
                   $rowTotalSaida->data_uso = "";
 
