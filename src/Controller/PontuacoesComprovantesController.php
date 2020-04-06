@@ -1719,7 +1719,15 @@ class PontuacoesComprovantesController extends AppController
             $cpf = !empty($data["cpf"]) ? preg_replace("/\D/", "", $data["cpf"]) : null;
             $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
-            $funcionario = $sessao["usuarioLogado"];
+
+            $funcionariosId = !empty($data["funcionarios_id"]) ? (int) $data["funcionarios_id"] : null;
+            $funcionario = null;
+
+            if (!empty($funcionariosId)) {
+                $funcionario = $this->Usuarios->getUsuarioById($funcionariosId);
+            }
+
+            $funcionario = empty($funcionario) ? $this->usuarioLogado : $funcionario;
 
             // Validação
             if (empty($cnpj)) {
