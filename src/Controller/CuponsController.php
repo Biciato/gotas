@@ -2433,48 +2433,21 @@ class CuponsController extends AppController
 
                 // Se a quantidade de cupons é igual a de usados, já resgatou tudo
                 if (count($usados) == count($cupons)) {
-                    $mensagem = array(
-                        "status" => 0,
-                        "message" => Configure::read("messageWarningDefault"),
-                        "errors" => [MSG_CUPONS_ALREADY_USED],
-                        "error_codes" => [MSG_CUPONS_ALREADY_USED_CODE]
-                    );
-                    $resultado = array(
-                        "recibo_baixa_cupons" => $dadosCupons
-                    );
+                    $resultado = ["recibo_baixa_cupons" => $dadosCupons];
+                    $errors = [MSG_CUPONS_ALREADY_USED];
+                    $errorCodes = [MSG_CUPONS_ALREADY_USED_CODE];
 
-                    $arraySet = array("mensagem", "resultado");
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
+                    return ResponseUtil::errorAPI(MSG_WARNING, ["resultado" => $resultado], $errors, $errorCodes);
                 }
 
                 // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
                 if (!$confirmar) {
-
                     $error = MSG_WARNING;
-                    $errors = [
-                        MSG_BRINDES_CONFIRM_PURCHASE
-                    ];
-                    $errorCodes = [
-                        MSG_BRINDES_CONFIRM_PURCHASE_CODE
-                    ];
-
-                    $mensagem = array(
-                        "status" => 0,
-                        "message" => Configure::read("messageWarningDefault"),
-                        "errors" => [MSG_CUPONS_ASK_CONFIRM_TICKET_TO_USE],
-                        "error_codes" => [MSG_CUPONS_ASK_CONFIRM_TICKET_TO_USE_CODE]
-
-                    );
-                    $resultado = array(
-                        "recibo_baixa_cupons" => $dadosCupons
-                    );
+                    $errors = [MSG_BRINDES_CONFIRM_PURCHASE];
+                    $errorCodes = [MSG_BRINDES_CONFIRM_PURCHASE_CODE];
+                    $resultado = ["recibo_baixa_cupons" => $dadosCupons];
 
                     return ResponseUtil::questionAPI($error, ["resultado" => $resultado], $errors, $errorCodes);
-                    // return ResponseUtil::errorAPI($error, $errors, ['resultado' => $resultado], $errorCodes);
                 }
 
                 $brindesNaoUsados = array();

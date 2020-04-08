@@ -546,9 +546,6 @@ const MSG_CUPONS_PRINTED_ALREADY_CANCELLED_CODE = 0x00080007;
 const MSG_CUPONS_PRINTED_ALREADY_CANCELLED = "O cupom já está cancelado!";
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED_CODE = 0x00080008;
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
-const MSG_CUPONS_ASK_CONFIRM_TICKET_TO_USE = "Deseja confirmar o resgate dos brindes à seguir?";
-const MSG_CUPONS_ASK_CONFIRM_TICKET_TO_USE_CODE = 0x0008000B;
-
 
 // Sucesso / Aviso
 
