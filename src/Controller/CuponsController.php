@@ -2415,6 +2415,8 @@ class CuponsController extends AppController
 
                     $dadoCupom["nome"] = $cupom["brinde"]["nome"];
                     $dadoCupom["quantidade"] = $cupom["quantidade"];
+                    $dadoCupom["codigo_primario"] = $cupom->brinde->codigo_primario;
+                    $dadoCupom["codigo_secundario"] = $cupom->brinde->codigo_secundario;
                     $dadoCupom["preco_brinde_gotas"] = (float) $cupom["valor_pago_gotas"];
                     $dadoCupom["preco_brinde_reais"] = (float) $cupom["valor_pago_reais"];
                     // imagem brinde
