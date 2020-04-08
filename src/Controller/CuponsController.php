@@ -2465,8 +2465,8 @@ class CuponsController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
-                        "errors" => array("Deseja confirmar o resgate dos brindes à seguir?"),
-                        "error_codes" => []
+                        "errors" => [MSG_CUPONS_ASK_CONFIRM_TICKET_TO_USE],
+                        "error_codes" => [MSG_CUPONS_ASK_CONFIRM_TICKET_TO_USE_CODE]
 
                     );
                     $resultado = array(
@@ -3179,7 +3179,7 @@ class CuponsController extends AppController
             if ($retornoCompras >= $rede["quantidade_consumo_usuarios_dia"]) {
                 $message = "Usuário já atingiu o número de compras permitido por dia na rede!";
                 $mensagem = array(
-                    "status" => 0,
+                    "status" => false,
                     "message" => MSG_WARNING,
                     "errors" => array($message),
                 );
@@ -3437,23 +3437,7 @@ class CuponsController extends AppController
                     [MSG_MAX_RETRIEVES_USER_GIFT_BY_WORKER];
                 $errorCodes = [MSG_MAX_RETRIEVES_USER_GIFT_CODE];
 
-                $mensagem = array(
-                    "status" => 0,
-                    "message" => MSG_WARNING,
-                    "errors" => $messageError,
-                    "error_codes" => $errorCodes
-                );
-
-                $arraySet = array(
-                    "mensagem"
-                );
-
-                $retorno = array(
-                    "arraySet" => $arraySet,
-                    "mensagem" => $mensagem
-                );
                 return ResponseUtil::errorAPI(MSG_WARNING, $messageError, [], $errorCodes);
-                return $retorno;
             }
         }
 
