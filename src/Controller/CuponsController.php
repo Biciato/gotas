@@ -2437,7 +2437,7 @@ class CuponsController extends AppController
                     $errors = [MSG_CUPONS_ALREADY_USED];
                     $errorCodes = [MSG_CUPONS_ALREADY_USED_CODE];
 
-                    return ResponseUtil::errorAPI(MSG_WARNING, ["resultado" => $resultado], $errors, $errorCodes);
+                    return ResponseUtil::errorAPI(MSG_WARNING, $errors, ["resultado" => $resultado], $errorCodes);
                 }
 
                 // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
