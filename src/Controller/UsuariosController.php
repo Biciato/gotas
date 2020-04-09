@@ -3974,28 +3974,33 @@ class UsuariosController extends AppController
                 $toTime = strtotime(date('Y-m-d H:i:s'));
                 $diff = round(abs($fromTime - $toTime) / 60, 0);
 
-                if ($usuario->tentativas_login >= 5 && ($diff < 10)) {
-                    $message = __('Você já tentou realizar 5 tentativas de autenticação, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int) $diff));
+                if ($usuario->tentativas_login >= 15 && ($diff < 10)) {
+                    $message = MSG_WARNING;
+                    $errors = [__('Você já tentou realizar 15 tentativas de autenticação, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int) $diff))];
+                    $errorCodes = [];
                 } else {
                     // Grava falha de tentativa de login
-                    if ($usuario->tentativas_login >= 5) {
+                    if ($usuario->tentativas_login >= 15) {
                         $usuario->tentativas_login = 0;
                     } else {
                         $usuario->ultima_tentativa_login = new DateTime("now");
                     }
 
                     $usuario->tentativas_login = $usuario->tentativas_login + 1;
-                    try {
-                        $this->Usuarios->save($usuario);
-                    } catch (\Throwable $th) {
-                        Log::write("info", $th);
-                    }
+                    $message = MSG_WARNING;
+                    $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
+                    $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
+                }
+                try {
+                    $this->Usuarios->save($usuario);
+                } catch (\Throwable $th) {
+                    Log::write("info", $th);
                 }
 
                 $status = false;
-                $message = MSG_WARNING;
-                $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
-                $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
+                // $message = MSG_WARNING;
+                // $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
+                // $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
                 $usuario = null;
             }
         } else {

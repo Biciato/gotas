@@ -547,7 +547,6 @@ const MSG_CUPONS_PRINTED_ALREADY_CANCELLED = "O cupom já está cancelado!";
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED_CODE = 0x00080008;
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
 
-
 // Sucesso / Aviso
 
 const MSG_CUPONS_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";

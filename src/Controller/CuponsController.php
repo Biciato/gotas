@@ -2415,6 +2415,8 @@ class CuponsController extends AppController
 
                     $dadoCupom["nome"] = $cupom["brinde"]["nome"];
                     $dadoCupom["quantidade"] = $cupom["quantidade"];
+                    $dadoCupom["codigo_primario"] = $cupom->brinde->codigo_primario;
+                    $dadoCupom["codigo_secundario"] = $cupom->brinde->codigo_secundario;
                     $dadoCupom["preco_brinde_gotas"] = (float) $cupom["valor_pago_gotas"];
                     $dadoCupom["preco_brinde_reais"] = (float) $cupom["valor_pago_reais"];
                     // imagem brinde
@@ -2433,48 +2435,21 @@ class CuponsController extends AppController
 
                 // Se a quantidade de cupons é igual a de usados, já resgatou tudo
                 if (count($usados) == count($cupons)) {
-                    $mensagem = array(
-                        "status" => 0,
-                        "message" => Configure::read("messageWarningDefault"),
-                        "errors" => [MSG_CUPONS_ALREADY_USED],
-                        "error_codes" => [MSG_CUPONS_ALREADY_USED_CODE]
-                    );
-                    $resultado = array(
-                        "recibo_baixa_cupons" => $dadosCupons
-                    );
+                    $resultado = ["recibo_baixa_cupons" => $dadosCupons];
+                    $errors = [MSG_CUPONS_ALREADY_USED];
+                    $errorCodes = [MSG_CUPONS_ALREADY_USED_CODE];
 
-                    $arraySet = array("mensagem", "resultado");
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
+                    return ResponseUtil::errorAPI(MSG_WARNING, $errors, ["resultado" => $resultado], $errorCodes);
                 }
 
                 // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
                 if (!$confirmar) {
-
                     $error = MSG_WARNING;
-                    $errors = [
-                        MSG_BRINDES_CONFIRM_PURCHASE
-                    ];
-                    $errorCodes = [
-                        MSG_BRINDES_CONFIRM_PURCHASE_CODE
-                    ];
-
-                    $mensagem = array(
-                        "status" => 0,
-                        "message" => Configure::read("messageWarningDefault"),
-                        "errors" => array("Deseja confirmar o resgate dos brindes à seguir?"),
-                        "error_codes" => []
-
-                    );
-                    $resultado = array(
-                        "recibo_baixa_cupons" => $dadosCupons
-                    );
+                    $errors = [MSG_BRINDES_CONFIRM_PURCHASE];
+                    $errorCodes = [MSG_BRINDES_CONFIRM_PURCHASE_CODE];
+                    $resultado = ["recibo_baixa_cupons" => $dadosCupons];
 
                     return ResponseUtil::questionAPI($error, ["resultado" => $resultado], $errors, $errorCodes);
-                    // return ResponseUtil::errorAPI($error, $errors, ['resultado' => $resultado], $errorCodes);
                 }
 
                 $brindesNaoUsados = array();
@@ -3179,7 +3154,7 @@ class CuponsController extends AppController
             if ($retornoCompras >= $rede["quantidade_consumo_usuarios_dia"]) {
                 $message = "Usuário já atingiu o número de compras permitido por dia na rede!";
                 $mensagem = array(
-                    "status" => 0,
+                    "status" => false,
                     "message" => MSG_WARNING,
                     "errors" => array($message),
                 );
@@ -3437,23 +3412,7 @@ class CuponsController extends AppController
                     [MSG_MAX_RETRIEVES_USER_GIFT_BY_WORKER];
                 $errorCodes = [MSG_MAX_RETRIEVES_USER_GIFT_CODE];
 
-                $mensagem = array(
-                    "status" => 0,
-                    "message" => MSG_WARNING,
-                    "errors" => $messageError,
-                    "error_codes" => $errorCodes
-                );
-
-                $arraySet = array(
-                    "mensagem"
-                );
-
-                $retorno = array(
-                    "arraySet" => $arraySet,
-                    "mensagem" => $mensagem
-                );
                 return ResponseUtil::errorAPI(MSG_WARNING, $messageError, [], $errorCodes);
-                return $retorno;
             }
         }
 

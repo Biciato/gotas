@@ -317,8 +317,8 @@ return [
             'flags' => [],
             'cacheMetadata' => true,
             // true para guardar tudo no arquivo queries
-            'log' => true,
-            // 'log' => false,
+            // 'log' => true,
+            'log' => false,
 
 
             /**
@@ -374,6 +374,8 @@ return [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'debug',
+            'size' => '100MB',
+            'rotate' => '30',
             'levels' => ['notice', 'info', 'debug', "error"],
             'url' => env('LOG_DEBUG_URL', null),
         ],
@@ -381,6 +383,8 @@ return [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'error',
+            'size' => '100MB',
+            'rotate' => '15',
             'levels' => ['error', 'critical', 'alert', 'emergency'],
             'url' => env('LOG_ERROR_URL', null),
         ],
@@ -389,6 +393,8 @@ return [
             'path' => LOGS,
             'file' => 'info',
             'levels' => ["info"],
+            'size' => '100MB',
+            'rotate' => '15',
             'url' => env('LOG_ERROR_URL', null),
         ],
 
@@ -401,12 +407,14 @@ return [
         // ],
 
         // guardar todas as queries executadas em log
-        'queries' => [
-            'className' => 'Cake\Log\Engine\FileLog',
-            'path' => LOGS,
-            'file' => 'queries',
-            'scopes' => ['queriesLog']
-        ]
+        // 'queries' => [
+        //     'className' => 'Cake\Log\Engine\FileLog',
+        //     'path' => LOGS,
+        //     'file' => 'queries',
+        //     'size' => '100MB',
+        //     'rotate' => '20',
+        //     'scopes' => ['queriesLog']
+        // ]
 
     ],
 
