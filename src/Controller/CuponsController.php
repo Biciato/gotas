@@ -2302,6 +2302,7 @@ class CuponsController extends AppController
                 // DebugUtil::printArray($data);
                 $confirmar = !empty($data["confirmar"]) ? (bool) $data["confirmar"] : false;
                 $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : null;
+                $cupomEmitidoNaoQueimar = false;
                 $codigoPrimario = !empty($data["codigo_primario"]) ?? null;
                 $codigoSecundario = !empty($data["codigo_secundario"]) ?? null;
 
@@ -2314,6 +2315,10 @@ class CuponsController extends AppController
                     $cupomEmitido[14] = "%";
                 }
 
+                /**
+                 * @todo Atenção: Remover $cupomEmitidoNaoQueimar quando @magno terminar seus testes!
+                 */
+                $cupomEmitidoNaoQueimar = strcmp($cupomEmitido, "%110CBE4E364C7%") == 0;
 
                 $tipoPerfil = $usuarioLogado->tipo_perfil;
                 $funcionario["nome"] = $usuarioLogado->nome;
@@ -2494,13 +2499,15 @@ class CuponsController extends AppController
                             $tipoSaida = TYPE_OPERATION_SELL_CURRENCY;
                         }
 
-                        $estoque = $this->BrindesEstoque->addBrindeEstoque(
-                            $cupom["brindes_id"],
-                            $cupom["usuarios_id"],
-                            $cupom["quantidade"],
-                            // TYPE_SELL
-                            $tipoSaida
-                        );
+                        if (!$cupomEmitidoNaoQueimar) {
+                            $estoque = $this->BrindesEstoque->addBrindeEstoque(
+                                $cupom["brindes_id"],
+                                $cupom["usuarios_id"],
+                                $cupom["quantidade"],
+                                // TYPE_SELL
+                                $tipoSaida
+                            );
+                        }
 
                         $cupomSave = null;
                         $cupomStatus = null;
@@ -2510,22 +2517,26 @@ class CuponsController extends AppController
                             $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
                             $cupomStatus = "RESGATADO";
                         } else {
-                            $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                            if (!$cupomEmitidoNaoQueimar) {
+                                $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                            }
                             $cupomStatus = "USADO";
 
                             // Gera nova transação
 
-                            $transacao = new CuponsTransacoes();
-                            $transacao->redes_id = $rede->id;
-                            $transacao->clientes_id = $cliente->id;
-                            $transacao->cupons_id = $cupom->id;
-                            $transacao->brindes_id = $cupom->brindes_id;
-                            $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
-                            $transacao->funcionarios_id = $usuarioLogado["id"];
-                            $transacao->tipo_operacao = TYPE_OPERATION_USE;
-                            $transacao->data = new DateTime();
+                            if ($cupomEmitidoNaoQueimar) {
+                                $transacao = new CuponsTransacoes();
+                                $transacao->redes_id = $rede->id;
+                                $transacao->clientes_id = $cliente->id;
+                                $transacao->cupons_id = $cupom->id;
+                                $transacao->brindes_id = $cupom->brindes_id;
+                                $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                                $transacao->funcionarios_id = $usuarioLogado["id"];
+                                $transacao->tipo_operacao = TYPE_OPERATION_USE;
+                                $transacao->data = new DateTime();
 
-                            $this->CuponsTransacoes->saveUpdate($transacao);
+                                $this->CuponsTransacoes->saveUpdate($transacao);
+                            }
                         }
 
                         Log::write("info", sprintf("Funcionário [%s] efetuou operação e definiu como [%s] o cupom [%s], estabelecimento [%s]...", $usuarioLogado->id, $cupomStatus, $cupom->cupom_emitido, $cliente->id));
