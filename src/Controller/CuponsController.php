@@ -2524,7 +2524,7 @@ class CuponsController extends AppController
 
                             // Gera nova transação
 
-                            if ($cupomEmitidoNaoQueimar) {
+                            if (!$cupomEmitidoNaoQueimar) {
                                 $transacao = new CuponsTransacoes();
                                 $transacao->redes_id = $rede->id;
                                 $transacao->clientes_id = $cliente->id;
