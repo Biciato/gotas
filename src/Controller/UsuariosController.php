@@ -55,6 +55,7 @@ class UsuariosController extends AppController
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
+        $this->viewBuilder()->setLayout('default_update');
 
         $perfisUsuariosList = [];
 
@@ -287,6 +288,7 @@ class UsuariosController extends AppController
      */
     public function registrar()
     {
+        $this->viewBuilder()->setLayout('login');
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
@@ -313,7 +315,8 @@ class UsuariosController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
-
+            $success = false;
+            $mensagem = null;
             if (!empty($data["senha"])) {
                 $data["senha"] = str_replace("?", "", $data["senha"]);
             }
@@ -470,27 +473,30 @@ class UsuariosController extends AppController
                     }
                 }
 
-                $this->Flash->success(__('O usuário foi criado com sucesso.'));
+               $success = true;
 
                 if (isset($this->usuarioLogado)) {
 
                     if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                        return $this->redirect(['action' => 'index']);
+                       // return $this->redirect(['action' => 'index']);
                     } elseif ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['ManagerProfileType']) {
-                        return $this->redirect(['action' => 'meus_clientes']);
+                       // return $this->redirect(['action' => 'meus_clientes']);
                     } else {
-                        return $this->redirect(['controller' => 'pages', 'action' => 'index']);
+                       // return $this->redirect(['controller' => 'pages', 'action' => 'index']);
                     }
                 } else {
-                    return $this->redirect("/Pages/instalaMobile");
+                   // return $this->redirect("/Pages/instalaMobile");
                 }
             } else {
-                $this->Flash->error(__('O usuário não pode ser registrado.'));
+                $mensagem = __('O usuário não pode ser registrado.') . '<br/>';
 
                 foreach ($errors as $key => $error) {
-                    $this->Flash->error($key . ": " . implode(",", $error));
+                    $mensagem .= $key . ": " . implode(",", $error) . '<br/>';
                 }
             }
+            $this->response = $this->response->withType('application/json');
+            $this->response = $this->response->withStringBody(json_encode(['success' => $success, 'message' => $mensagem]));
+            return $this->response;
         }
 
         $usuarioLogadoTipoPerfil = (int) Configure::read('profileTypes')['UserProfileType'];
@@ -1534,15 +1540,15 @@ class UsuariosController extends AppController
      */
     public function esqueciMinhaSenha()
     {
-        $message = [];
-
+        $this->viewBuilder()->setLayout('login');
+        
         if ($this->request->is('post')) {
+            $message = null;
+            $success = false;
             $usuario = $this->Usuarios->getUsuarioByEmail($this->request->data['email']);
             if (is_null($usuario)) {
-                $messageString = __(Configure::read("messageEmailNotFound"));
-                $message[] = ['status' => false, 'message' => $messageString];
+                $message = __(Configure::read("messageEmailNotFound"));
 
-                $this->Flash->error($messageString);
             } else {
                 // gera o token que o usuário irá utilizar para recuperar a senha
 
@@ -1552,14 +1558,19 @@ class UsuariosController extends AppController
 
                 if ($this->Usuarios->setUsuarioTokenPasswordRequest($usuario->id, $token, $timeout)) {
                     $this->_sendResetEmail($url, $usuario);
-
-                    $this->Flash->success(__("Email enviado para {0} com o token de resetar a senha.", $usuario->email));
-
-                    return $this->redirect(['action' => 'login']);
+                    $message = __("Email enviado para {0} com o token de resetar a senha.", $usuario->email);
+                    $success = true;
                 } else {
-                    $this->Flash->error('Houve um erro ao solicitar o token de resetar a senha.');
+                    $message = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
+            $this->response = $this->response->withType('application/json');
+            $this->response = $this->response->withStringBody(json_encode(
+              [
+                'success' => $success,
+                'message' => $message
+              ]));
+            return $this->response;
         }
 
         $arraySet = [
@@ -1581,7 +1592,8 @@ class UsuariosController extends AppController
         $email = '';
         $message = '';
         $status = null;
-
+        $success = true;
+        $this->viewBuilder()->setLayout('login');
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
@@ -1599,10 +1611,17 @@ class UsuariosController extends AppController
                 if (count($errors) > 0) {
                     $msg .= " " . implode(" - ", $errors);
                 }
-
-                $this->Flash->error(__($msg));
+                $success = false;
+                
                 // return;
             }
+            $this->response = $this->response->withType('application/json');
+            $this->response = $this->response->withStringBody(json_encode(
+              [
+                'success' => $success,
+                'message' => $msg ?? $message
+              ]));
+            return $this->response;
         }
 
         $arraySet = ['recoverAccount', 'email', 'message'];
@@ -2381,13 +2400,15 @@ class UsuariosController extends AppController
      */
     public function esqueciMinhaSenhaAPI()
     {
+        
         $mensagem = [];
 
         if ($this->request->is('post')) {
             $usuario = $this->Usuarios->getUsuarioByEmail($this->request->data['email']);
+            $success = false;
+            $mensagem = null;
             if (is_null($usuario)) {
-                $messageString = Configure::read("messageEmailNotFound");
-                $mensagem[] = ['status' => false, 'message' => $messageString];
+                $mensagem = Configure::read("messageEmailNotFound");
             } else {
                 // gera o token que o usuário irá utilizar para recuperar a senha
 
@@ -2398,15 +2419,19 @@ class UsuariosController extends AppController
                 if ($this->Usuarios->setUsuarioTokenPasswordRequest($usuario->id, $token, $timeout)) {
                     $this->_sendResetEmail($url, $usuario);
 
-                    $messageString = __("Email  enviado para {0} com o token de resetar a senha.", $usuario->email);
-
-                    $mensagem[] = ['status' => true, 'message' => $messageString];
+                    $mensagem = __("Email  enviado para {0} com o token de resetar a senha.", $usuario->email);
+                    $success = true;
                 } else {
-
-                    $messageString = __('Houve um erro ao solicitar o token de resetar a senha.');
-                    $mensagem[] = ['status' => false, 'message' => $messageString];
+                    $mensagem = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
+            $this->response = $this->response->withType('application/json').
+            $this->response = $this->response->withStringBody(json_encode(
+              [
+                'success' => $success,
+                'message' => $mensagem
+              ]));
+            return $this->response;
         }
 
         $arraySet = [

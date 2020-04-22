@@ -1,77 +1,33 @@
-<?php
+<div class="middle-box text-center loginscreen animated fadeInDown">
+    <div>
+        <div>
 
-/**
-  * @author   Gustavo Souza Gonçalves
-  * @file     src/Template/Usuarios/login.ctp
-  * @date     08/07/2017
-  */
+            <h1 class="logo-name">GOTAS</h1>
 
-?>
+        </div>
+        <h3><?php echo __("Boas vindas ao sistema Gotas"); ?></h3>
+        <p>
+        <?php echo __("Insira seu email e senha para continuar"); ?>
+        </p>
+        <form class="m-t" role="form" action="javascript:void(0)" id="login-form">
+            <div class="form-group">
+                <input type="email" class="form-control" placeholder="Email" name="email">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" placeholder="Senha" name="senha">
+            </div>
+            <button type="submit" class="btn btn-primary block full-width m-b" id="btn-login">Login</button>
 
-<div class="users form container ">
-
-<?= $this->Form->create() ?>
-    <fieldset>
-        <legend><?= __('Por favor informe seu e-mail e senha') ?></legend>
-        <label for="email">Login</label>
-        <input type="text" name="email" required="required" id="email" class="form-control" placeholder="Informe um login para continuar..." autofocus="true" />
-        <?= $this->Form->label('senha') ?>
-        <?= $this->Form->password('senha', ['placeholder' => 'Informe sua senha de acesso']) ?>
-    </fieldset>
-
-
-    <?= $this->Html->link(
-		__("Esqueci minha senha"),
-			[
-            	'controller' => 'Usuarios' ,
-                'action' => 'esqueci_minha_senha'
-			]
-		); ?>
-	<br />
-
-	<?php if (!is_null($recoverAccount) && $recoverAccount == 1) : ?>
-		<?= $this->Html->link(
-			__("Reativar conta"),
-			[
-				'controller' => 'Usuarios',
-				'action' => 'reativar_conta',
-				$email
-			],
-			[
-				'class' => 'btn btn-primary'
-			]
-		); ?>
-	<?php endif; ?>
-
-                      <br />
-<?= $this->Form->button(__('Login')); ?>
-
-<?= $this->Form->end() ?>
-
-<!-- <br />
-<fieldset>
-    <legend>Ou entre utilizando os seguintes provedores disponíveis</legend>
-    <?php
-        echo $this->Form->postLink(
-
-            __('{0} Entrar com Facebook', $this->Html->tag("i", "", array("class" => "fa fa-facebook-official"))),
-            [
-                "prefix" => false,
-                "plugin" => 'ADmad/SocialAuth',
-                "controller" => 'Auth',
-
-
-                "action" => 'login',
-                "provider" => 'facebook',
-                "?" => ['redirect' => $this->request->getQuery('redirect')]
-            ],
-            array(
-                "class" => " btn btn-primary",
-                "escape" => false,
-            )
-        );
-    ?>
-</fieldset> -->
-
+            <a href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'esqueciMinhaSenha']) ?>"><small><?php echo __('Esqueceu sua senha?'); ?></small></a>
+            <p class="text-muted text-center"><small><?php echo __('Não tem uma conta?') ?></small></p>
+            <a class="btn btn-sm btn-white btn-block" href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'registrar']) ?>"><?php echo __('Criar uma conta'); ?></a>
+        </form>
+        <p class="m-t"> <small>APP web GOTAS &copy; <?php echo date('Y'); ?></small> </p>
+    </div>
 </div>
-
+<?php $this->append('title'); ?> 
+  GOTAS - Faça o login no sistema
+<?php $this->end(); 
+$this->append('script'); 
+  echo $this->Html->script('scripts/usuarios/login');
+$this->end(); ?>

@@ -143,7 +143,7 @@ class AppController extends Controller
         // Seta encoding de JSON para não fazer escape
         $this->set("_jsonOptions", JSON_UNESCAPED_UNICODE);
 
-        $this->checkAuthentication();
+        // $this->checkAuthentication();
 
         $this->set('project_name', 'GOTAS');
         $this->viewBuilder()->theme('TwitterBootstrap');
@@ -207,13 +207,13 @@ class AppController extends Controller
             exit(0);
         }
 
-        $isMobile = $this->request->header('IsMobile');
+        // $isMobile = $this->request->header('IsMobile');
 
         $this->_initializeUtils();
 
-        if (!$isMobile) {
-            $this->setUserTemplatePath();
-        }
+        // if (!$isMobile) {
+        $this->setUserTemplatePath();
+        // }
 
         $user = $this->Auth->user();
 
@@ -228,7 +228,8 @@ class AppController extends Controller
                 $this->Auth->logout();
                 $this->clearCredentials();
 
-                if ($isMobile) {
+                // if ($isMobile) {
+                if ($this->request->is('ajax')) {
                     // Resposta para API
                     return ResponseUtil::logoutResponseAPI();
                 }
@@ -260,37 +261,37 @@ class AppController extends Controller
 
         // $this->setCorsHeaders();
 
-        $isMobile = $this->request->header('IsMobile');
+        // $isMobile = $this->request->header('IsMobile');
 
-        if (!$isMobile) {
-            $userAuthenticated = $this->request->session()->read("Auth.User");
+        // if (!$isMobile) {
+        $userAuthenticated = $this->request->session()->read("Auth.User");
 
-            $urlPages = array(
-                "/pages",
-                "/pages/instalaMobile",
-                "/pages/test",
-                "/usuarios/login",
-                "/usuarios/registrar",
-                "/usuarios/esqueci-minha-senha",
-                "/usuarios/resetar-minha-senha",
-            );
+        $urlPages = array(
+            "/pages",
+            "/pages/instalaMobile",
+            "/pages/test",
+            "/usuarios/login",
+            "/usuarios/registrar",
+            "/usuarios/esqueci-minha-senha",
+            "/usuarios/resetar-minha-senha",
+        );
 
-            $found = 0;
-            foreach ($urlPages as $page) {
-                $indexFound = stripos($url, $page) !== false;
+        $found = 0;
+        foreach ($urlPages as $page) {
+            $indexFound = stripos($url, $page) !== false;
 
-                if ($indexFound) {
-                    $found = true;
-                    break;
-                }
-            }
-
-            if (!$userAuthenticated && (!$found)) {
-                $this->response = $this->redirect(['controller' => 'Pages', 'action' => 'display']);
-                $this->response->send();
-                die();
+            if ($indexFound) {
+                $found = true;
+                break;
             }
         }
+
+        // if (!$userAuthenticated && (!$found)) {
+        //     $this->response = $this->redirect(['controller' => 'Pages', 'action' => 'display']);
+        //     $this->response->send();
+        //     die();
+        // }
+        // }
     }
 
     /**
