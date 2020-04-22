@@ -1884,7 +1884,7 @@ class Response implements ResponseInterface
         if ($modifiedSince) {
             $timeMatches = strtotime($this->modified()) === strtotime($modifiedSince);
         }
-        $checks = compact('etagMatches', 'timeMatches');
+        $checks = @compact('etagMatches', 'timeMatches');
         if (empty($checks)) {
             return false;
         }

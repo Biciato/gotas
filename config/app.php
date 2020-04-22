@@ -157,14 +157,14 @@ return [
      *   breathing room to complete logging or error handling.
      */
     'Error' => [
-        'errorLevel' => E_ALL,
+        'errorLevel' => E_STRICT,
         'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
         'skipLog' => [],
         'log' => true,
         'trace' => true,
     ],
     'Info' => [
-        'errorLevel' => E_ALL,
+        'errorLevel' => E_STRICT,
         'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
         'skipLog' => [],
         'log' => true,
@@ -263,7 +263,7 @@ return [
             //'port' => 'non_standard_port_number',
             'username' => __DATABASE__,
             // 'username' => 'rti_gotas',
-            'password' => ']tS(nyjFXBwP=u8+',
+            'password' => 'nanoboost',
             // 'database' => 'rti_gotas',
             'database' => __DATABASE__,
             // 'database' => 'rti_gotas_devel',

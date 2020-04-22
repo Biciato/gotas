@@ -1,21 +1,44 @@
-<?php
-/**
- * @description Arquivo para formulário de cadastro de usuários
- * @author      Gustavo Souza Gonçalves
- * @file        src/Template/Usuarios/esqueci_minha_senha.ctp
- * @date        28/08/2017
- * 
- */
+<div class="passwordBox animated fadeInDown">
+	<div class="row">
 
-?>
+		<div class="col-md-12">
+			<div class="ibox-content">
 
-<?php $this->assign('title', 'Solicitar reset da senha'); ?>
-<div class="users content container">
-	<h3><?php echo __('Esqueci minha senha') ?></h3>
-	<?php
-    	echo $this->Form->create();
-        echo $this->Form->input('email', ['autofocus' => true, 'label' => 'Endereço de Email', 'required' => true]);
-		echo $this->Form->button('Solicitar reset de senha');
-    	echo $this->Form->end();
-	?>
+				<h2 class="font-bold"><?php echo __('Esqueci minha senha'); ?></h2>
+
+				<p>
+					<?php echo __('Insira seu email e sua nova senha sera enviada para você'); ?>
+				</p>
+
+				<div class="row">
+
+					<div class="col-lg-12">
+						<form class="m-t" role="form" action="javascript:void(0)" id="form-recuperar-senha">
+							<div class="form-group">
+								<input type="email" class="form-control" placeholder="<?php echo __('Endereço de email'); ?>" name='email'>
+							</div>
+
+							<button type="submit" class="btn btn-primary block full-width m-b" id="btn-recuperar-senha"><?php echo __('Enviar senha nova'); ?></button>
+
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<hr/>
+	<div class="row">
+		<div class="col-md-6">
+			App web GOTAS
+		</div>
+		<div class="col-md-6 text-right">
+			<small>© 2017-<?php echo date('Y'); ?></small>
+		</div>
+	</div>
 </div>
+<?php $this->append('title'); ?> 
+  GOTAS - Recuperar senha
+<?php $this->end(); 
+$this->append('script'); 
+  echo $this->Html->script('scripts/usuarios/esqueci_minha_senha');
+$this->end(); ?>
