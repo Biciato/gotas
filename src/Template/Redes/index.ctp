@@ -4,207 +4,100 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Rede[]|\Cake\Collection\CollectionInterface $redes
  */
+
 use Cake\Routing\Router;
 use Cake\Core\Configure;
 
-$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+$extensionDebug = Configure::read("debug") ? "" : ".min";
+// $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-$this->Breadcrumbs->add('Redes', [], ['class' => 'active']);
+// $this->Breadcrumbs->add('Redes', [], ['class' => 'active']);
 
-echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+// echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 ?>
 
-<?= $this->element(
-    '../Redes/left_menu',
-    [
-        'mode' => 'view',
-        'show_reports' => true
-    ]
-) ?>
-<div class="redes index col-lg-9 col-md-10 columns content">
-    <legend><?= __('Redes') ?></legend>
+<div class="content">
+    <div class="form-group">
+        <div class="row redes-index">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <h5><?= __('Redes') ?></h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="panel-group">
+                            <div class="panel panel-default">
+                                <div class="panel-heading panel-heading-sm text-center" data-toggle="collapse" href="#collapse1" data-target="#filter-coupons">
+                                    <div>
+                                        <span class="fa fa-search"></span>
+                                        Exibir / Ocultar Filtros
+                                    </div>
+                                </div>
+                                <div id="filter-coupons" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <form id="form">
 
-    <?= $this->element(
-        '../Redes/filtro_redes',
-        [
-            'controller' => 'redes',
-            'action' => 'index'
-        ]
-    ) ?>
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th scope="col"><?= $this->Paginator->sort('nome_rede') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('ativado', ['label' => 'Rede ativada']) ?></th>
-                <th scope="col" class="actions"><?= __('Ações') ?>
-                <?= $this->Html->tag(
-                    'button',
-                    __(
-                        "{0} Legendas",
-                        $this->Html->tag('i', '', ['class' => 'fa fa-book'])
-                    ),
-                    [
-                        'class' => 'btn btn-xs btn-default right-align modal-legend-icons-save',
-                        'data-toggle' => 'modal',
-                        'data-target' => '#modalLegendIconsSave'
-                    ]
-                ) ?>
-
-            </th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($redes as $rede) : ?>
-            <tr>
-                <td><?= h($rede->nome_rede) ?></td>
-                <td><?= h($this->Boolean->convertBooleanToString($rede->ativado)) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(
-                        __(
-                            "{0}",
-                            $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
-                        ),
-                        array(
-                            'controller' => 'redes',
-                            'action' => 'ver_detalhes', $rede->id
-                        ),
-                        array(
-                            'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
-                            'title' => 'Configurar Parâmetros de Rede e Postos',
-                            'escape' => false
-                        )
-                    )
-                    ?>
-
-                    <?= $this->Html->link(
-                        __(
-                            "{0}",
-                            $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
-                        ),
-                        [
-                            'controller' => 'redes',
-                            'action' => 'editar', $rede->id
-
-                        ],
-                        [
-                            'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
-                            'title' => 'Editar',
-                            'escape' => false
-                        ]
-                    ) ?>
-
-                    <?php if ($rede->ativado) : ?>
-
-                    <?= $this->Html->link(
-                        __(
-                            '{0} ',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
-                        ),
-                        '#',
-                        [
-                            'title' => 'Desativar',
-                            'class' => 'btn btn-xs btn-danger btn-confirm',
-                            'data-toggle' => 'modal',
-                            'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageDisableQuestion'), $rede->nome_rede),
-                            'data-action' => Router::url(
-                                [
-                                    'controller' => 'redes',
-                                    'action' => 'desativar', $rede->id,
-                                    '?' =>
-                                        [
-                                        'rede_id' => $rede->id,
-                                        'return_url' =>
-                                            [
-                                            'controller' => 'redes',
-                                            'action' => 'index'
-                                        ]
-                                    ]
-                                ]
-                            ),
-                            'escape' => false
-                        ],
-                        false
-                    );
-                    ?>
-
-                    <?php else : ?>
-                    <?= $this->Html->link(
-                        __(
-                            '{0} ',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
-                        ),
-                        '#',
-                        [
-                            'title' => 'Ativar',
-                            'class' => 'btn btn-xs btn-primary btn-confirm',
-                            'data-toggle' => 'modal',
-                            'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageEnableQuestion'), $rede->nome_rede),
-                            'data-action' => Router::url(
-                                [
-                                    'controller' => 'redes',
-                                    'action' => 'ativar', $rede->id,
-                                    '?' =>
-                                        [
-                                        'rede_id' => $rede->id,
-                                        'return_url' =>
-                                            [
-                                            'controller' => 'redes',
-                                            'action' => 'index'
-                                        ]
-                                    ]
-                                ]
-                            ),
-                            'escape' => false
-                        ],
-                        false
-                    );
-                    ?>
-                    <?php endif; ?>
-
-                    <?= $this->Html->link(
-                        __(
-                            '{0}',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
-                        ),
-                        '#',
-                        [
-                            'class' => 'btn btn-xs  btn-danger btn-confirm',
-                            'title' => 'Remover',
-                            'data-toggle' => 'modal',
-                            'data-target' => '#modal-delete-with-message-confirmation',
-                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede["nome_rede"]),
-                            'data-action' => Router::url(
-                                [
-                                    'action' => 'delete', $rede->id,
-                                    '?' =>
-                                        [
-                                        'redes_id' => $rede["id"]
-
-                                    ]
-                                ]
-                            ),
-                            'escape' => false
-                        ],
-                        false
-                    );
-                    ?>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-    <div class="paginator">
-        <center>
-            <ul class="pagination">
-            <?= $this->Paginator->first('<< ' . __('primeiro')) ?>
-                <?= $this->Paginator->prev('&laquo; ' . __('anterior'), ['escape' => false]) ?>
-                <?= $this->Paginator->numbers(['escape' => false]) ?>
-                <?= $this->Paginator->next(__('próximo') . ' &raquo;', ['escape' => false]) ?>
-            <?= $this->Paginator->last(__('último') . ' >>') ?>
-            </ul>
-            <p><?= $this->Paginator->counter(__('Página {{page}} de {{pages}}, mostrando {{current}} registros de  {{count}} total, iniciando no registro {{start}}, terminando em {{end}}')) ?></p>
-         </center>
+                                            <div class="form-group row">
+                                                <div class="col-lg-4">
+                                                    <label for="nome_rede">Nome:</label>
+                                                    <input type="text" name="nome_rede" id="nome-rede" class="form-control">
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <label for="ativado">Ativado:</label>
+                                                    <select name="ativado" id="ativado" class="form-control">
+                                                        <option value="">Todos</option>
+                                                        <option value="1" selected>Sim</option>
+                                                        <option value="0">Não</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <label for="app_personalizado">Aplicativo Personalizado:</label>
+                                                    <select name="app_personalizado" id="app-personalizado" class="form-control">
+                                                        <option value="" selected>Todos</option>
+                                                        <option value="1">Sim</option>
+                                                        <option value="0">Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-lg-12 text-right">
+                                                    <div class="btn btn-primary" id="btn-search">
+                                                        <span class="fa fa-search"></span>
+                                                        Pesquisar
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table table-striped table-hover" id="redes-index-data-table">
+                            <thead>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- <script src="/webroot/js/scripts/redes/index<?= $extensionDebug ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/redes/index<?= $extensionDebug ?>.css?version=<?= SYSTEM_VERSION ?>" /> -->
+
+
+
+<?php
+
+$this->append("script");
+echo $this->Html->script(sprintf("scripts/redes/index%s.js?version=%s", $extensionDebug, SYSTEM_VERSION));
+$this->end();
+$this->append("css");
+echo $this->Html->css(sprintf("styles/redes/index%s.css?version=%s", $extensionDebug, SYSTEM_VERSION));
+$this->end();
+
+
+?>

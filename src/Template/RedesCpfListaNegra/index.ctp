@@ -139,6 +139,6 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
 
 ?>
 
-<script src="/webroot/js/scripts/redes_cpf_lista_negra/index<?= $extensionDebug ?>.js"></script>
+<script src="/webroot/js/scripts/redes_cpf_lista_negra/index<?= $extensionDebug ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
 
-<link rel="stylesheet" href="/webroot/css/styles/redes_cpf_lista_negra/index<?= $extensionDebug ?>.css" />
+<link rel="stylesheet" href="/webroot/css/styles/redes_cpf_lista_negra/index<?= $extensionDebug ?>.css?version=<?= SYSTEM_VERSION ?>" />

@@ -42,23 +42,53 @@ class RedesController extends AppController
      */
     public function index()
     {
-        $conditions = [];
+        $this->viewBuilder()->setLayout("default_update");
+        $nomeRede = null;
+        $ativado = null;
+        $appPersonalizado = null;
 
-        if ($this->request->is(['post', 'put'])) {
-            $data = $this->request->getData();
-
-            $conditions[] = array($data['opcoes'] . ' like' => '%' . $data['parametro'] . '%');
+        if (!$this->request->is("ajax")) {
+            $this->set([]);
+            return;
         }
 
-        $redes = $this->Redes->getAllRedes('all', $conditions);
-        $redes = $this->Paginate($redes, ['limit' => 10]);
+        if ($this->request->is(Request::METHOD_GET)) {
+            $data = $this->request->getQueryParams();
 
-        // DebugUtil::print($redes);
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
-        $arraySet = array("redes");
+            $nomeRede = !empty($data["nome_rede"]) ? $data["nome_rede"] : null;
+            $ativado = isset($data["ativado"]) ? (bool) $data["ativado"] : null;
+            $appPersonalizado = isset($data["app_personalizado"]) ? (bool) $data["app_personalizado"] : null;
 
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
+            // @TODO Gustavo: Neste momento
+        }
+
+        $redes = $this->Redes->getRedes(
+            null,
+            $nomeRede,
+            $ativado,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $appPersonalizado
+        );
+
+
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['redes' => $redes]);
     }
 
     /**
@@ -1028,7 +1058,7 @@ class RedesController extends AppController
                     $errors = array("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
                 } else {
 
-                    $redesQueryResult = $this->Redes->getRedes(
+                    $redesQueryResult = $this->Redes->getRedesForMobileAPI(
                         array("Redes.id in " => $redesIds, "Redes.nome_rede like '%{$nomeRede}%'"),
                         array(
                             "id",
