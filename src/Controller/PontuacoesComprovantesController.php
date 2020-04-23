@@ -3082,9 +3082,10 @@ class PontuacoesComprovantesController extends AppController
                     return $itemA->percent >= $itemB->percent;
                 });
 
-                // Irá retornar um array, obtem o primeiro que é o que tem o maior valor
-                $item = $itemsToCheck[0];
-                $pontuacoes[] = $item;
+                // Irá retornar um array, obtem o primeiro que é o que tem o maior valor de porcentagem
+                foreach ($itemsToCheck as $key => $item) {
+                    $pontuacoes[] = $item;
+                }
                 $somaMultiplicador += $item->quantidade_multiplicador;
             }
 

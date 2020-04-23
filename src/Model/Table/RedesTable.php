@@ -6,6 +6,7 @@ use ArrayObject;
 use App\View\Helper;
 use App\Controller\AppController;
 use Cake\Core\Configure;
+use Cake\Database\Exception as CakeDatabaseException;
 use Cake\Log\Log;
 use Cake\Event\Event;
 use Cake\ORM\Query;
@@ -15,7 +16,10 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
-use Exception;
+use Cake\Database\Expression\QueryExpression;
+use \DateTime;
+use \Exception;
+use \Throwable;
 
 /**
  * Redes Model
@@ -280,7 +284,6 @@ class RedesTable extends GenericTable
     public function getRedesList(int $id = null, string $nomeRede = null, int $ativado = null, bool $permiteConsumoGotasFuncionarios = null, int $tempoExpiracaoGotasUsuarios = null, int $quantidadePontuacoesUsuariosDia = null, int $mediaAssiduidadeClientes = null)
     {
         try {
-
             $whereConditions = array();
 
             if (strlen($id) > 0 && $id > 0) {
@@ -391,6 +394,213 @@ class RedesTable extends GenericTable
     }
 
     /**
+     * Realiza pesquisa de Redes
+     *
+     * @param integer $id
+     * @param string $nomeRede
+     * @param boolean $ativado
+     * @param integer $tempoExpiracaoGotasUsuariosMin
+     * @param integer $tempoExpiracaoGotasUsuariosMax
+     * @param integer $quantidadePontuacoesUsuariosDiaMin
+     * @param integer $quantidadePontuacoesUsuariosDiaMax
+     * @param integer $quantidadeConsumoUsuariosDiaMin
+     * @param integer $quantidadeConsumoUsuariosDiaMax
+     * @param integer $qteMesmoBrindeResgateDiaMin
+     * @param integer $qteMesmoBrindeResgateDiaMax
+     * @param integer $qteGotasMinimaBonificacaoMin
+     * @param integer $qteGotasMinimaBonificacaoMax
+     * @param integer $qteGotasBonificacaoMin
+     * @param integer $qteGotasBonificacaoMax
+     * @param float $custoReferenciaGotasMin
+     * @param float $custoReferenciaGotasMax
+     * @param integer $mediaAssiduidadeClientesMin
+     * @param integer $mediaAssiduidadeClientesMax
+     * @param boolean $appPersonalizado
+     * @param boolean $msgDistanciaCompraBrinde
+     * @param boolean $pontuacaoExtraProdutoGenerico
+     * @param DateTime $dateCreatedMin
+     * @param DateTime $dateCreatedMax
+     * @return void
+     */
+    public function getRedes(
+        int $id = null,
+        string $nomeRede = null,
+        bool $ativado = null,
+        int $tempoExpiracaoGotasUsuariosMin = null,
+        int $tempoExpiracaoGotasUsuariosMax = null,
+        int $quantidadePontuacoesUsuariosDiaMin = null,
+        int $quantidadePontuacoesUsuariosDiaMax = null,
+        int $quantidadeConsumoUsuariosDiaMin = null,
+        int $quantidadeConsumoUsuariosDiaMax = null,
+        int $qteMesmoBrindeResgateDiaMin = null,
+        int $qteMesmoBrindeResgateDiaMax = null,
+        int $qteGotasMinimaBonificacaoMin = null,
+        int $qteGotasMinimaBonificacaoMax = null,
+        int $qteGotasBonificacaoMin = null,
+        int $qteGotasBonificacaoMax = null,
+        float $custoReferenciaGotasMin = null,
+        float $custoReferenciaGotasMax = null,
+        int $mediaAssiduidadeClientesMin = null,
+        int $mediaAssiduidadeClientesMax = null,
+        bool $appPersonalizado = null,
+        bool $msgDistanciaCompraBrinde = null,
+        bool $pontuacaoExtraProdutoGenerico = null,
+        DateTime $dateCreatedMin = null,
+        DateTime $dateCreatedMax = null,
+        bool $bringAssociatedData = false
+    ) {
+        try {
+            $where = function (QueryExpression $exp) use (
+                $id,
+                $nomeRede,
+                $ativado,
+                $tempoExpiracaoGotasUsuariosMin,
+                $tempoExpiracaoGotasUsuariosMax,
+                $quantidadePontuacoesUsuariosDiaMin,
+                $quantidadePontuacoesUsuariosDiaMax,
+                $quantidadeConsumoUsuariosDiaMin,
+                $quantidadeConsumoUsuariosDiaMax,
+                $qteMesmoBrindeResgateDiaMin,
+                $qteMesmoBrindeResgateDiaMax,
+                $qteGotasMinimaBonificacaoMin,
+                $qteGotasMinimaBonificacaoMax,
+                $qteGotasBonificacaoMin,
+                $qteGotasBonificacaoMax,
+                $custoReferenciaGotasMin,
+                $custoReferenciaGotasMax,
+                $mediaAssiduidadeClientesMin,
+                $mediaAssiduidadeClientesMax,
+                $appPersonalizado,
+                $msgDistanciaCompraBrinde,
+                $pontuacaoExtraProdutoGenerico,
+                $dateCreatedMin,
+                $dateCreatedMax
+            ) {
+                if (!empty($id)) {
+                    $exp->eq("Redes.id", $id);
+                } else {
+                    if (!empty($nomeRede)) {
+                        $exp->like("Redes.nome_rede", sprintf("%%%s%%", $nomeRede));
+                    }
+
+                    if (isset($ativado)) {
+                        $exp->eq("Redes.ativado", $ativado);
+                    } else {
+                        $exp->isNotNull("Redes.ativado");
+                    }
+
+                    if (!empty($tempoExpiracaoGotasUsuariosMin)) {
+                        $exp->gte("Redes.tempo_expiracao_gotas_usuario", $tempoExpiracaoGotasUsuariosMin);
+                    }
+
+                    if (!empty($tempoExpiracaoGotasUsuariosMax)) {
+                        $exp->lte("Redes.tempo_expiracao_gotas_usuario", $tempoExpiracaoGotasUsuariosMax);
+                    }
+
+                    if (!empty($quantidadePontuacoesUsuariosDiaMin)) {
+                        $exp->gte("Redes.quantidade_pontuacoes_usuarios_dia", $quantidadePontuacoesUsuariosDiaMin);
+                    }
+
+                    if (!empty($quantidadePontuacoesUsuariosDiaMax)) {
+                        $exp->lte("Redes.quantidade_pontuacoes_usuarios_dia", $quantidadePontuacoesUsuariosDiaMax);
+                    }
+
+                    if (!empty($quantidadeConsumoUsuariosDiaMin)) {
+                        $exp->gte("Redes.quantidade_consumo_usuarios_dia", $quantidadeConsumoUsuariosDiaMin);
+                    }
+
+                    if (!empty($quantidadeConsumoUsuariosDiaMax)) {
+                        $exp->lte("Redes.quantidade_consumo_usuarios_dia", $quantidadeConsumoUsuariosDiaMax);
+                    }
+
+                    if (!empty($qteMesmoBrindeResgateDiaMin)) {
+                        $exp->gte("Redes.qte_mesmo_brinde_resgate_dia", $qteMesmoBrindeResgateDiaMin);
+                    }
+
+                    if (!empty($qteMesmoBrindeResgateDiaMax)) {
+                        $exp->lte("Redes.qte_mesmo_brinde_resgate_dia", $qteMesmoBrindeResgateDiaMax);
+                    }
+
+                    if (!empty($qteGotasMinimaBonificacaoMin)) {
+                        $exp->lte("Redes.qte_gotas_minima_bonificacao", $qteGotasMinimaBonificacaoMin);
+                    }
+
+                    if (!empty($qteGotasMinimaBonificacaoMax)) {
+                        $exp->gte("Redes.qte_gotas_minima_bonificacao", $qteGotasMinimaBonificacaoMax);
+                    }
+
+                    if (!empty($qteGotasBonificacaoMin)) {
+                        $exp->lte("Redes.qte_gotas_bonificacao", $qteGotasBonificacaoMin);
+                    }
+
+                    if (!empty($qteGotasBonificacaoMax)) {
+                        $exp->gte("Redes.qte_gotas_bonificacao", $qteGotasBonificacaoMax);
+                    }
+
+                    if (!empty($custoReferenciaGotasMin)) {
+                        $exp->lte("Redes.custo_referencia_gotas", $custoReferenciaGotasMin);
+                    }
+
+                    if (!empty($custoReferenciaGotasMax)) {
+                        $exp->gte("Redes.custo_referencia_gotas", $custoReferenciaGotasMax);
+                    }
+
+                    if (!empty($mediaAssiduidadeClientesMin)) {
+                        $exp->lte("Redes.media_assiduidade_clientes", $mediaAssiduidadeClientesMin);
+                    }
+
+                    if (!empty($mediaAssiduidadeClientesMax)) {
+                        $exp->gte("Redes.media_assiduidade_clientes", $mediaAssiduidadeClientesMax);
+                    }
+
+                    if (is_bool($appPersonalizado)) {
+                        $exp->eq("Redes.app_personalizado", $appPersonalizado);
+                    }
+
+                    if (isset($msgDistanciaCompraBrinde)) {
+                        $exp->eq("Redes.msg_distancia_compra_brinde", $msgDistanciaCompraBrinde);
+                    }
+
+                    if (isset($pontuacaoExtraProdutoGenerico)) {
+                        $exp->eq("Redes.pontuacao_extra_produto_generico", $pontuacaoExtraProdutoGenerico);
+                    }
+
+                    /**
+                     * @TODO Nota: deve ser criado um novo campo na tabela Redes.data_criacao,
+                     * pois o audit_insert é apenas para auditoria
+                     * No momento, ele não é usado nas consultas
+                     */
+
+                    if (!empty($dateCreatedMin)) {
+                        $exp->gte("Redes.audit_insert", $dateCreatedMin);
+                    }
+
+                    if (!empty($dateCreatedMax)) {
+                        $exp->lte("Redes.audit_insert", $dateCreatedMax);
+                    }
+                }
+
+                return $exp;
+            };
+
+            $query = $this->find("all")
+                ->where($where);
+
+            if ($bringAssociatedData) {
+                $query = $query->contain(["RedesHasClientes.Clientes"]);
+            }
+
+            Log::write("info", $query->sql());
+            return $query;
+        } catch (Throwable $th) {
+            $codeError = $th->getCode();
+            $message = sprintf("[{%s} %s] %s", $codeError, MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new CakeDatabaseException($message, $codeError);
+        }
+    }
+
+    /**
      * Obtem todas as redes Conforme condições
      *
      * @param array $whereConditions      Condições de where
@@ -403,7 +613,7 @@ class RedesTable extends GenericTable
      *
      * @return array("count", "data") \App\Entity\Model\Redes $redes[] Lista de Redes
      */
-    public function getRedes(array $whereConditions = [], array $selectFields = array(), array $associations = [], array $orderConditions = [], array $paginationConditions = [])
+    public function getRedesForMobileAPI(array $whereConditions = [], array $selectFields = array(), array $associations = [], array $orderConditions = [], array $paginationConditions = [])
     {
         try {
 
