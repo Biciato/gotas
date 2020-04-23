@@ -1,6 +1,7 @@
 .vscode/*
 /tmp/*
 /logs/*
+/webroot/img/*
 /webroot/img/products/*
 /webroot/img/tmp/*
 /webroot/img/gifts/*
@@ -10,6 +11,7 @@
 /config/definitions.php
 /tools/*
 /cookie.txt
-webroot/cookie.txt
+webroot/cookie*
+/webroot/cookie*
 /webroot/cookie.txt
 /webroot/cookie*
