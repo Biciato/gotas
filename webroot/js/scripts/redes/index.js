@@ -23,18 +23,43 @@ $(function () {
             redesSearchBtnForm.on("click", redesSearchBtnFormOnClick);
         };
 
-        function generateDataTable(element, columns, data) {
-            if ($.fn.DataTable.isDataTable("#" + element.attr('id'))) {
-                dataTable.DataTable().clear();
-                dataTable.DataTable().destroy();
+        /**
+         *
+         * @param {Object} element Element
+         * @param {array} columns Columns array
+         * @param {array} data Json data
+         * @param {array} lengthMenu Máximo de resultados
+         */
+        function generateDataTable(element, columns, data, lengthMenu) {
+            if ($.fn.DataTable.isDataTable(element)) {
+                element.DataTable().clear();
+                element.DataTable().destroy();
             }
 
-            dataTable.DataTable({
+            if (lengthMenu === undefined) {
+                lengthMenu = [10, 25, 50, 100];
+            }
+
+            /**
+             * No array de data, é esperado uma coluna 'actions'. Se esta coluna não existe, adiciona-a vazia
+             */
+            let dataRows = [];
+
+            data.forEach(item => {
+                if (item.actions === undefined) {
+                    item.actions = [];
+                }
+
+                dataRows.push(item);
+            })
+
+            element.DataTable({
                 language: {
                     "url": "/webroot/js/DataTables/i18n/dataTables.pt-BR.lang"
                 },
                 columns: columns,
-                data: data
+                lengthMenu: lengthMenu,
+                data: dataRows
             });
         }
 
@@ -51,9 +76,25 @@ $(function () {
             let data = await getRedes(nomeRede.val(), ativado.val(), appPersonalizado.val());
             console.log(data);
 
-            let columns = [
+            let columns = [{
+                    data: "id",
+                    title: "Id",
+                    orderable: true,
+                    visible: false,
+                },
+                {
+                    data: "nome_rede",
+                    title: "Rede",
+                    orderable: true,
+                },
+                {
+                    data: "actions",
+                    title: "Ações",
+                    orderable: false,
+                }
+            ];
 
-            ]
+            generateDataTable(redesIndexDataTable, columns, data.redes);
         };
 
         // //#endregion

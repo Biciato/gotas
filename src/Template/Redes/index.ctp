@@ -72,7 +72,7 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
                                 </div>
                             </div>
                         </div>
-                        <table class="table table-striped table-hover" id="redes-index-data-table">
+                        <table class="table table-striped table-hover" id="data-table">
                             <thead>
                             </thead>
                             <tbody>
@@ -84,11 +84,6 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
         </div>
     </div>
 </div>
-
-<!-- <script src="/webroot/js/scripts/redes/index<?= $extensionDebug ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/css/styles/redes/index<?= $extensionDebug ?>.css?version=<?= SYSTEM_VERSION ?>" /> -->
-
-
 
 <?php
 

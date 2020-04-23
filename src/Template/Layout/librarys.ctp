@@ -8,7 +8,8 @@ echo $this->Html->meta('icon');
 
 ?>
 
-<?= $this->Html->css(sprintf("home-rti.css?version=%s", SYSTEM_VERSION)); ?>
+<?php // $this->Html->css(sprintf("home-rti.css?version=%s", SYSTEM_VERSION));
+?>
 
 
 <!-- <link rel="stylesheet" href="/webroot/css/home-rti.css?version=<?= SYSTEM_VERSION ?>"> -->
@@ -40,15 +41,24 @@ echo $this->Html->meta('icon');
 
 <!-- Bootstrap CSS 3 -->
 
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s",  SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s.map",  SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s",  SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?= $this->Html->script(sprintf("bootstrap/js/bootstrap.js?version=%s", SYSTEM_VERSION)); ?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s",  SYSTEM_VERSION));
+?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s", SYSTEM_VERSION));
+?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s.map",  SYSTEM_VERSION));
+?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s.map", SYSTEM_VERSION));
+?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s", SYSTEM_VERSION));
+?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s.map", SYSTEM_VERSION));
+?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s",  SYSTEM_VERSION));
+?>
+<?php // $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s.map", SYSTEM_VERSION));
+?>
+<?php // $this->Html->script(sprintf("bootstrap/js/bootstrap.js?version=%s", SYSTEM_VERSION));
+?>
 
 
 <!-- Font Awesome -->
@@ -130,8 +140,10 @@ echo $this->Html->meta('icon');
 <?= $this->Html->css(sprintf("styles/common/loader.css?version=%s",  SYSTEM_VERSION)); ?>
 
 <!-- Icones -->
-<?= $this->Html->image("assets/img/apple-icon.png", ["sizes" => "76x76", "rel" => "apple-touch-icon"]); ?>
-<?= $this->Html->image("favicon.ico", ["sizes" => "96x96", "rel" => "icon"]); ?>
+<?= "" // $this->Html->image("assets/img/apple-icon.png", ["sizes" => "76x76", "rel" => "apple-touch-icon"]);
+?>
+<?= "" // $this->Html->image("favicon.ico", ["sizes" => "96x96", "rel" => "icon"]);
+?>
 
 
 <!-- Desativado por ser Angular JS -->
