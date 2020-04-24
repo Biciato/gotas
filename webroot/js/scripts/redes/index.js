@@ -21,47 +21,10 @@ $(function () {
 
         function init() {
             redesSearchBtnForm.on("click", redesSearchBtnFormOnClick);
+
+            redesSearchBtnForm.click();
         };
 
-        /**
-         *
-         * @param {Object} element Element
-         * @param {array} columns Columns array
-         * @param {array} data Json data
-         * @param {array} lengthMenu Máximo de resultados
-         */
-        function generateDataTable(element, columns, data, lengthMenu) {
-            if ($.fn.DataTable.isDataTable(element)) {
-                element.DataTable().clear();
-                element.DataTable().destroy();
-            }
-
-            if (lengthMenu === undefined) {
-                lengthMenu = [10, 25, 50, 100];
-            }
-
-            /**
-             * No array de data, é esperado uma coluna 'actions'. Se esta coluna não existe, adiciona-a vazia
-             */
-            let dataRows = [];
-
-            data.forEach(item => {
-                if (item.actions === undefined) {
-                    item.actions = [];
-                }
-
-                dataRows.push(item);
-            })
-
-            element.DataTable({
-                language: {
-                    "url": "/webroot/js/DataTables/i18n/dataTables.pt-BR.lang"
-                },
-                columns: columns,
-                lengthMenu: lengthMenu,
-                data: dataRows
-            });
-        }
 
         // #region Events
 
@@ -94,8 +57,28 @@ $(function () {
                 }
             ];
 
-            generateDataTable(redesIndexDataTable, columns, data.redes);
-        };
+            let func = function () {
+                console.log('function called');
+            }
+
+            let dataSource = [];
+
+            data.redes.forEach(rede => {
+                rede.actions = [];
+
+                let dataTableActionButton = new DataTableActionButton();
+                let actionView = dataTableActionButton.generateLinkViewToDestination("/redes/view/:id", dataTableActionButton.ICON_INFO, null, "Ver Detalhes");
+                let editView = dataTableActionButton.generateLinkEditToDestination("/redes/edit/:id", null, "Editar");
+                // Fazer botões de deletar, alternar estado
+
+                rede.actions.push(actionView);
+                rede.actions.push(editView);
+
+                dataSource.push(rede);
+            });
+
+            generateDataTable(redesIndexDataTable, columns, dataSource, undefined, null, func);
+        }
 
         // //#endregion
 

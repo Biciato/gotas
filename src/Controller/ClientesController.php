@@ -206,7 +206,7 @@ class ClientesController extends AppController
      * @author Gustavo Souza Gonçalves
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      */
-    public function adicionar(int $redes_id = null)
+    public function add(int $redes_id = null)
     {
         $arraySet = array('cliente', 'clientes', 'rede', "redesId", 'usuarioLogado');
 
@@ -713,17 +713,16 @@ class ClientesController extends AppController
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
-    
-    /** 
+
+    /**
      * Action para o Relatório de cliente final
      * @return void
      * @author Vinícius Carvalho de Abreu <vinicius@aigen.com.br>
      * @since 1.1.6
      * @date 2020-03-23
-    */
+     */
     public function relClienteFinal()
     {
-        
     }
 
     /**
@@ -1387,7 +1386,7 @@ class ClientesController extends AppController
         }
     }
 
-   
+
     public function clienteFinalAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -1449,11 +1448,11 @@ class ClientesController extends AppController
                 $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
                 $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
 
-                
+
                 $reportData = [];
 
                 $entradas = $this->Pontuacoes->getPontuacoesClienteFinal($redesId, $dataInicio, $dataFim, $clientesId, $usuario);
-                
+
                 $saidas = $this->CuponsTransacoes->getCuponsClienteFinal($redesId, $dataInicio, $dataFim, $clientesId, $usuario);
 
                 $headersRelEntrada = new stdClass();
@@ -1484,8 +1483,7 @@ class ClientesController extends AppController
                 $totalReaisSaida = 0;
                 $totalQuantidadeSaida = 0;
 
-                foreach ($entradas as $entrada) 
-                  {
+                foreach ($entradas as $entrada) {
                     $itemEntrada = new stdClass();
                     $itemEntrada->nome_rede = $entrada->cliente->redes_has_cliente->rede->nome_rede;
                     $itemEntrada->estabelecimento = $entrada->cliente->nome_fantasia;
@@ -1493,13 +1491,12 @@ class ClientesController extends AppController
                     $itemEntrada->produto = $entrada->gota->nome_parametro;
                     $itemEntrada->quantidade_pontos = $entrada->quantidade_gotas;
                     $itemEntrada->data = $entrada->data->format('d/m/Y');
-                    
-                    $totalPontosEntrada += (int)$entrada->quantidade_gotas;
+
+                    $totalPontosEntrada += (int) $entrada->quantidade_gotas;
 
                     $dadosEntrada[] = $itemEntrada;
-                  }
-                foreach ($saidas as $saida)
-                  {
+                }
+                foreach ($saidas as $saida) {
                     $itemSaida = new stdClass();
                     $itemSaida->nome_rede = $saida->cliente->redes_has_cliente->rede->nome_rede;
                     $itemSaida->estabelecimento = $saida->cliente->nome_fantasia;
@@ -1511,38 +1508,38 @@ class ClientesController extends AppController
                     $itemSaida->data_resgate = $saida->data->format('d/m/Y');
 
                     $uso = $this->CuponsTransacoes->getCuponRelacionado($saida->cupons_id);
-                    
+
                     $itemSaida->data_uso = (!is_null($uso)) ? $uso->data->format('d/m/Y') : "";
 
-                    $totalPontosSaida += (int)$saida->cupon->valor_pago_gotas;
-                    $totalReaisSaida += (int)$saida->cupon->valor_pago_reais;
-                    $totalQuantidadeSaida += (int)$saida->cupon->quantidade;
+                    $totalPontosSaida += (int) $saida->cupon->valor_pago_gotas;
+                    $totalReaisSaida += (int) $saida->cupon->valor_pago_reais;
+                    $totalQuantidadeSaida += (int) $saida->cupon->quantidade;
 
                     $dadosSaida[] = $itemSaida;
-                  }
-                
-                  $rowTotalEntrada = new stdClass();
-                  $rowTotalEntrada->nome_rede = "Total:";
-                  $rowTotalEntrada->estabelecimento = "";
-                  $rowTotalEntrada->usuario = "";
-                  $rowTotalEntrada->produto = "";
-                  $rowTotalEntrada->quantidade_pontos = $totalPontosEntrada;
-                  $rowTotalEntrada->data = "";
+                }
 
-                  $dadosEntrada[] = $rowTotalEntrada;
+                $rowTotalEntrada = new stdClass();
+                $rowTotalEntrada->nome_rede = "Total:";
+                $rowTotalEntrada->estabelecimento = "";
+                $rowTotalEntrada->usuario = "";
+                $rowTotalEntrada->produto = "";
+                $rowTotalEntrada->quantidade_pontos = $totalPontosEntrada;
+                $rowTotalEntrada->data = "";
 
-                  $rowTotalSaida = new stdClass();
-                  $rowTotalSaida->nome_rede = "Total:";
-                  $rowTotalSaida->estabelecimento = "";
-                  $rowTotalSaida->usuario = "";
-                  $rowTotalSaida->brinde = "";
-                  $rowTotalSaida->pontos = $totalPontosSaida;
-                  $rowTotalSaida->reais  = $totalReaisSaida;
-                  $rowTotalSaida->unidades  = $totalQuantidadeSaida;
-                  $rowTotalSaida->data_resgate = "";
-                  $rowTotalSaida->data_uso = "";
+                $dadosEntrada[] = $rowTotalEntrada;
 
-                  $dadosSaida[] = $rowTotalSaida;
+                $rowTotalSaida = new stdClass();
+                $rowTotalSaida->nome_rede = "Total:";
+                $rowTotalSaida->estabelecimento = "";
+                $rowTotalSaida->usuario = "";
+                $rowTotalSaida->brinde = "";
+                $rowTotalSaida->pontos = $totalPontosSaida;
+                $rowTotalSaida->reais  = $totalReaisSaida;
+                $rowTotalSaida->unidades  = $totalQuantidadeSaida;
+                $rowTotalSaida->data_resgate = "";
+                $rowTotalSaida->data_uso = "";
+
+                $dadosSaida[] = $rowTotalSaida;
 
                 if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
                     $relEntrada = new stdClass();

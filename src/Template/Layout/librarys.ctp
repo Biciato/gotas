@@ -147,6 +147,17 @@ echo $this->Html->css(sprintf("DataTables/datatables.min.css?version=%s", SYSTEM
 echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYSTEM_VERSION));
 ?>
 
+
+<!-- Helpers -->
+
+<!-- DataTables -->
+
+<?php
+echo $this->Html->script("scripts/helpers/DataTables/DataTablesHelper.js");
+
+?>
+
+
 <!-- Fim Estilos -->
 
 <!-- Bibliotecas -->
