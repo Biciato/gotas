@@ -39,15 +39,17 @@ echo $this->Html->meta('icon');
 
 <!-- Bootstrap CSS 3 -->
 
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s",  SYSTEM_VERSION)); ?>
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s", SYSTEM_VERSION)); ?>
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s.map",  SYSTEM_VERSION)); ?>
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s", SYSTEM_VERSION)); ?>
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s",  SYSTEM_VERSION)); ?>
-<?php echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?php echo $this->Html->script(sprintf("bootstrap/js/bootstrap.js?version=%s", SYSTEM_VERSION)); ?>
+<?php
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s",  SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s.map",  SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s.map", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s.map", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s",  SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s.map", SYSTEM_VERSION));
+// echo $this->Html->script(sprintf("bootstrap/js/bootstrap.js?version=%s", SYSTEM_VERSION));
+?>
 
 
 <!-- Font Awesome -->
@@ -140,10 +142,11 @@ echo $this->Html->meta('icon');
 
 <!-- DataTables -->
 
-<!-- <?= $this->Html->css(sprintf("DataTables/datatables.min.css?version=%s", SYSTEM_VERSION)); ?>
-<?= $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYSTEM_VERSION)); ?> -->
+<?php
+echo $this->Html->css(sprintf("DataTables/datatables.min.css?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYSTEM_VERSION));
+?>
 
-<!-- <script src="/webroot/js/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 <!-- Fim Estilos -->
 
 <!-- Bibliotecas -->

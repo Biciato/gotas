@@ -16,7 +16,7 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
 // echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 ?>
 
-<!-- <div class="form-group row wrapper border-bottom white-bg page-heading">
+<div class="form-group row border-bottom white-bg page-heading">
     <div class="col-sm-4">
         <h2>Lista de Redes</h2>
         <ol class="breadcrumb">
@@ -33,7 +33,7 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
             <a href="" class="btn btn-primary">This is action area</a>
         </div>
     </div>
-</div> -->
+</div>
 
 <div class="content">
     <div>
