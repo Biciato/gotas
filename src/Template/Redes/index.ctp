@@ -16,8 +16,27 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
 // echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 ?>
 
+<!-- <div class="form-group row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+        <h2>Lista de Redes</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <?= $this->Html->link("Início", ['controller' => "Pages", "action" => "index"]); ?>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Redes</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-sm-8">
+        <div class="title-action">
+            <a href="" class="btn btn-primary">This is action area</a>
+        </div>
+    </div>
+</div> -->
+
 <div class="content">
-    <div class="form-group">
+    <div>
         <div class="row redes-index">
             <div class="col-lg-12">
                 <div class="ibox">
