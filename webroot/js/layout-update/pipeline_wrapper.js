@@ -162,6 +162,7 @@ var initPipelinedDT = function(tb_selector, columns, ajax_url, order, custom_dat
       processing: true,
       serverSide: true,
       bDeferRender: true,
+      bAutoWidth: true,
       ajax: $.fn.dataTable.pipeline( {
          url: ajax_url,
          pages: 1, // number of pages to cache,
