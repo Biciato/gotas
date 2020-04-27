@@ -51,7 +51,17 @@ echo $this->Html->meta('icon');
 // echo $this->Html->script(sprintf("bootstrap/js/bootstrap.js?version=%s", SYSTEM_VERSION));
 ?>
 
+<?php echo $this->Html->script("layout-update/popper.min.js"); ?>
+<?php echo $this->Html->script("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"); ?>
+<?php echo $this->Html->script("//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"); ?>
 
+<?php
+
+echo $this->Html->css(sprintf("bootstrap3-dialog/css/bootstrap-dialog.min.css?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("bootstrap3-dialog/js/bootstrap-dialog.min.js?version=%s", SYSTEM_VERSION));
+
+
+?>
 <!-- Font Awesome -->
 <?= $this->Html->css(sprintf("font-awesome/css/font-awesome.css?version=%s", SYSTEM_VERSION)); ?>
 <?= $this->Html->css(sprintf("font-awesome/css/font-awesome.css?version=%s.map", SYSTEM_VERSION)); ?>
@@ -153,7 +163,8 @@ echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYST
 <!-- DataTables -->
 
 <?php
-echo $this->Html->script("scripts/helpers/DataTables/DataTablesHelper.js");
+echo $this->Html->script(sprintf("scripts/helpers/Html/ButtonHelper.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/helpers/DataTables/DataTablesHelper.js?version=%s", SYSTEM_VERSION));
 
 ?>
 

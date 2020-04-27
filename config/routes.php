@@ -359,7 +359,12 @@ Router::scope("/api", function ($routes) {
                 "action" => "enviaImagemPropagandaAPI",
                 "method" => Request::METHOD_POST,
                 "path" => "/envia_imagem_propaganda"
-            )
+            ),
+            "changeStatusAPI" => [
+                "action" => "changeStatusAPI",
+                "method" => Request::METHOD_PUT,
+                "path" => "change-status/:id"
+            ]
         ]
     ]);
 
@@ -611,6 +616,11 @@ Router::scope("/api", function ($routes) {
                 "method" => Request::METHOD_POST,
                 "path" => "/generate_excel_usuarios_fidelizados"
             ),
+            "carregarUsuarios" => [
+                "action" => "carregarUsuarios",
+                "method" => Request::METHOD_POST,
+                "path" => "carregar-usuarios"
+            ]
         ]
     ]);
 

@@ -35,6 +35,11 @@ use Cake\I18n\Number;
 class RedesController extends AppController
 {
 
+    public function redes()
+    {
+        $this->viewBuilder()->setLayout("default_update");
+    }
+
     /**
      * Index method
      *
@@ -42,26 +47,14 @@ class RedesController extends AppController
      */
     public function index()
     {
-        $this->viewBuilder()->setLayout("default_update");
-        $nomeRede = null;
-        $ativado = null;
-        $appPersonalizado = null;
-
-        if (!$this->request->is("ajax")) {
-            $this->set([]);
-            return;
-        }
-
         if ($this->request->is(Request::METHOD_GET)) {
             $data = $this->request->getQueryParams();
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
             $nomeRede = !empty($data["nome_rede"]) ? $data["nome_rede"] : null;
-            $ativado = isset($data["ativado"]) ? (bool) $data["ativado"] : null;
-            $appPersonalizado = isset($data["app_personalizado"]) ? (bool) $data["app_personalizado"] : null;
-
-            // @TODO Gustavo: Neste momento
+            $ativado = isset($data["ativado"]) && strlen($data["ativado"]) > 0 ? (bool) $data["ativado"] : null;
+            $appPersonalizado = isset($data["app_personalizado"]) && strlen($data["app_personalizado"]) > 0 ? (bool) $data["app_personalizado"] : null;
         }
 
         $redes = $this->Redes->getRedes(
@@ -86,7 +79,6 @@ class RedesController extends AppController
             null,
             $appPersonalizado
         );
-
 
         return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['redes' => $redes]);
     }
@@ -417,30 +409,6 @@ class RedesController extends AppController
     }
 
     /**
-     * Ativa um registro
-     *
-     * @return boolean
-     */
-    public function ativar()
-    {
-        $query = $this->request->query();
-
-        $this->_alteraEstadoRede((int) $query['rede_id'], true, $query['return_url']);
-    }
-
-    /**
-     * Desativa um registro
-     *
-     * @return boolean
-     */
-    public function desativar()
-    {
-        $query = $this->request->query();
-
-        $this->_alteraEstadoRede((int) $query['rede_id'], false, $query['return_url']);
-    }
-
-    /**
      * Altera estado de uma rede
      *
      * @param int   $rede_id    Id da Rede
@@ -449,32 +417,17 @@ class RedesController extends AppController
      *
      * @return void
      */
-    private function _alteraEstadoRede(int $rede_id, bool $estado, array $return_url)
+    public function changeStatusAPI($id)
     {
         try {
+            $this->request->allowMethod(Request::METHOD_PUT);
+            $result = $this->Redes->changeStateNetwork($id);
+            $word = $result->ativado ? "habilitada" : "desabilitada";
+            $msg = sprintf("A rede foi %s com sucesso!");
 
-            $this->request->allowMethod(['post']);
-
-            $result = $this->Redes->changeStateEnabledRede($rede_id, $estado);
-
-            if ($result) {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableSuccess')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableSuccess')));
-                }
-            } else {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableError')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableError')));
-                }
-            }
-
-            return $this->redirect($return_url);
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['status_rede' => $msg]);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} ", $e->getMessage());
 
             Log::write('error', $stringError);
 

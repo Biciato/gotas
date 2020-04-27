@@ -21,7 +21,7 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
         <h2>Lista de Redes</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <?= $this->Html->link("Início", ['controller' => "Pages", "action" => "index"]); ?>
+                <?= $this->Html->link("Início", ['controller' => "Pages", "action" => "redes"]); ?>
             </li>
             <li class="breadcrumb-item active">
                 <strong>Redes</strong>
@@ -105,10 +105,10 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
 <?php
 
 $this->append("script");
-echo $this->Html->script(sprintf("scripts/redes/index%s.js?version=%s", $extensionDebug, SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/redes/redes%s.js?version=%s", $extensionDebug, SYSTEM_VERSION));
 $this->end();
 $this->append("css");
-echo $this->Html->css(sprintf("styles/redes/index%s.css?version=%s", $extensionDebug, SYSTEM_VERSION));
+echo $this->Html->css(sprintf("styles/redes/redes%s.css?version=%s", $extensionDebug, SYSTEM_VERSION));
 $this->end();
 
 
