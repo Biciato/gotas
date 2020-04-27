@@ -2767,7 +2767,7 @@ div.dt-button-info {
   font-size: 0.9rem;
 }
 select.form-control:not([size]):not([multiple]) {
-  height: 2.05rem;
+  height: 3.3rem;
 }
 .input-sm,
 .form-control-sm {
@@ -5495,7 +5495,7 @@ legend {
   margin-bottom: 10px;
 }
 .m-b {
-  margin-bottom: 15px;
+  /* margin-bottom: 15px; */
 }
 .m-b-md {
   margin-bottom: 20px;
@@ -9814,3 +9814,10 @@ body.md-skin {
     margin: 0;
   }
 }
+.dataTables_scrollHeadInner,
+.dataTables_scrollHeadInner table.dataTable,
+.dataTables_scrollBody,
+.dataTables_scrollBody .table.dataTable
+  {
+    width:100% !important;
+  }

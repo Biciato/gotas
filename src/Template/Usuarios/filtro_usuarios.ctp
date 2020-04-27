@@ -62,12 +62,8 @@ if (isset($filter_redes) && $filter_redes) {
                         $this->Form->create(
                             'Post',
                             [
-                                'url' =>
-                                [
-                                    'controller' => $controller,
-                                    'action' => $action,
-                                    isset($id) ? $id : null
-                                ]
+                                'url' => false,
+                                'id' => 'filtro_usuarios_form'
                             ]
                         )
                     ?>
@@ -181,7 +177,7 @@ if (isset($filter_redes) && $filter_redes) {
 
                     <div class="form-group row">
                         <div class="col-lg-12 text-right">
-                            <button type="submit" class="btn btn-primary save-button botao-pesquisar">
+                            <button type="submit" class="btn btn-primary save-button botao-pesquisar" id="filtrar_usuarios">
                                 <i class="fa fa-search"></i>
                                 Pesquisar
                             </button>
@@ -199,4 +195,3 @@ if (isset($filter_redes) && $filter_redes) {
 </div>
 
 
-<script src="/webroot/js/scripts/usuarios/filtro_usuarios<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>

@@ -5389,6 +5389,36 @@ class UsuariosController extends AppController
             Log::write('error', $trace);
         }
     }
-
+    public function carregarUsuarios()
+      {
+        if($this->request->is('POST'));
+          {
+            $data = $this->request->getData();
+            $this->response = $this->response->withType('application/json');
+            $usuarios = $this->Usuarios->buscaListaUsuarios($data);
+            $tipos_perfil = Configure::read('profileTypesTranslated');
+            $result = [];
+            foreach($usuarios as $usuario)
+              {
+                array_push($result, 
+                  [
+                    $tipos_perfil[(int)$usuario["tipo_perfil"]],
+                    $usuario->nome,
+                    preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
+                    $usuario->email,
+                    "Teste"
+                  ]);
+              }
+            $total = count($usuarios);
+            $result = array_slice($result, $data['start'], $data['length']);
+            $this->response = $this->response->withStringBody(json_encode([
+                    'draw' => $data['draw'],
+                    'recordsTotal' => $total,
+                    'recordsFiltered' =>  $total,
+                    'data' => $result,
+                ]));
+            return $this->response;
+          }
+      }
     #endregion
 }

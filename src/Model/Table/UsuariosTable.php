@@ -2523,4 +2523,39 @@ class UsuariosTable extends GenericTable
 
         return $usuario;
     }
+    public function buscaListaUsuarios($data)
+      {
+        $columns = 
+        [
+         'tipo_perfil',
+         'nome',
+         'cpf',
+         'email'
+        ];
+       $order = $columns[$data['order'][0]['column']] . " " . strtoupper($data['order'][0]['dir']);
+       $conditions = ['AND' => []];
+       parse_str($data['filtros'], $filters);
+       if(strlen($filters['tipo_perfil']))
+         {
+           array_push($conditions['AND'], ['tipo_perfil' => $filters['tipo_perfil']]);
+          }
+        if(strlen($filters['nome']))
+          {
+            array_push($conditions['AND'], ['nome LIKE \'%' . $filters['nome'] . '%\'']); 
+          }
+        if(strlen($filters['email']))
+          {
+            array_push($conditions['AND'], ['email LIKE \'%' . $filters['email'] . '%\'']); 
+          }
+        if(strlen($filters['cpf']))
+          {
+            array_push($conditions['AND'], ['cpf LIKE \'%' . $filters['cpf'] . '%\'']); 
+          }
+       if(!count($conditions['AND']))
+         {
+           $conditions = false;
+         }
+       $lista = $this->find('all', ['order' => $order, 'conditions' => $conditions])->toArray();
+       return $lista;
+    }
 }
