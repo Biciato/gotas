@@ -87,6 +87,11 @@ $.fn.dataTable.pipeline = function ( opts ) {
                    console.log(conf);
                  },
                  "success":  function ( json ) {
+                   json = json.data_table_source;
+                   $.each(json.data, function(i, item)
+                     {
+                       json.data[i] = conf.rowModifier(item);
+                     });
                    console.log(json);
                      cacheLastJson = $.extend(true, {}, json);
   
@@ -128,7 +133,7 @@ $.fn.dataTable.pipeline = function ( opts ) {
      } );
  } );
 
-var initPipelinedDT = function(tb_selector, columns, ajax_url, order, custom_data, lengthMenu, drawCallback)
+var initPipelinedDT = function(tb_selector, columns, ajax_url, order, custom_data, lengthMenu, drawCallback, rowModifier)
   {
     if(typeof order === 'undefined')
       {
@@ -150,6 +155,13 @@ var initPipelinedDT = function(tb_selector, columns, ajax_url, order, custom_dat
         drawCallback = function()
           {}
       }
+    if(typeof rowModifier === 'undefined')
+      {
+        rowModifier = function(row_data)
+          {
+            return row_data;
+          }
+      }
     window[tb_selector] = $(tb_selector).DataTable( {
       columns: columns,
       searchDelay: 400,
@@ -167,7 +179,8 @@ var initPipelinedDT = function(tb_selector, columns, ajax_url, order, custom_dat
          url: ajax_url,
          pages: 1, // number of pages to cache,
          tb_selector: tb_selector, //Seletor da table que pode ser usado no back end
-         data: custom_data
+         data: custom_data,
+         rowModifier: rowModifier
       } ),
       drawCallback: drawCallback
     } );
