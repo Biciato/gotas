@@ -365,6 +365,12 @@ Router::scope("/api", function ($routes) {
                 "method" => Request::METHOD_PUT,
                 "path" => "change-status/:id"
             ]
+            // ,
+            // "delete" => [
+            //     "action" => "delete",
+            //     "method" => Request::METHOD_DELETE,
+            //     "path" => ":id"
+            // ]
         ]
     ]);
 

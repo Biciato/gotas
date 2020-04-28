@@ -24,16 +24,119 @@ $(function () {
 
             redesSearchBtnForm.click();
 
+            $(document).on("click", ".redes-index #data-table .delete-item", deleteNetworkOnClick);
             $(document).on("click", ".redes-index #data-table .change-status", changeStatusOnClick);
-
         };
 
 
         // #region Events
 
         /**
+         * Evento de alterar estado da rede e suas unidades
          *
+         * @param {any} event Evento
+         * @returns void
          *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 1.2.3
+         * @date 2020-04-28
+         */
+        async function changeStatusOnClick(event) {
+            event.preventDefault();
+            let redesId = event.target.getAttribute('data-id');
+            let redesNome = event.target.getAttribute('data-name');
+            let redesStatus = event.target.getAttribute('data-status');
+            let question = "Deseja :param a rede :network e suas unidades?"
+                .replace(":param", redesStatus ? "ativar" : "desativar")
+                .replace(":network", redesNome);
+
+            let buttons = [{
+                    label: "Cancelar",
+                    action: ((dialogItSelf) => dialogItSelf.close())
+                },
+                {
+                    label: "OK",
+                    action: async function (dialogItSelf) {
+                        let response = await changeStatusRede(redesId);
+
+                        if (response === undefined || response === null || !response) {
+                            return false;
+                        }
+
+                        redesSearchBtnForm.click();
+                        dialogItSelf.close();
+                    }
+                }
+            ];
+
+            let param = {
+                message: question,
+                title: "Atenção!",
+                type: BootstrapDialog.TYPE_DANGER,
+                buttons: buttons
+            };
+
+            BootstrapDialog.show(param);
+        }
+
+        /**
+         * Evento de alterar estado da rede e suas unidades
+         *
+         * @param {any} event Evento
+         * @returns void
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 1.2.3
+         * @date 2020-04-28
+         */
+        async function deleteNetworkOnClick(event) {
+            event.preventDefault();
+
+            let redesId = event.target.getAttribute('data-id');
+            let redesNome = event.target.getAttribute('data-name');
+            let question = "Deseja apagar a rede :network e suas unidades?"
+                .replace(":network", redesNome);
+
+            bootbox.prompt({
+                title: question,
+                message: `<p>
+                    Confirme sua senha para continuar
+                </p>`,
+                buttons: {
+                    confirm: {
+                        label: 'Ok',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Cancelar',
+                        className: 'btn-danger'
+                    }
+                },
+                inputType: 'password',
+                callback: async function (result) {
+                    if (result === null || result === undefined) {
+                        return false;
+                    }
+
+                    let response = await deleteRede(redesId, result);
+
+                    if (response === undefined || response === null || !response) {
+                        return false;
+                    }
+
+                    redesSearchBtnForm.click();
+                }
+            });
+        }
+
+        /**
+         * Pesquisa dados e popula datatable
+         *
+         * @returns DataTables
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 1.2.3
+         * @date 2020-04-22
          */
         async function redesSearchBtnFormOnClick() {
             let nomeRede = $(".redes-index #nome-rede");
@@ -70,37 +173,17 @@ $(function () {
                     name: rede.nome_rede
                 };
 
-                // var callModalChangeStatus =
-                //     callModal("Atenção!", "Deseja alterar o estado do registro " + rede.nome_rede + "? ", TYPE_MODAL_CONFIRM, function () {
-                //         changeStatusRede(rede.id);
-                //     });
-
-
-
-
                 let btnHelper = new ButtonHelper();
                 let actionView = btnHelper.generateLinkViewToDestination("/redes/view/:id", btnHelper.ICON_INFO, null, "Ver Detalhes");
                 let editView = btnHelper.generateLinkEditToDestination("/redes/edit/:id", null, "Editar");
-                // let changeStatus = btnHelper.generateImgChangeStatus(rede.ativado, undefined, undefined, "change-status", attributes, function () {
-                //     callModalChangeStatus();
-                // });
-
-                let a = function () {
-                    BootstrapDialog.confirm("gooble-gooble?")
-                };
-
-                let changeStatus = btnHelper.generateImgChangeStatus(
-                    rede.ativado,
-                    undefined,
-                    undefined,
-                    "change-status",
-                    attributes
-                );
+                let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
+                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rede.ativado, undefined, undefined, "change-status");
 
                 // Fazer botões de deletar, alternar estado
 
                 rede.actions.push(actionView);
                 rede.actions.push(editView);
+                rede.actions.push(deleteBtn);
                 rede.actions.push(changeStatus);
 
                 dataSource.push(rede);
@@ -113,59 +196,35 @@ $(function () {
 
         // #region Services
 
-        async function changeStatusOnClick(event) {
-            event.preventDefault();
-            let redesId = event.target.getAttribute('data-id');
-            let redesNome = event.target.getAttribute('data-name');
-            let redesStatus = event.target.getAttribute('data-status');
-            let question = "Deseja :param a rede :network e suas unidades?"
-                .replace(":param", redesStatus ? "ativar" : "desativar")
-                .replace(":network", redesNome);
+        /**
+         * Remove uma rede
+         *
+         * @param {int} id Id da Rede
+         * @returns Promise|false Promise ou status de false da operação
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 1.2.3
+         * @date 2020-04-28
+         */
+        function deleteRede(id, password) {
+            if (id === undefined || id === null) {
+                BootstrapDialog.warning("Necessário informar rede à ser apagada!");
+                return false;
+            }
 
+            let url = "/api/redes/" + id;
 
+            let dataRequest = {
+                password: password
+            }
 
-            let buttons = [{
-                    label: "Cancelar",
-                    action: ((dialogItSelf) => dialogItSelf.close())
-                },
-                {
-                    label: "OK",
-                    action: async function (dialogItSelf) {
-                        // changeStatusRede(rede.id);
-                        let response = await changeStatusRede(redesId);
-
-                        if (response === undefined || response === null || !response) {
-                            return false;
-                        }
-
-                        redesSearchBtnForm.click();
-                        dialogItSelf.close();
-                    }
-                }
-            ];
-
-            let param = {
-                message: question,
-                title: "Atenção!",
-                type: BootstrapDialog.TYPE_DANGER,
-                buttons: buttons
-            };
-
-            BootstrapDialog.show(param);
-
-            // BootstrapDialog.confirm(param, async function (result) {
-            //     if (result) {
-            //         // changeStatusRede(rede.id);
-            //         let response = await changeStatusRede(redesId);
-
-            //         if (response === undefined || response === null || !response) {
-            //             return false;
-            //         }
-
-            //         redesSearchBtnForm.click();
-            //     }
-            // });
-
+            return Promise.resolve(
+                $.ajax({
+                    type: "DELETE",
+                    data: dataRequest,
+                    url: url,
+                    dataType: "JSON",
+                }));
         }
 
         /**

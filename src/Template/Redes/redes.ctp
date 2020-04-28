@@ -90,7 +90,7 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped table-hover" id="data-table">
+                    <table class="table table-striped table-bordered table-hover" id="data-table">
                         <thead>
                         </thead>
                         <tbody>

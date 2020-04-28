@@ -298,39 +298,24 @@ class RedesController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete()
+    public function delete($id)
     {
         try {
-            $this->request->allowMethod(['post', 'delete']);
-
             $data = $this->request->getData();
-
-            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
-            $senhaUsuario = !empty($data["senha_usuario"]) ? $data["senha_usuario"] : null;
-
-            $usuario = $this->Auth->user();
+            $senhaUsuario = !empty($data["password"]) ? $data["password"] : null;
+            $usuario = $this->sessaoUsuario["usuarioLogado"];
             $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
 
-            if (empty($redesId)) {
-                $this->Flash->error("Para remover uma rede, é necessário selecioná-la!");
-
-                return $this->redirect(array("controller" => "redes", "action" => "index"));
-            }
-
             if (empty($senhaUsuario)) {
-                $this->Flash->error("Para continuar, informe sua senha!");
-
-                return $this->redirect(array("controller" => "redes", "action" => "index"));
+                throw new Exception("Para continuar, informe sua senha!");
             }
 
             // Testa a senha do usuário
             if (!(new DefaultPasswordHasher)->check($senhaUsuario, $usuario["senha"])) {
-                $this->Flash->error(Configure::read("messageUsuarioSenhaDoesntMatch"));
-
-                return $this->redirect(array("controller" => "redes", "action" => "index"));
+                throw new Exception(Configure::read("messageUsuarioSenhaDoesntMatch"));
             }
 
-            $rede = $this->Redes->getRedeById($redesId);
+            $rede = $this->Redes->getRedeById($id);
 
             $clientesIds = [];
             $redesHasClientesIds = [];
@@ -343,7 +328,6 @@ class RedesController extends AppController
             if (sizeof($clientesIds) > 0) {
                 // Usuários Has Brindes
                 $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
-
 
                 // Remoção de Transaçoes de cupons
                 $this->CuponsTransacoes->deleteAllByRedesId($rede->id);
@@ -397,14 +381,12 @@ class RedesController extends AppController
             // remove a rede
             $this->Redes->deleteRedesById($rede->id);
 
-            return $this->redirect(array("controller" => "redes", "action" => "index"));
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao remover rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_DELETE_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
 
-            Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, [$th->getMessage()]);
         }
     }
 
