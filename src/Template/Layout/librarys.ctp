@@ -55,7 +55,7 @@ echo $this->Html->meta('icon');
 <?php echo $this->Html->script("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"); ?>
 <?php echo $this->Html->script("//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"); ?>
 
-<?php echo $this->Html->script("https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js"); ?>
+<?php echo $this->Html->script("bootbox/bootbox.min.js"); ?>
 
 <?php
 
