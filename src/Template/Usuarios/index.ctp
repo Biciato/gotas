@@ -72,6 +72,31 @@ use Cake\Routing\Router;
                             var filtros = $("#filtro_usuarios_form").serialize();
                             d.filtros = filtros;
                             return d;
+                          },
+                        [ 5, 15, 20, 100 ],
+                        undefined,
+                        function(row)
+                          {
+                            var column_key = 4;
+                            var column = row[column_key];
+                            //Botão de visualizar
+                            row[column_key] = '<a href="/app_gotas/usuarios/view/' + column['usuario_id'] + '" class="btn btn-xs btn-default botao-navegacao-tabela" title="Ver detalhes"><i class="fa fa-info-circle"></i> </a> ' + 
+                            //Botão de editar operador
+                            '<a href="/app_gotas/usuarios/editar-operador/' + column['usuario_id'] + '" class="btn btn-xs btn-primary botao-navegacao-tabela" title="Editar"><i class="fa fa-edit"></i></a>';
+                            if(column['botoes_extras'])
+                              {
+                                if(column['conta_ativa'])
+                                  {
+                                    row[column_key] += ' <a href="#" class="btn btn-xs  btn-danger btn-confirm" title="Desativar" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente desabilitar o acesso do usuário ' + row[0] + '?" data-action="' + column['url_desativar'] + '"><i class="fa fa-power-off"></i> </a>';
+                                  }
+                                else
+                                  {
+                                    row[column_key] += ' <a href="#" class="btn btn-xs  btn-primary btn-confirm" title="Ativar" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente habilitar o acesso do usuário ' + row[0] + '?" data-action="' + column['url_ativar'] + '"><i class="fa fa-power-off"></i></a>';
+                                  }
+                              }
+                            row[column_key] += ' <a href="#" class="btn btn-xs  btn-danger btn-confirm" title="Remover" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente apagar o registro  ' + row[0] + '?" data-action="' + column['url_deletar'] + '"><i class="fa fa-trash"></i></a>';
+
+                            return row;
                           });
                        }
                   },
@@ -82,7 +107,7 @@ use Cake\Routing\Router;
                       {
                          window['#usuarios-table'].clearPipeline().draw();
                       }
-                  }
+                  },
               };
             $(document).ready(function()
               {

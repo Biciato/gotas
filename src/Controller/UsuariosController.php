@@ -1104,8 +1104,9 @@ class UsuariosController extends AppController
         if (empty($rede) && !empty($redesId)) {
             $rede = $this->Redes->getRedeById($redesId);
         }
-
-        if (!empty($rede)) {
+        //@TODO Lembrete para Gustavo verificar o problema dessa linha
+        //if (!empty($rede)) {
+        if (!empty($redesId)) {
 
             $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
             $unidades = array();
@@ -5394,30 +5395,128 @@ class UsuariosController extends AppController
         if($this->request->is('POST'));
           {
             $data = $this->request->getData();
-            $this->response = $this->response->withType('application/json');
             $usuarios = $this->Usuarios->buscaListaUsuarios($data);
             $tipos_perfil = Configure::read('profileTypesTranslated');
+            $botoes_extras = ($this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']);
             $result = [];
             foreach($usuarios as $usuario)
               {
+                $dados_botoes =
+                  [
+                    'usuario_id' => $usuario->id,
+                    'botoes_extras' => $botoes_extras,
+                    'profile_type_user' => ($usuario->tipo_perfil < PROFILE_TYPE_USER),
+                    'has_usuario' => (!empty($usuario->clientes_has_usuario)),
+                    'url_deletar' => Router::url(
+                        [
+                            'action' => 'delete', $usuario->id,
+                            '?' =>
+                            [
+                                'usuario_id' => $usuario->id,
+                                'return_url' => Router::url(
+                                    [
+                                        'controller' => 'usuarios',
+                                        'action' => 'index'
+                                    ]
+                                )
+                            ]
+                        ])
+                  ];
+                $dados_botoes['conta_ativa'] = $dados_botoes['has_usuario'] ? $usuario->clientes_has_usuario->conta_ativa : $usuario->conta_ativa;
+                $url_ativar = null;
+                $url_desativar = null;
+                if(($dados_botoes['profile_type_user'])&&($dados_botoes['has_usuario']))
+                  {
+                    $url_desativar =  Router::url(array(
+                        "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
+                        array(
+                            "id" => $usuario->clientes_has_usuario->id,
+                            "usuarios_id" => $usuario->id,
+                            "clientes_id" => $usuario->clientes_has_usuario->clientes_id,
+                            "conta_ativa" => 0,
+                            'return_url' => Router::url(
+                                array(
+                                    'controller' => 'usuarios',
+                                    'action' => 'index'
+                                )
+                            )
+                        )
+                    ));
+                    $url_ativar = Router::url(
+                        array(
+
+                            "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
+                            array(
+                                "id" => $usuario->clientes_has_usuario->id,
+                                'usuarios_id' => $usuario->id,
+                                "clientes_id" => $usuario->clientes_has_usuario->clientes_id,
+                                "conta_ativa" => 1,
+                                'return_url' => Router::url(
+                                    array(
+                                        'controller' => 'usuarios',
+                                        'action' => 'index'
+                                    )
+                                )
+                            )
+                    ));
+                  }
+                elseif(($dados_botoes['profile_type_user'])&&(!$dados_botoes['has_usuario']))
+                  {
+                      $url_ativar = Router::url(['action' => 'habilitar_usuario', "?" =>
+                      [
+                          'usuarios_id' => $usuario->id,
+                          'return_url' => Router::url([
+                              'controller' => 'usuarios',
+                              'action' => 'index'
+                          ])
+                      ]]);
+                      $url_desativar = Router::url(['action' => 'desabilitar_usuario', "?" =>
+                      [
+                          'usuarios_id' => $usuario->id,
+                          'return_url' => Router::url([
+                              'controller' => 'usuarios',
+                              'action' => 'index'
+                          ])
+                      ]]);
+                  }
+                else
+                  {
+                    $url_ativar = Router::url(['action' => 'habilitar_usuario', "?" =>
+                    [
+                        'usuarios_id' => $usuario->id,
+                        'return_url' => Router::url([
+                            'controller' => 'usuarios',
+                            'action' => 'index'
+                        ])
+                    ]]);
+                    $url_desativar = Router::url(['action' => 'desabilitar_usuario', "?" =>
+                    [
+                        'usuarios_id' => $usuario->id,
+                        'return_url' => Router::url([
+                        'controller' => 'usuarios',
+                        'action' => 'index'
+                        ])
+                    ]]);
+                  }
+                $dados_botoes['url_ativar'] = $url_ativar;
+                $dados_botoes['url_desativar'] = $url_desativar;
                 array_push($result, 
                   [
                     $tipos_perfil[(int)$usuario["tipo_perfil"]],
                     $usuario->nome,
                     preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
                     $usuario->email,
-                    "Teste"
+                    $dados_botoes
                   ]);
               }
             $total = count($usuarios);
             $result = array_slice($result, $data['start'], $data['length']);
-            $this->response = $this->response->withStringBody(json_encode([
-                    'draw' => $data['draw'],
-                    'recordsTotal' => $total,
-                    'recordsFiltered' =>  $total,
-                    'data' => $result,
-                ]));
-            return $this->response;
+            return ResponseUtil::successAPI('', ['data_table_source' => [
+                'draw' => $data['draw'],
+                'recordsTotal' => $total,
+                'recordsFiltered' =>  $total,
+                'data' => $result,
+            ]]);
           }
       }
     #endregion

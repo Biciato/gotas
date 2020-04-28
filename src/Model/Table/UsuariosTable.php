@@ -2539,23 +2539,23 @@ class UsuariosTable extends GenericTable
          {
            array_push($conditions['AND'], ['tipo_perfil' => $filters['tipo_perfil']]);
           }
-        if(strlen($filters['nome']))
+        if(strlen($filters['Usuarios.nome']))
           {
-            array_push($conditions['AND'], ['nome LIKE \'%' . $filters['nome'] . '%\'']); 
+            array_push($conditions['AND'], ['Usuarios.nome LIKE \'%' . $filters['Usuarios.nome'] . '%\'']); 
           }
-        if(strlen($filters['email']))
+        if(strlen($filters['Usuarios.email']))
           {
-            array_push($conditions['AND'], ['email LIKE \'%' . $filters['email'] . '%\'']); 
+            array_push($conditions['AND'], ['Usuarios.email LIKE \'%' . $filters['Usuarios.email'] . '%\'']); 
           }
-        if(strlen($filters['cpf']))
+        if(strlen($filters['Usuarios.cpf']))
           {
-            array_push($conditions['AND'], ['cpf LIKE \'%' . $filters['cpf'] . '%\'']); 
+            array_push($conditions['AND'], ['Usuarios.cpf LIKE \'%' . $filters['Usuarios.cpf'] . '%\'']); 
           }
        if(!count($conditions['AND']))
          {
            $conditions = false;
          }
-       $lista = $this->find('all', ['order' => $order, 'conditions' => $conditions])->toArray();
+       $lista = $this->find('all', ['order' => $order, 'conditions' => $conditions])->contain(['ClientesHasUsuarios' => ['Clientes' => ['RedesHasClientes' => ['Redes']]]])->toArray();
        return $lista;
     }
 }
