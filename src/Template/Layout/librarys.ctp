@@ -56,6 +56,7 @@ echo $this->Html->meta('icon');
 <?php echo $this->Html->script("//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"); ?>
 
 <?php echo $this->Html->script("bootbox/bootbox.min.js"); ?>
+<?php echo $this->Html->script("bootbox/bootbox.locales.min.js"); ?>
 
 <?php
 

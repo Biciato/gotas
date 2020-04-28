@@ -26,6 +26,8 @@ $(function () {
 
             $(document).on("click", ".redes-index #data-table .delete-item", deleteNetworkOnClick);
             $(document).on("click", ".redes-index #data-table .change-status", changeStatusOnClick);
+            $(".title-action #redes-new-btn-show").on("click", showRedesNewForm);
+            $(".redes-add-form").on("click", "#redes-new-btn-cancel", showRedesIndex);
         };
 
 
@@ -102,30 +104,37 @@ $(function () {
                 message: `<p>
                     Confirme sua senha para continuar
                 </p>`,
-                buttons: {
-                    confirm: {
-                        label: 'Ok',
-                        className: 'btn-success'
-                    },
-                    cancel: {
-                        label: 'Cancelar',
-                        className: 'btn-danger'
-                    }
-                },
+                locale: "pt",
                 inputType: 'password',
                 callback: async function (result) {
                     if (result === null || result === undefined) {
                         return false;
                     }
+                    try {
+                        let response = await deleteRede(redesId, result);
 
-                    let response = await deleteRede(redesId, result);
+                        if (response === undefined || response === null || !response) {
+                            return false;
+                        }
 
-                    if (response === undefined || response === null || !response) {
+                        redesSearchBtnForm.click();
+                    } catch (error) {
+                        console.log(error);
+                        var msg = {};
+
+                        if (error.responseJSON !== undefined) {
+                            toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                            return false;
+                        } else if (error.responseText !== undefined) {
+                            msg = error.responseText;
+                        } else {
+                            msg = error;
+                        }
+
+                        toastr.error(msg);
                         return false;
                     }
-
-                    redesSearchBtnForm.click();
-                }
+                },
             });
         }
 
@@ -190,6 +199,25 @@ $(function () {
             });
 
             generateDataTable(redesIndexDataTable, columns, dataSource, undefined, null);
+        }
+
+        function showRedesIndex(event) {
+            event.preventDefault();
+
+            $(".title-action #redes-new-btn-show").show();
+            $(".redes-add-form").fadeOut(100);
+            $(".redes-index").fadeIn(500);
+        }
+
+        function showRedesNewForm(event) {
+            event.preventDefault();
+
+            $(".title-action #redes-new-btn-show").hide();
+
+            $(".title-action #redes-new-action-btn-display").show();
+            $(".title-action #redes-new-action-btn-save").show();
+            $(".redes-index").fadeOut(100);
+            $(".redes-add-form").fadeIn(500);
         }
 
         // //#endregion
