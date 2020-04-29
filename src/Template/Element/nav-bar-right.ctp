@@ -50,7 +50,7 @@ if (empty($usuarioLogado)) {
 
                     <li role="separator" class="divider"></li>
                     <li>
-                        <?php echo $this->Html->link('Redes', ['controller' => 'Redes', 'action' => 'index']) ?>
+                        <?php echo $this->Html->link('Redes', ['controller' => 'Redes', 'action' => 'redes']) ?>
                     </li>
 
                     <li role="separator" class="dividir">

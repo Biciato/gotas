@@ -24,6 +24,7 @@ use Exception;
 use App\Model\Entity\Rede;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use stdClass;
 
 /**
  * Redes Controller
@@ -35,6 +36,11 @@ use Cake\I18n\Number;
 class RedesController extends AppController
 {
 
+    public function redes()
+    {
+        $this->viewBuilder()->setLayout("default_update");
+    }
+
     /**
      * Index method
      *
@@ -42,26 +48,14 @@ class RedesController extends AppController
      */
     public function index()
     {
-        $this->viewBuilder()->setLayout("default_update");
-        $nomeRede = null;
-        $ativado = null;
-        $appPersonalizado = null;
-
-        if (!$this->request->is("ajax")) {
-            $this->set([]);
-            return;
-        }
-
         if ($this->request->is(Request::METHOD_GET)) {
             $data = $this->request->getQueryParams();
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
             $nomeRede = !empty($data["nome_rede"]) ? $data["nome_rede"] : null;
-            $ativado = isset($data["ativado"]) ? (bool) $data["ativado"] : null;
-            $appPersonalizado = isset($data["app_personalizado"]) ? (bool) $data["app_personalizado"] : null;
-
-            // @TODO Gustavo: Neste momento
+            $ativado = isset($data["ativado"]) && strlen($data["ativado"]) > 0 ? (bool) $data["ativado"] : null;
+            $appPersonalizado = isset($data["app_personalizado"]) && strlen($data["app_personalizado"]) > 0 ? (bool) $data["app_personalizado"] : null;
         }
 
         $redes = $this->Redes->getRedes(
@@ -87,8 +81,18 @@ class RedesController extends AppController
             $appPersonalizado
         );
 
+        $total = $redes->count();
+        $redes = $redes->toArray();
 
-        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['redes' => $redes]);
+        $redes = array_slice($redes, $data['start'], $data['length']);
+
+        $dataTableSource = new stdClass();
+        $dataTableSource->draw = $data['draw'];
+        $dataTableSource->recordsTotal = $total;
+        $dataTableSource->recordsFiltered = $total;
+        $dataTableSource->data = $redes;
+
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
     }
 
     /**
@@ -98,8 +102,10 @@ class RedesController extends AppController
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function verDetalhes($id = null)
+    public function view($id = null)
     {
+        $this->viewBuilder()->setLayout("default_update");
+
         try {
             $rede = $this->Redes->getRedeById($id);
             $imagem = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
@@ -136,7 +142,7 @@ class RedesController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function adicionarRede()
+    public function add()
     {
         try {
             $rede = $this->Redes->newEntity();
@@ -204,7 +210,7 @@ class RedesController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
      */
-    public function editar($id)
+    public function edit($id)
     {
         try {
             $imagemOriginal = null;
@@ -304,39 +310,24 @@ class RedesController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete()
+    public function delete($id)
     {
         try {
-            $this->request->allowMethod(['post', 'delete']);
-
             $data = $this->request->getData();
-
-            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
-            $senhaUsuario = !empty($data["senha_usuario"]) ? $data["senha_usuario"] : null;
-
-            $usuario = $this->Auth->user();
+            $senhaUsuario = !empty($data["password"]) ? $data["password"] : null;
+            $usuario = $this->sessaoUsuario["usuarioLogado"];
             $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
 
-            if (empty($redesId)) {
-                $this->Flash->error("Para remover uma rede, é necessário selecioná-la!");
-
-                return $this->redirect(array("controller" => "redes", "action" => "index"));
-            }
-
             if (empty($senhaUsuario)) {
-                $this->Flash->error("Para continuar, informe sua senha!");
-
-                return $this->redirect(array("controller" => "redes", "action" => "index"));
+                throw new Exception("Para continuar, informe sua senha!");
             }
 
             // Testa a senha do usuário
             if (!(new DefaultPasswordHasher)->check($senhaUsuario, $usuario["senha"])) {
-                $this->Flash->error(Configure::read("messageUsuarioSenhaDoesntMatch"));
-
-                return $this->redirect(array("controller" => "redes", "action" => "index"));
+                throw new Exception(Configure::read("messageUsuarioSenhaDoesntMatch"));
             }
 
-            $rede = $this->Redes->getRedeById($redesId);
+            $rede = $this->Redes->getRedeById($id);
 
             $clientesIds = [];
             $redesHasClientesIds = [];
@@ -349,7 +340,6 @@ class RedesController extends AppController
             if (sizeof($clientesIds) > 0) {
                 // Usuários Has Brindes
                 $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
-
 
                 // Remoção de Transaçoes de cupons
                 $this->CuponsTransacoes->deleteAllByRedesId($rede->id);
@@ -403,39 +393,13 @@ class RedesController extends AppController
             // remove a rede
             $this->Redes->deleteRedesById($rede->id);
 
-            return $this->redirect(array("controller" => "redes", "action" => "index"));
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao remover rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_DELETE_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
 
-            Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, [$th->getMessage()]);
         }
-    }
-
-    /**
-     * Ativa um registro
-     *
-     * @return boolean
-     */
-    public function ativar()
-    {
-        $query = $this->request->query();
-
-        $this->_alteraEstadoRede((int) $query['rede_id'], true, $query['return_url']);
-    }
-
-    /**
-     * Desativa um registro
-     *
-     * @return boolean
-     */
-    public function desativar()
-    {
-        $query = $this->request->query();
-
-        $this->_alteraEstadoRede((int) $query['rede_id'], false, $query['return_url']);
     }
 
     /**
@@ -447,32 +411,17 @@ class RedesController extends AppController
      *
      * @return void
      */
-    private function _alteraEstadoRede(int $rede_id, bool $estado, array $return_url)
+    public function changeStatusAPI($id)
     {
         try {
+            $this->request->allowMethod(Request::METHOD_PUT);
+            $result = $this->Redes->changeStateNetwork($id);
+            $word = $result->ativado ? "habilitada" : "desabilitada";
+            $msg = sprintf("A rede foi %s com sucesso!");
 
-            $this->request->allowMethod(['post']);
-
-            $result = $this->Redes->changeStateEnabledRede($rede_id, $estado);
-
-            if ($result) {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableSuccess')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableSuccess')));
-                }
-            } else {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableError')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableError')));
-                }
-            }
-
-            return $this->redirect($return_url);
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['status_rede' => $msg]);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} ", $e->getMessage());
 
             Log::write('error', $stringError);
 

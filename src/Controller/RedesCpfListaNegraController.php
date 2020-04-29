@@ -192,7 +192,6 @@ class RedesCpfListaNegraController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
 
-
         try {
             if ($this->request->is("delete")) {
 

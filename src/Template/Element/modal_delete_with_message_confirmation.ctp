@@ -47,45 +47,44 @@
 
 ?>
 
-    <div id="modal-delete-with-message-confirmation" class="modal fade modal-delete-with-message-confirmation" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <form method="post" name="post-remove-binding">
-                <div class="modal-content">
-                    <div class="modal-header ">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title success-message"><span class="modal-title-content">Atenção</span></h4>
-                    </div>
-                    <div class="modal-body">
-                        <p class="modal-body-content"></p>
-                        <span class="hidden" id="modal-body-content-append"></span>
-                        <?php echo $this->Form->input(
-                            'senha_usuario',
-                            array(
-                                "type" => "password",
-                                "required" => true,
-                                "name" => "senha_usuario",
-                                "id" => "senha_usuario",
-                                "label" => "Informe a senha para continuar",
-                                // "value" => "segacd85"
-                                "value" => ""
-                            )
-                        ); ?>
-                    </div>
-                    <div class="modal-footer">
-                        <!-- Form para alterar a url de destino -->
-
-                        <?= $this->Form->button(
-                            __('{0} Confirmar', "<i class='fa fa-check-circle-o'></i>"),
-                            array(
-                                'class' => 'btn btn-primary',
-                                'id' => 'submit_button',
-                                "escape" => false
-                            )
-                        ) ?>
-                        
-                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-window-close"></span> Cancelar</button>
-                    </div>
+<div id="modal-delete-with-message-confirmation" class="modal fade modal-delete-with-message-confirmation" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <form method="post" name="post-remove-binding">
+            <div class="modal-content">
+                <div class="modal-header ">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title success-message"><span class="modal-title-content">Atenção</span></h4>
                 </div>
-            </form>
-        </div>
+                <div class="modal-body">
+                    <p class="modal-body-content"></p>
+                    <span class="hidden" id="modal-body-content-append"></span>
+                    <?php echo $this->Form->input(
+                        'senha_usuario',
+                        array(
+                            "type" => "password",
+                            "required" => true,
+                            "name" => "senha_usuario",
+                            "id" => "senha_usuario",
+                            "label" => "Informe a senha para continuar",
+                            "value" => ""
+                        )
+                    ); ?>
+                </div>
+                <div class="modal-footer">
+                    <!-- Form para alterar a url de destino -->
+
+                    <?= $this->Form->button(
+                        __('{0} Confirmar', "<i class='fa fa-check-circle-o'></i>"),
+                        array(
+                            'class' => 'btn btn-primary',
+                            'id' => 'submit_button',
+                            "escape" => false
+                        )
+                    ) ?>
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-window-close"></span> Cancelar</button>
+                </div>
+            </div>
+        </form>
     </div>
+</div>

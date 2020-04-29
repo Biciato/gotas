@@ -473,19 +473,19 @@ class UsuariosController extends AppController
                     }
                 }
 
-               $success = true;
+                $success = true;
 
                 if (isset($this->usuarioLogado)) {
 
                     if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                       // return $this->redirect(['action' => 'index']);
+                        // return $this->redirect(['action' => 'index']);
                     } elseif ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['ManagerProfileType']) {
-                       // return $this->redirect(['action' => 'meus_clientes']);
+                        // return $this->redirect(['action' => 'meus_clientes']);
                     } else {
-                       // return $this->redirect(['controller' => 'pages', 'action' => 'index']);
+                        // return $this->redirect(['controller' => 'pages', 'action' => 'index']);
                     }
                 } else {
-                   // return $this->redirect("/Pages/instalaMobile");
+                    // return $this->redirect("/Pages/instalaMobile");
                 }
             } else {
                 $mensagem = __('O usuário não pode ser registrado.') . '<br/>';
@@ -1542,14 +1542,13 @@ class UsuariosController extends AppController
     public function esqueciMinhaSenha()
     {
         $this->viewBuilder()->setLayout('login');
-        
+
         if ($this->request->is('post')) {
             $message = null;
             $success = false;
             $usuario = $this->Usuarios->getUsuarioByEmail($this->request->data['email']);
             if (is_null($usuario)) {
                 $message = __(Configure::read("messageEmailNotFound"));
-
             } else {
                 // gera o token que o usuário irá utilizar para recuperar a senha
 
@@ -1567,10 +1566,11 @@ class UsuariosController extends AppController
             }
             $this->response = $this->response->withType('application/json');
             $this->response = $this->response->withStringBody(json_encode(
-              [
-                'success' => $success,
-                'message' => $message
-              ]));
+                [
+                    'success' => $success,
+                    'message' => $message
+                ]
+            ));
             return $this->response;
         }
 
@@ -1613,15 +1613,16 @@ class UsuariosController extends AppController
                     $msg .= " " . implode(" - ", $errors);
                 }
                 $success = false;
-                
+
                 // return;
             }
             $this->response = $this->response->withType('application/json');
             $this->response = $this->response->withStringBody(json_encode(
-              [
-                'success' => $success,
-                'message' => $msg ?? $message
-              ]));
+                [
+                    'success' => $success,
+                    'message' => $msg ?? $message
+                ]
+            ));
             return $this->response;
         }
 
@@ -2401,7 +2402,7 @@ class UsuariosController extends AppController
      */
     public function esqueciMinhaSenhaAPI()
     {
-        
+
         $mensagem = [];
 
         if ($this->request->is('post')) {
@@ -2426,12 +2427,13 @@ class UsuariosController extends AppController
                     $mensagem = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
-            $this->response = $this->response->withType('application/json').
-            $this->response = $this->response->withStringBody(json_encode(
-              [
-                'success' => $success,
-                'message' => $mensagem
-              ]));
+            $this->response = $this->response->withType('application/json') .
+                $this->response = $this->response->withStringBody(json_encode(
+                    [
+                        'success' => $success,
+                        'message' => $mensagem
+                    ]
+                ));
             return $this->response;
         }
 
@@ -5391,42 +5393,40 @@ class UsuariosController extends AppController
         }
     }
     public function carregarUsuarios()
-      {
-        if($this->request->is('GET'));
-          {
+    {
+        if ($this->request->is('GET')); {
             $data = $this->request->getData();
             $usuarios = $this->Usuarios->buscaListaUsuarios($data);
             $tipos_perfil = Configure::read('profileTypesTranslated');
             $botoes_extras = ($this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']);
             $result = [];
-            foreach($usuarios as $usuario)
-              {
+            foreach ($usuarios as $usuario) {
                 $dados_botoes =
-                  [
-                    'usuario_id' => $usuario->id,
-                    'botoes_extras' => $botoes_extras,
-                    'profile_type_user' => ($usuario->tipo_perfil < PROFILE_TYPE_USER),
-                    'has_usuario' => (!empty($usuario->clientes_has_usuario)),
-                    'url_deletar' => Router::url(
-                        [
-                            'action' => 'delete', $usuario->id,
-                            '?' =>
+                    [
+                        'usuario_id' => $usuario->id,
+                        'botoes_extras' => $botoes_extras,
+                        'profile_type_user' => ($usuario->tipo_perfil < PROFILE_TYPE_USER),
+                        'has_usuario' => (!empty($usuario->clientes_has_usuario)),
+                        'url_deletar' => Router::url(
                             [
-                                'usuario_id' => $usuario->id,
-                                'return_url' => Router::url(
-                                    [
-                                        'controller' => 'usuarios',
-                                        'action' => 'index'
-                                    ]
-                                )
+                                'action' => 'delete', $usuario->id,
+                                '?' =>
+                                [
+                                    'usuario_id' => $usuario->id,
+                                    'return_url' => Router::url(
+                                        [
+                                            'controller' => 'usuarios',
+                                            'action' => 'index'
+                                        ]
+                                    )
+                                ]
                             ]
-                        ])
-                  ];
+                        )
+                    ];
                 $dados_botoes['conta_ativa'] = $dados_botoes['has_usuario'] ? $usuario->clientes_has_usuario->conta_ativa : $usuario->conta_ativa;
                 $url_ativar = null;
                 $url_desativar = null;
-                if(($dados_botoes['profile_type_user'])&&($dados_botoes['has_usuario']))
-                  {
+                if (($dados_botoes['profile_type_user']) && ($dados_botoes['has_usuario'])) {
                     $url_desativar =  Router::url(array(
                         "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
                         array(
@@ -5458,29 +5458,9 @@ class UsuariosController extends AppController
                                     )
                                 )
                             )
-                    ));
-                  }
-                elseif(($dados_botoes['profile_type_user'])&&(!$dados_botoes['has_usuario']))
-                  {
-                      $url_ativar = Router::url(['action' => 'habilitar_usuario', "?" =>
-                      [
-                          'usuarios_id' => $usuario->id,
-                          'return_url' => Router::url([
-                              'controller' => 'usuarios',
-                              'action' => 'index'
-                          ])
-                      ]]);
-                      $url_desativar = Router::url(['action' => 'desabilitar_usuario', "?" =>
-                      [
-                          'usuarios_id' => $usuario->id,
-                          'return_url' => Router::url([
-                              'controller' => 'usuarios',
-                              'action' => 'index'
-                          ])
-                      ]]);
-                  }
-                else
-                  {
+                        )
+                    );
+                } elseif (($dados_botoes['profile_type_user']) && (!$dados_botoes['has_usuario'])) {
                     $url_ativar = Router::url(['action' => 'habilitar_usuario', "?" =>
                     [
                         'usuarios_id' => $usuario->id,
@@ -5493,22 +5473,41 @@ class UsuariosController extends AppController
                     [
                         'usuarios_id' => $usuario->id,
                         'return_url' => Router::url([
-                        'controller' => 'usuarios',
-                        'action' => 'index'
+                            'controller' => 'usuarios',
+                            'action' => 'index'
                         ])
                     ]]);
-                  }
+                } else {
+                    $url_ativar = Router::url(['action' => 'habilitar_usuario', "?" =>
+                    [
+                        'usuarios_id' => $usuario->id,
+                        'return_url' => Router::url([
+                            'controller' => 'usuarios',
+                            'action' => 'index'
+                        ])
+                    ]]);
+                    $url_desativar = Router::url(['action' => 'desabilitar_usuario', "?" =>
+                    [
+                        'usuarios_id' => $usuario->id,
+                        'return_url' => Router::url([
+                            'controller' => 'usuarios',
+                            'action' => 'index'
+                        ])
+                    ]]);
+                }
                 $dados_botoes['url_ativar'] = $url_ativar;
                 $dados_botoes['url_desativar'] = $url_desativar;
-                array_push($result, 
-                  [
-                    $tipos_perfil[(int)$usuario["tipo_perfil"]],
-                    $usuario->nome,
-                    preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
-                    $usuario->email,
-                    $dados_botoes
-                  ]);
-              }
+                array_push(
+                    $result,
+                    [
+                        $tipos_perfil[(int) $usuario["tipo_perfil"]],
+                        $usuario->nome,
+                        preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
+                        $usuario->email,
+                        $dados_botoes
+                    ]
+                );
+            }
             $total = count($usuarios);
             $result = array_slice($result, $data['start'], $data['length']);
             return ResponseUtil::successAPI('', ['data_table_source' => [
@@ -5517,7 +5516,7 @@ class UsuariosController extends AppController
                 'recordsFiltered' =>  $total,
                 'data' => $result,
             ]]);
-          }
-      }
+        }
+    }
     #endregion
 }

@@ -2764,7 +2764,7 @@ div.dt-button-info {
   width: 200px;
 }
 .form-control {
-  font-size: 0.9rem;
+  font-size: 1.3rem;
 }
 select.form-control:not([size]):not([multiple]) {
   height: 3.3rem;

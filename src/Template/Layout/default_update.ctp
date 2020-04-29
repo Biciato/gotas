@@ -16,6 +16,8 @@
     <?php echo $this->Html->css('//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'); ?>
     <?php echo $this->fetch('css'); ?>
 
+
+
 </head>
 
 <body class="">
@@ -173,7 +175,7 @@
 
                 </nav>
             </div>
-            <div class="row wrapper border-bottom white-bg page-heading">
+            <!-- <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-4">
                     <h2>This is main title</h2>
                     <ol class="breadcrumb">
@@ -190,9 +192,9 @@
                         <a href="" class="btn btn-primary">This is action area</a>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
-            <div class="wrapper wrapper-content">
+            <div>
                 <?php echo $this->fetch('content'); ?>
             </div>
             <div class="footer">
@@ -206,15 +208,18 @@
         </div>
     </div>
 
-    <?php echo $this->Html->script("https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"); ?>
-    <?php echo $this->Html->script("layout-update/popper.min.js"); ?>
-    <?php echo $this->Html->script("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"); ?>
-    <?php echo $this->Html->script("//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"); ?>
+    <?= $this->element("../Layout/librarys"); ?>
+    <?php // echo $this->Html->script("https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js");
+    ?>
+
     <?php echo $this->Html->script("layout-update/inspinia"); ?>
     <?php echo $this->Html->script("layout-update/pace/pace.min"); ?>
     <?php echo $this->Html->script("layout-update/metisMenu/jquery.metisMenu.js"); ?>
     <?php echo $this->Html->script("layout-update/slimscroll/jquery.slimscroll.min.js"); ?>
-    <?php echo $this->Html->script("/js/scripts/pages/home"); ?>
+    <?php echo $this->Html->script("/js/scripts/pages/home");
+    ?>
+
+
     <?php echo $this->fetch('script'); ?>
 
 </body>

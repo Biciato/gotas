@@ -213,6 +213,10 @@ $(document).ready(function () {
     });
 });
 
+//#region Global Functions
+
+// #region Regiões de Modal
+
 /**
  * Abre janela de Modal que exibe conteúdo de mensagem, procura pelo atributo setado
  */
@@ -302,6 +306,16 @@ var callLoaderAnimation = function (text_info) {
     }
 };
 
+/**
+ * Fecha tela de loading
+ */
+var closeLoaderAnimation = function () {
+    $(".loading").hide();
+
+    // $(".modal-loader").modal("hide");
+};
+
+//#endregion
 
 /**
  * Converte texto para Telefone
@@ -324,14 +338,7 @@ var clearNumbers = function (value) {
     return value.replace(/(\D+)/g, "");
 };
 
-/**
- * Fecha tela de loading
- */
-var closeLoaderAnimation = function () {
-    $(".loading").hide();
 
-    // $(".modal-loader").modal("hide");
-};
 
 /**
  * home::fixMoneyValue
@@ -952,7 +959,7 @@ var initializeTimePicker = function (
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 1.2.0
  */
-var printRegion = function(region) {
+var printRegion = function (region) {
     if ((region.indexOf(".") < 0 && region.indexOf("#") < 0) || region === undefined) {
         window.alert("Necessário informar region para impressão!");
         return false;
@@ -1342,3 +1349,5 @@ var validacaoGenericaForm = function (e) {
         }
     });
 };
+
+//#endregion
