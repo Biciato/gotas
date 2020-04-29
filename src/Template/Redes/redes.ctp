@@ -21,7 +21,7 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
         <h2>Lista de Redes</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <?= $this->Html->link("Início", ['controller' => "Pages", "action" => "redes"]); ?>
+                <?= $this->Html->link("Início", ['controller' => "Pages", "action" => "redes"], ['id' => 'breadcrumb-item-redes-start']); ?>
             </li>
             <li class="breadcrumb-item active">
                 <strong>Redes</strong>

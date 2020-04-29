@@ -6,6 +6,122 @@
  * @date 2020-04-22
  */
 
+
+var historyList = [];
+
+
+/**
+ * Intercepta a operação de history.go() e history.back(), remontando a barra de navegação
+ * e a action à exibir
+ */
+window.onpopstate = function () {
+    navigationManagement.popState();
+}
+
+var navigationManagement = {
+    broadcrumbIdentifier: "",
+    init: function (broadcrumbIdentifier, minBroadCrumbLevel = undefined) {
+        var self = this;
+
+        self.broadcrumbIdentifier = broadcrumbIdentifier;
+        self.minBroadCrumbLevel = minBroadCrumbLevel;
+        return this;
+    },
+    minBroadCrumbLevel: "",
+    /**
+     * Pilha que irá guardar as informações das telas navegadas
+     */
+    navigationList: [],
+    pushState: function (title, url, functionName, params) {
+        var self = this;
+        self.navigationList.push({
+            title: title,
+            url: url,
+            function: functionName,
+            params: params
+        });
+
+        // faz in/out no history
+        self.refreshState('in');
+        window.history.replaceState({}, title, url);
+        console.log(self.pushState.name);
+        console.log(self.navigationList);
+
+        console.log('history');
+        console.log(window.history);
+
+        // window.history.pushState({}, "Redes", window.location.href);
+        return self;
+    },
+    /**
+     *  Remove último item da navegação (se disponível)
+     */
+    popState: function () {
+        let self = this;
+        let lastState = self.navigationList[self.navigationList.length - 1];
+
+        if (self.navigationList.length > 0 && lastState.title !== self.minBroadCrumbLevel) {
+            self.navigationList.pop();
+        }
+
+        self.refreshState();
+
+        return self;
+
+    },
+    refreshState: function (operation) {
+        let self = this;
+
+        if (operation === 'in') {
+            let lastState = self.navigationList[self.navigationList.length - 1];
+            window.history.pushState({}, lastState.title, lastState.url);
+
+        } else {
+            if (self.navigationList !== undefined && self.navigationList !== null && self.navigationList.length > 0) {
+                // Pega a anterior à atual
+                let lastState = self.navigationList[self.navigationList.length - 1];
+
+                if ((lastState !== undefined && lastState !== null) && (lastState["function"] !== undefined && lastState["function"] !== null)) {
+                    if (lastState["function"].length == 0) {
+                        window.location.href = lastState["url"];
+                        return;
+                    }
+                    window.history.replaceState({}, lastState.title, lastState.url);
+                    $(lastState["function"]).click();
+                }
+            }
+        }
+
+        return self;
+    },
+    renderBroadCrumb = function () {
+        let self = this;
+
+        if (self.broadcrumbIdentifier !== undefined && self.broadcrumbIdentifier !== null && self.broadcrumbIdentifier.length > 0) {
+
+            // Limpa a barra de menu
+            $(self.broadcrumbIdentifier).empty();
+
+            // Para cada item de navegação, adiciona um menu
+
+            self.navigationList.forEach(nav => {
+
+            });
+        }
+
+        return self;
+    },
+
+    navigationListReset: function () {
+        let self = this;
+
+        self.navigationList = [];
+
+        return self;
+    }
+
+};
+
 var rede = {
     // #region Functions
     init: function () {
@@ -13,21 +129,21 @@ var rede = {
         var self = this;
         self.initDataTable();
         $(document).on("click", ".redes-index #btn-search", self.getRedes);
-        $(".redes-index #btn-search").trigger("click");
 
         $(document).on("click", ".redes-index #data-table .delete-item", self.deleteNetworkOnClick);
         $(document).on("click", ".redes-index #data-table .change-status", self.changeStatusOnClick);
         $(".title-action #redes-new-btn-show").on("click", self.showRedesNewForm);
-        $(".redes-add-form").on("click", "#redes-new-btn-cancel", self.showRedesIndex);
+        $(".redes-add-form #redes-new-btn-cancel").on("click", self.showRedesIndex);
+        $("#breadcrumb-item-redes-start").on("click", self.showRedesIndex);
+        $("#breadcrumb-item-redes-start").click();
 
         return this;
     },
-
     /**
      * Atualiza tabela de dados
      */
-    getRedes: function () {
-        e.preventDefault();
+    getRedes: function (evt) {
+        evt.preventDefault();
         if (typeof window['.redes-index #data-table'] !== 'undefined') {
             window['.redes-index #data-table'].clearPipeline().draw();
         }
@@ -41,11 +157,8 @@ var rede = {
      * @since 1.2.3
      * @date 2020-04-22
      */
-    initDataTable: async function (evt) {
-        // @todo corrigir pela nova funcionalidade
-
+    initDataTable: function (evt) {
         let btnHelper = new ButtonHelper();
-
         let columns = [{
                 data: "id",
                 title: "Id",
@@ -87,22 +200,19 @@ var rede = {
                     name: rowData.nome_rede
                 };
 
-                // let nomeRede = $(".redes-index #nome-rede");
-                // let ativado = $(".redes-index #ativado");
-                // let appPersonalizado = $(".redes-index #app-personalizado");
-                // let data = await getRedes(nomeRede.val(), ativado.val(), appPersonalizado.val());
-
                 let actionView = btnHelper.generateLinkViewToDestination("/redes/view/:id", btnHelper.ICON_INFO, null, "Ver Detalhes");
                 let editView = btnHelper.generateLinkEditToDestination("/redes/edit/:id", null, "Editar");
                 let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
-                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rede.ativado, undefined, undefined, "change-status");
+                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, undefined, "change-status");
 
-                rowData["actions"] = actionView.outerHTML;
-                rowData["actions"] += editView.outerHTML;
-                rowData["actions"] += deleteBtn.outerHTML;
-                rowData["actions"] += changeStatus.outerHTML;
-                console.log(rowData);
+                let buttons = [actionView, editView, deleteBtn, changeStatus];
+                let buttonsString = "";
 
+                buttons.forEach(x => {
+                    buttonsString += x.outerHTML + " ";
+                });
+
+                rowData["actions"] = buttonsString;
                 return rowData;
             });
     },
@@ -118,6 +228,8 @@ var rede = {
     addNetworkOnClick: async function (evt) {
         // @todo continuar
         evt.preventDefault();
+
+
 
     },
     /**
@@ -227,20 +339,43 @@ var rede = {
     },
     showRedesNewForm: function (evt) {
         event.preventDefault();
-
         $(".title-action #redes-new-btn-show").hide();
         $(".title-action #redes-new-action-btn-display").show();
         $(".title-action #redes-new-action-btn-save").show();
 
         $(".redes-index").fadeOut(100);
         $(".redes-add-form").fadeIn(500);
+
+
+        navigationManagement.pushState(
+            $(".redes-add-form .ibox-title h5").text(),
+            "/redes/add",
+            ".redes-add-form #redes-new-btn-cancel",
+            []
+        );
     },
     showRedesIndex: function (evt) {
-        event.preventDefault();
+        var self = this;
+
+        evt.preventDefault();
+
+        // Reseta toda a navegação
+        navigationManagement.navigationListReset();
+        // Adiciona navegação e também para montagem da barra de breadcrumbs
+        navigationManagement.pushState(
+            "Início",
+            "/"
+        );
+        navigationManagement.pushState("Redes",
+            "/redes/redes",
+            "#breadcrumb-item-redes-start"
+        );
 
         $(".title-action #redes-new-btn-show").show();
         $(".redes-add-form").fadeOut(100);
         $(".redes-index").fadeIn(500);
+
+        return this;
     },
     //#region Services
     /**
