@@ -24,6 +24,7 @@ use Exception;
 use App\Model\Entity\Rede;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use stdClass;
 
 /**
  * Redes Controller
@@ -80,7 +81,18 @@ class RedesController extends AppController
             $appPersonalizado
         );
 
-        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['redes' => $redes]);
+        $total = $redes->count();
+        $redes = $redes->toArray();
+
+        $redes = array_slice($redes, $data['start'], $data['length']);
+
+        $dataTableSource = new stdClass();
+        $dataTableSource->draw = $data['draw'];
+        $dataTableSource->recordsTotal = $total;
+        $dataTableSource->recordsFiltered = $total;
+        $dataTableSource->data = $redes;
+
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
     }
 
     /**

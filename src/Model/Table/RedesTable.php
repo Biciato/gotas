@@ -420,7 +420,7 @@ class RedesTable extends GenericTable
      * @param boolean $pontuacaoExtraProdutoGenerico
      * @param DateTime $dateCreatedMin
      * @param DateTime $dateCreatedMax
-     * @return void
+     * @return \Cake\Orm\Query|\App\Model\Entity\Rede[]
      */
     public function getRedes(
         int $id = null,

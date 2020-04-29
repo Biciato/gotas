@@ -151,13 +151,16 @@ $extensionDebug = Configure::read("debug") ? "" : ".min";
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="col-lg-6">
+                                        <div class="col-lg-4">
+                                            <label for="tempo_expiracao_gotas_usuarios">Tempo Expiracao de Pontos dos Usuários (meses)*</label>
+                                            <input type="number" min="1" max="99999" name="tempo_expiracao_gotas_usuarios" id="tempo-expiracao-gotas-usuarios" placeholder="Tempo Expiracao de Pontos dos Usuários..." title="Tempo Expiracao de Pontos dos Usuários (em meses)" required="required" value="6" class="form-control" />
+                                        </div>
+                                        <div class="col-lg-4">
                                             <label for="custo_referencia_gotas">Custo Referência Gotas (R$)*</label>
                                             <input type="text" name="custo_referencia_gotas" id="custo_referencia_gotas" placeholder="Custo Referência Gotas (R$)..." title="Custo Referência Gotas (R$)" required="required" value="" class="form-control" />
-
                                         </div>
 
-                                        <div class="col-lg-6">
+                                        <div class="col-lg-4">
                                             <label for="media_assiduidade_clientes">Média Assid. Clientes (Mês)*</label>
                                             <input type="number" min="1" max="30" name="media_assiduidade_clientes" required="required" title="Média Assiduidade Clientes (Mês)" id="media_assiduidade_clientes" class="form-control" value="" placeholder="Media de Assiduidade Clientes (Mês)" />
 

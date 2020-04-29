@@ -169,6 +169,9 @@ echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYST
 echo $this->Html->script(sprintf("scripts/helpers/Html/ButtonHelper.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/helpers/DataTables/DataTablesHelper.js?version=%s", SYSTEM_VERSION));
 
+echo $this->Html->script(sprintf('layout-update/pipeline_wrapper.js?version=%s', SYSTEM_VERSION));
+
+
 ?>
 
 
