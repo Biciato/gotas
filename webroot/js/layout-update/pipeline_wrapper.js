@@ -5,7 +5,7 @@ $.fn.dataTable.pipeline = function ( opts ) {
          pages: 1,     // number of pages to cache
          url: null,      // script url
          data: null,   // function or object with parameters to send to the server
-         method: 'POST' // Ajax HTTP method
+         method: 'GET' // Ajax HTTP method
      }, opts );
      // Private variables for storing the cache
      var cacheLower = -1;
