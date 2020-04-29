@@ -5394,7 +5394,7 @@ class UsuariosController extends AppController
     }
     public function carregarUsuarios()
     {
-        if ($this->request->is('POST')); {
+        if ($this->request->is('GET')); {
             $data = $this->request->getData();
             $usuarios = $this->Usuarios->buscaListaUsuarios($data);
             $tipos_perfil = Configure::read('profileTypesTranslated');
