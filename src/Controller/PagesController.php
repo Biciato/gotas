@@ -68,6 +68,8 @@ class PagesController extends AppController
 
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
+        $this->viewBuilder()->setLayout("default_update");
+
         // $user = $this->request->session()->read('Auth.User');
         $user = $this->Auth->user();
 
@@ -89,7 +91,7 @@ class PagesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar->toArray();
         }
 
-        $this->setDashboard($usuarioLogado);
+        // $this->setDashboard($usuarioLogado);
 
         $count = count($path);
         if (!$count) {

@@ -170,9 +170,26 @@ echo $this->Html->script(sprintf("scripts/helpers/Html/ButtonHelper.js?version=%
 echo $this->Html->script(sprintf("scripts/helpers/DataTables/DataTablesHelper.js?version=%s", SYSTEM_VERSION));
 
 echo $this->Html->script(sprintf('layout-update/pipeline_wrapper.js?version=%s', SYSTEM_VERSION));
+?>
+
+<!-- Sammy.JS -->
+
+<?php
+
+echo $this->Html->script(sprintf("sammy-master/lib/min/sammy-latest.min.js?version=%s", SYSTEM_VERSION));
+// echo $this->Html->script(sprintf("sammy-master/lib/sammy.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?version=%s", SYSTEM_VERSION));
+?>
+
+
+<!-- Controllers JS -->
+
+<?php
+echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
 
 
 ?>
+
 
 
 <!-- Fim Estilos -->
