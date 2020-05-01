@@ -25,11 +25,30 @@ var sammy = Sammy("#content-html", function () {
             $(document).html(html);
         })
     });
-    self.get("#/redes/view/:id", (context) => {
-        context.partial("view/redes/view.html", function (html) {
-            // $(document).html(html);
-            return html;
-        });
+    self.get("#/redes/view/:id", async function (context) {
+        let id = this.params.id;
+        let url = `/api/redes/${id}`;
+
+        let get = async function (url) {
+            return Promise.resolve($.ajax({
+                type: "GET",
+                url: url,
+                dataType: "JSON"
+            }));
+        }
+
+        let restRequest = await get(url);
+
+        let rede = restRequest.data;
+        context.render("view/redes/view.template", {
+            rede: rede
+        }).replace($("#content-html"));
+        // context.partial("view/redes/view.html", {
+        //     rede: rede
+        // }, function (html) {
+        //     // $(document).html(html);
+        //     return html;
+        // });
 
     });
     self.get("#/redes/add", (context) => {

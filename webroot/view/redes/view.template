@@ -13,9 +13,7 @@
             </li>
         </ol>
     </div>
-    <div class="col-lg-8">
-
-    </div>
+    <div class="col-lg-8"></div>
 </div>
 
 <div class="content">
@@ -23,7 +21,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5><span id="nome-rede"></span></h5>
+                    <h5>Nome da Rede: <span id="nome-rede"><%= rede.nome_rede %></span></h5>
                 </div>
                 <div class="ibox-content">
                     <form name="form_redes_add" id="form-redes-add">
@@ -48,7 +46,7 @@
                                     <div class="form-group row">
                                         <div class="col-lg-3">
                                             <label for="nome_rede">Nome da Rede*</label>
-                                            <input type="text" name="nome_rede" id="nome_rede" class="form-control" value="" placeholder="Nome da Rede..." title="Nome da Rede*" autofocus required />
+                                            <input type="text" name="nome_rede" id="nome_rede" class="form-control" placeholder="Nome da Rede..." title="Nome da Rede*" value="<%= rede.nome_rede %>" autofocus required />
                                         </div>
 
                                         <div class="col-lg-3">
@@ -62,7 +60,7 @@
                                                 name="quantidade_pontuacoes_usuarios_dia"
                                                 title="Máximo Abastecimento Gotas Diárias para Usuário"
                                                 required
-                                                value="3"
+                                                value="<%= rede.quantidade_pontuacoes_usuarios_dia %>"
                                             />
                                         </div>
                                         <div class="col-lg-3">
@@ -90,7 +88,7 @@
                                                 class="form-control"
                                                 name="qte_mesmo_brinde_resgate_dia"
                                                 required
-                                                value=""
+                                                value="<%= rede.qte_mesmo_brinde_resgate_dia %>"
                                             />
                                         </div>
                                     </div>
@@ -106,7 +104,7 @@
                                                 placeholder="Tempo Expiracao de Pontos dos Usuários..."
                                                 title="Tempo Expiracao de Pontos dos Usuários (em meses)"
                                                 required="required"
-                                                value="6"
+                                                value="<%= rede.tempo_expiracao_gotas_usuarios %>"
                                                 class="form-control"
                                             />
                                         </div>
@@ -119,7 +117,7 @@
                                                 placeholder="Custo Referência Gotas (R$)..."
                                                 title="Custo Referência Gotas (R$)"
                                                 required="required"
-                                                value=""
+                                                value="<%= rede.custo_referencia_gotas %>"
                                                 class="form-control"
                                             />
                                         </div>
@@ -135,7 +133,7 @@
                                                 title="Média Assiduidade Clientes (Mês)"
                                                 id="media_assiduidade_clientes"
                                                 class="form-control"
-                                                value=""
+                                                value="<%= rede.media_assiduidade_clientes %>"
                                                 placeholder="Media de Assiduidade Clientes (Mês)"
                                             />
                                         </div>
@@ -150,7 +148,7 @@
                                                 placeholder="Qte. Litros Mínima para Atingir Bonificação"
                                                 title="Qte. Litros Mínima para Atingir Bonificação"
                                                 required="required"
-                                                value=""
+                                                value="<%= rede.qte_gotas_minima_bonificacao %>"
                                                 class="form-control"
                                             />
                                         </div>
@@ -163,7 +161,7 @@
                                                 required="required"
                                                 id="qte_gotas_bonificacao"
                                                 class="form-control"
-                                                value=""
+                                                value="<%= rede.qte_gotas_bonificacao %>"
                                                 placeholder="Qte. Bonificação na Importação da SEFAZ"
                                                 title="Qte. Bonificação na Importação da SEFAZ"
                                             />
@@ -215,7 +213,7 @@
                                     <input type="hidden" name="checkbox" value="0" />
                                     <div class="col-lg-12">
                                         <label>
-                                            <input type="checkbox" name="ativado" id="ativado" />
+                                            <input type="checkbox" name="ativado" id="ativado" checked="<%= rede.ativado ? 'checked' : '' %>" />
                                             Rede Ativada
                                         </label>
                                     </div>

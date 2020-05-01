@@ -338,7 +338,13 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources("Redes", [
-        "map" => [
+        "map" =>
+        [
+            // "view" => [
+            //     "action" => "view",
+            //     "method" => Request::METHOD_GET,
+            //     "path" => "view/:id"
+            // ],
             "getRedeAPI" => [
                 "action" => "getRedeAPI",
                 "method" => Request::METHOD_GET,

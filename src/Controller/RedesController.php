@@ -104,7 +104,7 @@ class RedesController extends AppController
      */
     public function view($id = null)
     {
-        $this->viewBuilder()->setLayout("default_update");
+        // $this->viewBuilder()->setLayout("default_update");
 
         try {
             $rede = $this->Redes->getRedeById($id);
@@ -114,7 +114,7 @@ class RedesController extends AppController
             $cnpj = null;
             $clientesIds = array();
 
-            if ($this->request->is("post")) {
+            if ($this->request->is("GET")) {
                 $data = $this->request->getData();
                 $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
                 $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
@@ -124,9 +124,11 @@ class RedesController extends AppController
             $redesHasClientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
             $this->paginate($redesHasClientes, ['limit' => 10]);
 
-            $arraySet = ['rede', 'redesHasClientes', 'imagem'];
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
+            $data = [
+                'rede' => $rede
+            ];
+
+            return ResponseUtil::successAPI('', ['data' => $rede]);
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $message = __("Erro ao exibir detalhes de Rede : {0}", $e->getMessage());

@@ -177,8 +177,9 @@ echo $this->Html->script(sprintf('layout-update/pipeline_wrapper.js?version=%s',
 <?php
 
 echo $this->Html->script(sprintf("sammy-master/lib/min/sammy-latest.min.js?version=%s", SYSTEM_VERSION));
-// echo $this->Html->script(sprintf("sammy-master/lib/sammy.js?version=%s", SYSTEM_VERSION));
+// echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.ejs.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?version=%s", SYSTEM_VERSION));
+// echo $this->Html->script(sprintf("sammy-master/lib/sammy.js?version=%s", SYSTEM_VERSION));
 ?>
 
 
