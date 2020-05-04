@@ -9,6 +9,7 @@ indent_size = 4
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
+max_line_lenght=200
 
 [*.html]
 tab_width = 4

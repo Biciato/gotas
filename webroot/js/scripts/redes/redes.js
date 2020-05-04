@@ -6,12 +6,15 @@
  * @date 2020-04-22
  */
 
+var sammy = $.sammy.apps['#content-body'];
 
 var rede = {
     // #region Functions
     init: function () {
         'use strict';
         var self = this;
+        document.title = 'GOTAS - Redes';
+
         self.initDataTable();
         $(document).on("click", ".redes-index #btn-search", self.getRedes);
 

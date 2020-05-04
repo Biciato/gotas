@@ -20,7 +20,9 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use Cake\Database\Expression\QueryExpression;
 use Exception;
+use Cake\Database\Exception as CakeDatabaseException;
 
 /**
  * Clientes Model
@@ -393,6 +395,61 @@ class ClientesTable extends GenericTable
     }
 
     /**
+     * Obtem lista de Clientes associadas a uma rede, conforme parâmetros
+     *
+     * @param integer $redesId Id de rede
+     * @param string $nomeFantasia Nome Fantasia
+     * @param string $razaoSocial Razão Social
+     * @param string $cnpj CNPJ
+     *
+     * @return \App\Model\Entity\Cliente[]|\Cake\ORM\Query $array|query Object
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-04
+     */
+    public function getClientes(int $redesId, string $nomeFantasia = null, string $razaoSocial = null, string $cnpj = null, int $ativado = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $nomeFantasia, $razaoSocial, $cnpj, $ativado) {
+
+                $exp->eq("Redes.id", $redesId);
+
+                if (isset($ativado)) {
+                    $exp->eq("Clientes.ativado", $ativado);
+                }
+
+                if (!empty($nomeFantasia)) {
+                    $exp->like("Clientes.nome_fantasia", sprintf("%%%s%%", $nomeFantasia));
+                }
+
+                if (!empty($razaoSocial)) {
+                    $exp->like("Clientes.razao_social", sprintf("%%%s%%", $razaoSocial));
+                }
+
+                if (!empty($cnpj)) {
+                    $exp->eq("Clientes.cnpj", $cnpj);
+                }
+
+                return $exp;
+            };
+
+            $contain = [
+                "RedesHasClientes.Redes"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($contain);
+        } catch (\Throwable $th) {
+            $codeError = $th->getCode();
+            $message = sprintf("[{%s} %s] %s", $codeError, MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new CakeDatabaseException($message, $codeError);
+        }
+    }
+
+    /**
      * Obtem todos os clientes
      * Utilizado para Serviços REST
      *
@@ -406,7 +463,7 @@ class ClientesTable extends GenericTable
      *
      * @return array ("count", "data")
      */
-    public function getClientes(array $whereConditions = array(), int $usuariosId = null, array $orderConditions = array(), array $paginationConditions = array())
+    public function getClientesProximos(array $whereConditions = array(), int $usuariosId = null, array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
             $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
@@ -1005,7 +1062,8 @@ class ClientesTable extends GenericTable
             }
 
             return $returnIds;
-        } catch (\Exception $e) { }
+        } catch (\Exception $e) {
+        }
     }
 
     /**

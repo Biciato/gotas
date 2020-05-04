@@ -44,31 +44,64 @@ class ClientesController extends AppController
      */
     public function index()
     {
-        $conditions = [];
+        // Se a pesquisa é feita por alguém que está vinculado à uma rede, fixa o id da rede
+        $redesId = !empty($this->rede) ? $this->rede->id : 0;
 
-        if ($this->request->is('post')) {
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $getData = $this->request->getQueryParams();
 
-            $data = $this->request->getData();
+                // Parâmetro de paginação
+                $pagination = new stdClass();
+                $pagination->start = isset($getData["start"]) ? (int) $getData["start"] : 1;
+                $pagination->length = isset($getData["length"]) ? (int) $getData["length"] : 10000;
 
-            if (sizeof($data) > 0) {
-                if ($data['opcoes'] == 'cnpj') {
-                    $value = $this->cleanNumber($data['parametro']);
-                } else {
-                    $value = $data['parametro'];
+                $data = $getData["filtros"];
+
+                $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : $redesId;
+                $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+                $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
+                $cnpj = !empty($data["cnpj"]) ? preg_replace("/\D/", "", $data["cnpj"]) : null;
+
+                $clientes = $this->Clientes->getClientes($redesId, $nomeFantasia, $razaoSocial, $cnpj, true);
+
+                $total = $clientes->count();
+                // Cálculo da paginação
+
+                if (!empty($pagination->start) && !empty($pagination->length)) {
+                    $clientes = $clientes
+                        ->limit($pagination->length)
+                        ->page(($pagination->start + $pagination->length) / $pagination->length)->toArray();
                 }
 
-                array_push($conditions, [$data['opcoes'] . ' like ' => '%' . $value . '%']);
+                // Faz formatação necessária somente no resultado da paginação
+                foreach ($clientes as $cliente) {
+                    $cliente->cnpj = preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $cliente->cnpj);
+                }
+
+                $dataTableSource = new stdClass();
+                $dataTableSource->draw = $data['draw'];
+                $dataTableSource->recordsTotal = $total;
+                $dataTableSource->recordsFiltered = $total;
+                $dataTableSource->data = $clientes;
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
             }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
-
-        $clientes = $this->Clientes->getAllClientes($conditions);
-        $this->paginate($clientes, ['limit' => 10]);
-
-
-        // $clientes = $this->paginate($this->Clientes->find()->where(['matriz_id IS' => null]));
-
-        $this->set(compact('clientes'));
-        $this->set('_serialize', ['clientes']);
     }
 
     /**
@@ -192,12 +225,11 @@ class ClientesController extends AppController
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function verDetalhes($id = null)
+    public function view($id = null)
     {
         $cliente = $this->Clientes->getClienteById($id);
 
-        $this->set('cliente', $cliente);
-        $this->set('_serialize', ['cliente']);
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['cliente' => $cliente]);
     }
 
     /**

@@ -6,25 +6,39 @@
  * @date 2020-04-22
  */
 
-var sammy = $.sammy.apps['#content-body'];
-
-var rede = {
+var redesView = {
+    id: {},
     // #region Functions
-    init: function () {
+    init: async function (id) {
         'use strict';
         var self = this;
+        document.title = 'GOTAS - Informações de Rede';
+        self.id = id;
 
-        console.log(sammy);
-        // $(document).on("click", ".redes-index #btn-search", self.getRedeInfo);
-        return this;
-    },
-    /**
-     * Atualiza tabela de dados
-     */
-    getRedeInfo: async function (id) {
+        // Define comportamento do botão de pesquisar estabelecimentos
+        // $("#form #btn-search").unbind("click");
+        // $("#form").unbind("keyup");
+        console.log('aaa');
+        $("#content-html").find("*").each(() => {
+            $(this).off();
+            $(this).unbind();
+        });
+        $(document).on("click", "#form #btn-search", self.filterEstablishments);
+        $("#cnpj").mask("##.###.###/####-##");
+        // Adicionar enter dentro do form, pesquisar
+        $(document).on("keyup", "#form", function (evt) {
+            if (evt.keyCode == 13) {
+                if (typeof window['#clientes-table'] !== 'undefined') {
+                    window['#clientes-table'].clearPipeline().draw();
+                }
+            }
+        })
+
         try {
-            let response = await this.getRedeInfo(id);
+            let redeResponse = await self.getRedeInfoRest(id);
 
+            self.fillData(redeResponse.data);
+            self.getClientes(id);
         } catch (error) {
             console.log(error);
             var msg = {};
@@ -41,9 +55,167 @@ var rede = {
             toastr.error(msg);
             return false;
         }
+
+        return self;
     },
+
+    /**
+     *
+     * @param {Rede} data
+     */
+    fillData: function (data) {
+        console.log(data);
+        if (data === undefined || data === null || data.id === undefined) {
+            // Se informação vazia, limpa todos os campos
+
+            // Título
+            $("span[id=nome-rede]").text(null);
+
+            // Formulário
+            $("input[id=nome-rede]").val(null);
+            $("#nome-img").prop("src", null);
+            $("#ativado").prop("checked", false);
+            $("#tempo-expiracao-gotas-usuarios").val(null);
+            $("#quantidade-pontuacoes-usuarios-dia").val(null);
+            $("#quantidade-consumo-usuarios-dia").val(null);
+            $("#qte-mesmo-brinde-resgate-dia").val(null);
+            $("#qte-gotas-minima-bonificacao").val(null);
+            $("#qte-gotas-bonificacao").val(null);
+            $("#propaganda-img").prop("src", null);
+            $("#propaganda-link").prop("href", null);
+            $("#custo-referencia-gotas").val(null);
+            $("#media-assiduidade-clientes").val(null);
+            $("#app-personalizado").prop("checked", false);
+            $("#msg-distancia-compra-brinde").prop("checked", false);
+            $("#pontuacao-extra-produto-generico").val(false);
+
+        } else {
+            // Preenche todos os campos do form
+
+            // Título
+            $("span[id=nome-rede]").text(data.nome_rede);
+
+            // Formulário
+            $("input[id=nome-rede]").val(data.nome_rede);
+            $("#nome-img").prop("src", data.nome_img_completo);
+            $("#ativado").prop("checked", data.ativado);
+            $("#tempo-expiracao-gotas-usuarios").val(data.tempo_expiracao_gotas_usuarios);
+            $("#quantidade-pontuacoes-usuarios-dia").val(data.quantidade_pontuacoes_usuarios_dia);
+            $("#quantidade-consumo-usuarios-dia").val(data.quantidade_consumo_usuarios_dia);
+            $("#qte-mesmo-brinde-resgate-dia").val(data.qte_mesmo_brinde_resgate_dia);
+            $("#qte-gotas-minima-bonificacao").val(data.qte_gotas_minima_bonificacao);
+            $("#qte-gotas-bonificacao").val(data.qte_gotas_bonificacao);
+            $("#propaganda-img").prop("src", data.propaganda_img_completo);
+            $("#propaganda-link").prop("href", data.propaganda_link);
+            $("#custo-referencia-gotas").val(data.custo_referencia_gotas);
+            $("#media-assiduidade-clientes").val(data.media_assiduidade_clientes);
+            $("#app-personalizado").prop("checked", data.app_personalizado);
+            $("#msg-distancia-compra-brinde").prop("checked", data.msg_distancia_compra_brinde);
+            $("#pontuacao-extra-produto-generico").val(data.pontuacao_extra_produto_generico);
+        }
+
+    },
+
+    filterEstablishments: function (e) {
+        e.preventDefault();
+        if (typeof window['#clientes-table'] !== 'undefined') {
+            window['#clientes-table'].clearPipeline().draw();
+        }
+    },
+
     //#region Services
 
+    getClientes: function (redesId, nome_fantasia, razao_social, cnpj) {
+        let url = `/api/clientes/`;
+
+        let btnHelper = new ButtonHelper();
+        let columns = [{
+                data: "id",
+                title: "Id",
+                orderable: true,
+                visible: false,
+            },
+            {
+                data: "nome_fantasia",
+                title: "Nome Fantasia",
+                orderable: true,
+            },
+            {
+                data: "razao_social",
+                title: "Razão Social",
+                orderable: true,
+            },
+            {
+                data: "cnpj",
+                title: "CNPJ",
+                orderable: true,
+            },
+            {
+                data: "actions",
+                title: "Ações",
+                orderable: false,
+            }
+        ];
+
+        initPipelinedDT(
+            "#clientes-table",
+            columns,
+            url,
+            undefined,
+            function (d) {
+                var filters = {};
+                filters.redes_id = redesId;
+
+                let nomeFantasia = $("#form #nome-fantasia").val();
+                let razaoSocial = $("#form #razao_social").val();
+                let cnpj = $("#form #cnpj").val();
+
+                if (nomeFantasia !== undefined && nomeFantasia !== null) {
+                    filters.nome_fantasia = nomeFantasia;
+                }
+
+                if (razaoSocial !== undefined && razaoSocial !== null) {
+                    filters.razao_social = razaoSocial;
+                }
+
+                if (cnpj !== undefined && cnpj !== null) {
+                    filters.cnpj = cnpj.replace("/\D/", "");
+                }
+
+                d.filtros = filters;
+
+                return d;
+            },
+            [5, 15, 20, 100],
+            undefined,
+            function (rowData) {
+
+                let columnIndex = 4;
+                let column = rowData[columnIndex];
+
+                let attributes = {
+                    id: rowData.id,
+                    active: rowData.ativado,
+                    name: rowData.nome_rede
+                };
+
+                let actionView = btnHelper.generateLinkViewToDestination(`#/clientes/view/${rowData.id}`, btnHelper.ICON_INFO, null, "Ver Detalhes");
+                let editView = btnHelper.generateLinkEditToDestination(`#/clientes/edit/${rowData.id}`, null, "Editar");
+                let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
+                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, undefined, "change-status");
+
+                let buttons = [actionView, editView, deleteBtn, changeStatus];
+                let buttonsString = "";
+
+                buttons.forEach(x => {
+                    buttonsString += x.outerHTML + " ";
+                });
+
+                rowData["actions"] = buttonsString;
+                return rowData;
+            }
+        );
+    },
     /**
      * Obtêm redes
      *
@@ -56,26 +228,13 @@ var rede = {
      * @since 1.2.3
      * @date 2020-04-22
      */
-    getRedeInfo: function (idRede) {
-        var dataRequest = {
-            nome_rede: nomeRede,
-        };
-
-        if (ativado !== undefined && ativado !== null) {
-            dataRequest.ativado = ativado;
-        }
-
-        if (appPersonalizado !== undefined && appPersonalizado !== null) {
-            dataRequest.app_personalizado = appPersonalizado;
-        }
-
+    getRedeInfoRest: function (idRede) {
         let url = `/api/redes/${idRede}`;
 
         return Promise.resolve(
             $.ajax({
                 type: "GET",
                 url: url,
-                data: dataRequest,
                 dataType: "JSON"
             }));
     }
@@ -83,19 +242,3 @@ var rede = {
     //#endregion
     //#endregion
 };
-
-$(document).ready(function () {
-        'use strict';
-
-        rede.init();
-    })
-    .ajaxStart(callLoaderAnimation)
-    .ajaxStop(closeLoaderAnimation)
-    .ajaxError(closeLoaderAnimation);
-$(function () {
-
-
-    })
-    .ajaxStart(callLoaderAnimation)
-    .ajaxStop(closeLoaderAnimation)
-    .ajaxError(closeLoaderAnimation);

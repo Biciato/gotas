@@ -1,6 +1,6 @@
 var sammy = Sammy("#content-html", function () {
     var self = this;
-    self.use(Sammy.Template);
+    self.use(Sammy.Template, 'tpl');
 
     // Caminho para página não encontrada
     self.notFound = function (verb, path) {
@@ -8,18 +8,18 @@ var sammy = Sammy("#content-html", function () {
     }
 
     self.get("#/", ((context) => {
-        context.partial("view/index.html", {}, (html) => {
+        context.partial("view/index.tpl", {}, (html) => {
             $(document).html(html);
         });
     }));
     self.get("#/404", function (context) {
-        context.partial("view/404.html", {}, function (html) {
+        context.partial("view/404.tpl", {}, function (html) {
             $(document).html(html);
         });
     });
 
     self.get("#/redes/index", (context) => {
-        context.partial("view/redes/index.html", {
+        context.partial("view/redes/index.tpl", {
             controller: "scripts/redes/redes.js"
         }, function (html) {
             $(document).html(html);
@@ -27,39 +27,24 @@ var sammy = Sammy("#content-html", function () {
     });
     self.get("#/redes/view/:id", async function (context) {
         let id = this.params.id;
-        let url = `/api/redes/${id}`;
 
-        let get = async function (url) {
-            return Promise.resolve($.ajax({
-                type: "GET",
-                url: url,
-                dataType: "JSON"
-            }));
-        }
+        let rede = {
+            id: id
+        };
 
-        let restRequest = await get(url);
+        localStorage.setItem("data", JSON.stringify(rede));
 
-        let rede = restRequest.data;
-        context.render("view/redes/view.template", {
-            rede: rede
-        }).replace($("#content-html"));
-        // context.partial("view/redes/view.html", {
-        //     rede: rede
-        // }, function (html) {
-        //     // $(document).html(html);
-        //     return html;
-        // });
-
+        context.partial("view/redes/view.tpl");
     });
     self.get("#/redes/add", (context) => {
-        context.partial("view/redes/add.html", {
+        context.partial("view/redes/add.tpl", {
             controller: "scripts/redes/add.js"
         }, function (html) {
             $(document).html(html);
         })
     });
     self.get("#/redes/edit/:id", (context) => {
-        context.partial("view/redes/edit.html", {
+        context.partial("view/redes/edit.tpl", {
             controller: "scripts/redes/add.js"
         }, function (html) {
             $(document).html(html);
