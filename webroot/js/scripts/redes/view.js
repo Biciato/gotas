@@ -15,24 +15,24 @@ var redesView = {
         document.title = 'GOTAS - Informações de Rede';
         self.id = id;
 
-        // Define comportamento do botão de pesquisar estabelecimentos
-        // $("#form #btn-search").unbind("click");
-        // $("#form").unbind("keyup");
-        console.log('aaa');
-        $("#content-html").find("*").each(() => {
-            $(this).off();
-            $(this).unbind();
-        });
-        $(document).on("click", "#form #btn-search", self.filterEstablishments);
+        // Máscaras
         $("#cnpj").mask("##.###.###/####-##");
-        // Adicionar enter dentro do form, pesquisar
-        $(document).on("keyup", "#form", function (evt) {
-            if (evt.keyCode == 13) {
-                if (typeof window['#clientes-table'] !== 'undefined') {
-                    window['#clientes-table'].clearPipeline().draw();
+
+        // Define comportamento do botão de pesquisar estabelecimentos
+        $(document)
+            .off("click", "#form #btn-search")
+            .on("click", "#form #btn-search", self.filterEstablishments);
+        // Adiciona enter dentro do form, pesquisar
+        $(document)
+            .off("keyup", "#form")
+            .on("keyup", "#form", function (evt) {
+                evt.preventDefault();
+                if (evt.keyCode == 13) {
+                    if (typeof window['#clientes-table'] !== 'undefined') {
+                        window['#clientes-table'].clearPipeline().draw();
+                    }
                 }
-            }
-        })
+            })
 
         try {
             let redeResponse = await self.getRedeInfoRest(id);
