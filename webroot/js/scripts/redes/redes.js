@@ -31,6 +31,7 @@ var rede = {
      * Atualiza tabela de dados
      */
     getRedes: function (evt) {
+        'use strict';
         evt.preventDefault();
         if (typeof window['.redes-index #data-table'] !== 'undefined') {
             window['.redes-index #data-table'].clearPipeline().draw();
@@ -46,6 +47,7 @@ var rede = {
      * @date 2020-04-22
      */
     initDataTable: function (evt) {
+        'use strict';
         let btnHelper = new ButtonHelper();
         let columns = [{
                 data: "id",
@@ -88,7 +90,7 @@ var rede = {
                     name: rowData.nome_rede
                 };
 
-                let actionView = btnHelper.generateLinkViewToDestination(`#/redes/view/${rowData.id}`, btnHelper.ICON_INFO, null, "Ver Detalhes");
+                let actionView = btnHelper.generateLinkViewToDestination(`#/redes/view/${rowData.id}`, btnHelper.ICON_CONFIG, null, "Ver Detalhes/Configurar");
                 let editView = btnHelper.generateLinkEditToDestination(`#/redes/edit/${rowData.id}`, null, "Editar");
                 let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
                 let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, undefined, "change-status");

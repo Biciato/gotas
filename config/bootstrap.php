@@ -383,6 +383,7 @@ const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro %s ?';
 const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
 const MESSAGE_SAVED_ERROR = "Exceção ao Salvar!";
 const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";
+const MSG_FILE_UPLOAD_SUCCESS = 'O arquivo foi enviado com sucesso!';
 
 // Mensagens de processamento
 const MSG_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";

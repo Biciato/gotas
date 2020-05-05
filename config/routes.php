@@ -361,6 +361,11 @@ Router::scope("/api", function ($routes) {
                 "method" => Request::METHOD_GET,
                 "path" => "/get_redes_list"
             ],
+            "setImageNetworkAPI" => [
+                "action" => "setImageNetworkAPI",
+                "method" => Request::METHOD_POST,
+                "path" => "/set_image_network"
+            ],
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",
                 "method" => Request::METHOD_POST,

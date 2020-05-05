@@ -46,6 +46,8 @@ class ClientesController extends AppController
     {
         // Se a pesquisa é feita por alguém que está vinculado à uma rede, fixa o id da rede
         $redesId = !empty($this->rede) ? $this->rede->id : 0;
+        $errors = [];
+        $errorCodes = [];
 
         try {
             if ($this->request->is(Request::METHOD_GET)) {
@@ -68,10 +70,10 @@ class ClientesController extends AppController
                 $total = $clientes->count();
                 // Cálculo da paginação
 
-                if (!empty($pagination->start) && !empty($pagination->length)) {
+                if (isset($pagination->start) && isset($pagination->length)) {
                     $clientes = $clientes
                         ->limit($pagination->length)
-                        ->page(($pagination->start + $pagination->length) / $pagination->length)->toArray();
+                        ->page(floor(($pagination->start + $pagination->length) / $pagination->length))->toArray();
                 }
 
                 // Faz formatação necessária somente no resultado da paginação

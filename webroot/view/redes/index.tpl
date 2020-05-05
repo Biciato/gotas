@@ -82,7 +82,4 @@
 </div>
 
 <script src="/webroot/js/scripts/redes/redes.js"></script>
-<?php
 
-$this->append("script"); echo $this->Html->script(sprintf("scripts/redes/redes%s.js?version=%s", $extensionDebug, SYSTEM_VERSION)); $this->end(); $this->append("css"); echo
-$this->Html->css(sprintf("styles/redes/redes%s.css?version=%s", $extensionDebug, SYSTEM_VERSION)); $this->end(); ?>

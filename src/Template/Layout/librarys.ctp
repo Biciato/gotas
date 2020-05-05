@@ -189,6 +189,7 @@ echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?ver
 echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
 
 echo $this->Html->script(sprintf("scripts/redes/view.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/redes/add.js?version=%s", SYSTEM_VERSION));
 
 ?>
 

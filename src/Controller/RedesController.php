@@ -705,7 +705,7 @@ class RedesController extends AppController
      */
 
     /**
-     * RedesController::enviaImagemRede
+     * RedesController::setImageNetworkAPI
      *
      * Envia imagem de rede de forma assíncrona
      *
@@ -714,7 +714,7 @@ class RedesController extends AppController
      *
      * @return json_object
      */
-    public function enviaImagemRede()
+    public function setImageNetworkAPI()
     {
         $mensagem = null;
         $status = false;
@@ -723,13 +723,9 @@ class RedesController extends AppController
         $arquivos = array();
         try {
             if ($this->request->is('post')) {
-
-                $data = $this->request->getData();
-
                 $arquivos = FilesUtil::uploadFiles(Configure::read("imageNetworkPathTemp"));
 
-                $status = true;
-                $message = __("Envio concluído com sucesso!");
+                return ResponseUtil::successAPI(MSG_FILE_UPLOAD_SUCCESS, ['files' => $arquivos]);
             }
         } catch (\Exception $e) {
             $messageString = __("Não foi possível enviar imagem de rede!");
@@ -739,19 +735,6 @@ class RedesController extends AppController
 
             Log::write("error", $messageStringDebug);
         }
-
-        $mensagem = array("status" => 1, "message" => null);
-
-        $result = array("mensagem" => $mensagem, "arquivos" => $arquivos);
-
-        // echo json_encode($result);
-        $arraySet = array(
-            "arquivos",
-            "mensagem"
-        );
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
     }
 
     /**

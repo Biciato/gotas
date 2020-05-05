@@ -434,13 +434,29 @@ class ClientesTable extends GenericTable
                 return $exp;
             };
 
-            $contain = [
-                "RedesHasClientes.Redes"
+            $contain = ["RedesHasClientes.Redes"];
+            $selectList = [
+                "Clientes.id",
+                "Clientes.matriz",
+                "Clientes.tipo_unidade",
+                "Clientes.nome_fantasia",
+                "Clientes.razao_social",
+                "Clientes.cnpj",
+                "Clientes.endereco",
+                "Clientes.endereco_numero",
+                "Clientes.endereco_complemento",
+                "Clientes.bairro",
+                "Clientes.municipio",
+                "Clientes.estado",
+                "Redes.id",
+                "Redes.nome_rede",
+                "Redes.ativado",
             ];
 
             return $this->find("all")
                 ->where($where)
-                ->contain($contain);
+                ->contain($contain)
+                ->select($selectList);
         } catch (\Throwable $th) {
             $codeError = $th->getCode();
             $message = sprintf("[{%s} %s] %s", $codeError, MSG_LOAD_EXCEPTION, $th->getMessage());
