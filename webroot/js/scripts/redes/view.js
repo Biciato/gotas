@@ -111,7 +111,7 @@ var redesView = {
             $("#media-assiduidade-clientes").val(data.media_assiduidade_clientes);
             $("#app-personalizado").prop("checked", data.app_personalizado);
             $("#msg-distancia-compra-brinde").prop("checked", data.msg_distancia_compra_brinde);
-            $("#pontuacao-extra-produto-generico").val(data.pontuacao_extra_produto_generico);
+            $("#pontuacao-extra-produto-generico").prop("checked", data.pontuacao_extra_produto_generico);
         }
 
     },

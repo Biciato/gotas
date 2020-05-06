@@ -4,9 +4,9 @@
   * @date     2020-05-05
   */
 
-.img-crop {
+.img-crop-logo {
     overflow: hidden;
-    max-height: 400px;
+    max-height: 320px;
     max-width: 600px;
     border-radius: 5px;
     left: 0;
@@ -16,13 +16,41 @@
     margin: auto;
 }
 
-.img-crop-preview {
+.img-crop-logo-preview {
     display: none;
     overflow: hidden;
-    max-height: 240px;
-    max-width: 400px;
-    height: 240px;
-    width: 400px;
+    max-height: 200px;
+    max-width: 200px;
+    height: 200px;
+    width: 200px;
+    border: 5px solid black;
+    border-radius: 5px;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-propaganda {
+    overflow: hidden;
+    max-height: 600px;
+    max-width: 600px;
+    border-radius: 5px;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-preview-propaganda {
+    display: none;
+    overflow: hidden;
+    max-height: 600px;
+    max-width: 600px;
+    height: 600px;
+    width: 600px;
     border: 5px solid black;
     border-radius: 5px;
     left: 0;

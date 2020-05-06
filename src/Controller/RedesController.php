@@ -152,24 +152,23 @@ class RedesController extends AppController
             $rede["quantidade_pontuacoes_usuarios_ida"] = 3;
             $rede["quantidade_consumo_usuarios_dia"] = 10;
             if ($this->request->is('post')) {
-
                 $data = $this->request->getData();
 
-                if (strlen($data['crop-height']) > 0) {
-
-                    // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
-
+                /**
+                 * Caso tenha informação de img_upload, significa que foi feito upload anteriormente
+                 * de uma foto. obtem as informações da foto e faz o tratamento necessário
+                 */
+                if (!empty($data["img_upload"])) {
                     // obtem dados de redimensionamento
-
-                    $height = $data["crop-height"];
-                    $width = $data["crop-width"];
-                    $valueX = $data["crop-x1"];
-                    $valueY = $data["crop-y1"];
+                    $height = $data["crop_height"];
+                    $width = $data["crop_width"];
+                    $valueX = $data["crop_x1"];
+                    $valueY = $data["crop_y1"];
 
                     $nomeImgRede = StringUtil::gerarNomeArquivoAleatorio();
                     $nomeImgRede = $nomeImgRede["fileName"];
 
-                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
+                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img_upload"]);
                     $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $nomeImgRede);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
 
@@ -181,27 +180,23 @@ class RedesController extends AppController
                 }
 
                 $rede = $this->Redes->patchEntity($rede, $data);
+                $rede = $this->Redes->saveUpdate($rede);
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['rede' => $rede]);
+            }
+        } catch (\Exception $e) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-                if ($this->Redes->addRede($rede)) {
-                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-
-                    return $this->redirect(['action' => 'index']);
-                }
-                $this->Flash->error(__(Configure::read('messageSavedError')));
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            $imagemOriginal = null;
-            $arraySet = array("rede", "imagemOriginal");
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
 
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $message = __("Erro ao adicionar nova rede: {0}", $e->getMessage());
-
-            Log::write('error', $message);
-
-            $this->Flash->error($message);
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 

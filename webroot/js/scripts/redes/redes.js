@@ -133,7 +133,7 @@ var rede = {
      * @date 2020-04-28
      */
     deleteNetworkOnClick: async function (evt) {
-
+        var self = this;
         event.preventDefault();
 
         let redesId = event.target.getAttribute('data-id');
@@ -153,13 +153,15 @@ var rede = {
                     return false;
                 }
                 try {
-                    let response = await deleteRede(redesId, result);
+                    let response = await rede.deleteRede(redesId, result);
 
                     if (response === undefined || response === null || !response) {
                         return false;
                     }
 
-                    redesSearchBtnForm.click();
+                    toastr.success(response.mensagem.message);
+                    $(".redes-index #btn-search").click();
+                    return false;
                 } catch (error) {
                     console.log(error);
                     var msg = {};

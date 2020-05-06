@@ -1,5 +1,5 @@
 <div class="form-group row border-bottom white-bg page-heading">
-    <div class="col-lg-4">
+    <div class="col-lg-12">
         <h2>Informações da Rede</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -20,7 +20,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5>Nome da Rede: <span id="nome-rede"></span></h5>
+                    <h5><span id="nome-rede"></span></h5>
                 </div>
                 <div class="ibox-content">
                     <ul class="nav nav-tabs">
@@ -250,14 +250,6 @@
                                         Comprar
                                     </label>
                                 </div>
-                                <div class="col-lg-12">
-                                    <input type="hidden" name="app_personalizado" value="0" />
-                                    <label for="app_personalizado">
-                                        <input type="checkbox" id="app-personalizado" name="app_personalizado"
-                                            class="app_personalizado" readonly disabled />
-                                        Rede com APP Personalizado?
-                                    </label>
-                                </div>
                             </div>
                             <h5>
                                 Opções de Integração entre Sistemas de
@@ -268,7 +260,7 @@
                                     <input type="hidden" name="pontuacao_extra_produto_generico" value="0" />
                                     <label for="pontuacao_extra_produto_generico"
                                         title="Adiciona Pontos/Gotas para Produtos que não estão cadastrados no Sistema, ao importar o Cupom Fiscal.">
-                                        <input type="checkbox" id="pontuacao_extra_produto_generico"
+                                        <input type="checkbox" id="pontuacao-extra-produto-generico"
                                             name="pontuacao_extra_produto_generico" readonly disabled />
                                         Atribuir Pontos Extras para Gotas não Cadastradas?
                                     </label>

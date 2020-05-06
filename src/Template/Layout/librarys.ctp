@@ -96,6 +96,7 @@ echo $this->Html->script(sprintf("bootstrap3-dialog/js/bootstrap-dialog.min.js?v
 
 <!-- jQuery Validation Form -->
 <?= $this->Html->script(sprintf("jquery-validation/dist/jquery.validate.min.js?version=%s", SYSTEM_VERSION)); ?>
+<?= $this->Html->script(sprintf("jquery-validation/dist/additional-methods.min.js?version=%s", SYSTEM_VERSION)); ?>
 
 <!-- jQuery Pagination -->
 <?= $this->Html->script(sprintf("jquery-pagination/dist/pagination.js?version=%s", SYSTEM_VERSION)); ?>

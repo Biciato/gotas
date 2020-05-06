@@ -5,12 +5,21 @@
  * @date 2020-05-05
  *
  */
-
 var redesAdd = {
+    /**
+     * Altera estado de habilitado para Checkbox de "Mensagem de Distância ao Comprar"
+     *
+     * @param {Event} e Evento click
+     * @return this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-06
+     */
     changeEnabledAppPersonalizado: function (e) {
+        'use strict';
         let self = this;
-
-        var checked = $("#app_personalizado").prop("checked");
+        var checked = $("#app-personalizado").prop("checked");
 
         if (!checked) {
             $(".items_app_personalizado").prop("checked", false);
@@ -21,7 +30,7 @@ var redesAdd = {
         return self;
     },
     /**
-     * Método que obtem informações de desenho e atribui aos campos à serem enviados
+     * Método que obtem informações de crop image e atribui aos campos à serem enviados
      *
      * @returns void
      *
@@ -30,62 +39,226 @@ var redesAdd = {
      * @date 2020-05-05
      */
     coordenadas: function (param) {
+        'use strict';
         $("#crop-height").val(param.height);
         $("#crop-width").val(param.width);
         $("#crop-x1").val(param.x);
         $("#crop-x2").val(param.scaleX);
         $("#crop-y1").val(param.y);
         $("#crop-y2").val(param.scaleY);
-        console.log(param);
     },
+    /**
+     * Constructor
+     */
     init: function () {
         let self = this;
 
         document.title = 'GOTAS - Adicionar Rede';
         $("#nome-rede").focus();
-        var image = $(".img-crop");
+        var image = $(".img-crop-logo");
         var cropper = image.data("cropper");
 
-        $("#custo_referencia_gotas").maskMoney();
+        $("#custo-referencia-gotas").maskMoney();
 
-        fixMoneyValue($("#custo_referencia_gotas"));
-        $("#app_personalizado").off("click").on("click", self.changeEnabledAppPersonalizado);
+        fixMoneyValue($("#custo-referencia-gotas"));
+        $("#app-personalizado").off("click").on("click", self.changeEnabledAppPersonalizado);
 
         $(document).off("change", "#nome-img").on("change", "#nome-img", self.treatUploadImage);
         $(document)
             .off("click", "#form-redes-add #btn-save")
-            .on("click", "#form-redes-add #btn-save", self.saveClick);
+            .on("click", "#form-redes-add #btn-save", self.formSubmit);
 
         return self;
     },
-    saveClick: async function (evt) {
-        evt.preventDefault();
-        var data = $("#form-redes-add").serialize();
-
-        console.log(data);
-
-    },
-
     /**
+     * Dispara submit ao clicar no botão de salvar do form
+     * @param {*} evt
+     */
+    formSubmit: function (evt) {
+        'use strict';
+        let self = this;
+
+        $("#form-redes-add").validate({
+            rules: {
+                nome_rede: {
+                    required: true,
+                    minlength: 3
+                },
+                quantidade_pontuacoes_usuarios_dia: {
+                    required: true,
+                    min: 1,
+                    max: 365
+                },
+                quantidade_consumo_usuarios_dia: {
+                    required: true,
+                    min: 1,
+                    max: 365
+                },
+                qte_mesmo_brinde_resgate_dia: {
+                    required: true,
+                    min: 1,
+                    max: 10
+                },
+                tempo_expiracao_gotas_usuarios: {
+                    required: true,
+                    min: 1,
+                    max: 99999
+                },
+                custo_referencia_gotas: {
+                    required: true,
+                    min: 0.01
+                },
+                media_assiduidade_clientes: {
+                    required: true,
+                    min: 1,
+                    max: 30
+                },
+                qte_gotas_minima_bonificacao: "required",
+                qte_gotas_bonificacao: "required"
+            },
+            messages: {
+                nome_rede: {
+                    required: "Informe o Nome da Rede",
+                    minlength: "Nome da Rede deve conter ao menos 3 letras"
+                },
+                quantidade_pontuacoes_usuarios_dia: {
+                    required: "Informe o Máximo de Pontuações Diárias por Usuário",
+                    min: "Mínimo 1 Pontuações por dia",
+                    max: "Máximo 365 Pontuações por dia"
+                },
+                quantidade_consumo_usuarios_dia: {
+                    required: "Informe o Máximo de Consumos (Usos de Brinde) Diários por Usuário",
+                    min: "Mínimo 1 Consumo por dia",
+                    max: "Máximo 365 Consumos por dia"
+                },
+                qte_mesmo_brinde_resgate_dia: {
+                    required: "Informe o Máximo de Resgates de Brinde por dia por Usuário",
+                    min: "Mínimo 1 Resgate por dia",
+                    max: "Máximo 10 Resgate por dia"
+                },
+                tempo_expiracao_gotas_usuarios: {
+                    required: "Informe o Tempo de Expiração de Pontos dos Usuários (em meses)",
+                    min: "Mínimo 1",
+                    max: "Máximo 99999"
+                },
+                custo_referencia_gotas: {
+                    required: "Informe Custo de Referência Gotas",
+                    min: 0.01
+                },
+                media_assiduidade_clientes: {
+                    required: "Informe Média de Assiduidade de Clientes (Por mês)",
+                    min: "Mínimo 1",
+                    max: "Máximo 30"
+                },
+                qte_gotas_minima_bonificacao: {
+                    required: "Informe Quantidade de Gotas/Pontos Mínima para Bonificação Extra"
+                },
+                qte_gotas_bonificacao: {
+                    required: "Informe a Quantidade de Gotas/Pontos de Bonificação para Usuário"
+                }
+            },
+            submitHandler: function (form) {
+                // Evita qualquer submit redirection
+                evt.preventDefault();
+                evt.stopPropagation();
+
+                redesAdd.save(form);
+            }
+        });
+        return self;
+    },
+    /**
+     * Trata os dados antes de submeter ao salvar
      *
-     * @param {*} data
+     * @param {FormElement} FormElement
+     *
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-06
+     */
+    save: async function (form) {
+        let self = this;
+        // serializa o form e remove espaços em branco, transforma em array
+        let objToTreat = $(form).serialize().replace(/%20/gi, " ").split("&");
+        let objPost = {};
+
+        /**
+         * Todos os elementos da tela que não precisam de tratamento, são convertidos em objeto
+         * Caso alguma das propriedades precise de um tratamento adicional, faça após o foreach
+         */
+        objToTreat.forEach(index => {
+            let item = index.split("=");
+            objPost[item[0]] = item[1];
+        });
+
+        try {
+            let response = await self.saveRest(objPost);
+
+            if (response === undefined || response === null || !response) {
+                toastr.error(response.mensagem.message);
+                return false;
+            }
+
+            // Gravação feita com sucesso, redireciona
+
+            toastr.success(response.mensagem.message);
+            window.location = "#/redes/index";
+        } catch (error) {
+            console.log(error);
+            var msg = {};
+
+            if (error.responseJSON !== undefined) {
+                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                return false;
+            } else if (error.responseText !== undefined) {
+                msg = error.responseText;
+            } else {
+                msg = error;
+            }
+
+            toastr.error(msg);
+            return false;
+        }
+
+        return self;
+    },
+    /**
+     * Realiza inserção de uma nova rede
+     *
+     * @param {any} data
+     * @returns $.Promise Promise jQuery
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-06
      */
     saveRest: function (data) {
         return Promise.resolve(
             $.ajax({
                 type: "POST",
-                url: "/api/redes/add",
+                url: "/api/redes",
                 data: data,
                 dataType: "JSON"
             })
         );
     },
+    /**
+     * Trata o envio de uma imagem
+     *
+     * @param {OnChangeEvent} image
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-06
+     */
     treatUploadImage: async function (image) {
         try {
             let self = this;
             // infelizmente em método de change, o this/self é o próprio elemento
             let response = await redesAdd.uploadImage(image);
-            console.log(response);
 
             if (response === undefined || response === null || (response !== undefined && !response.mensagem.status)) {
                 toastr.error(response.mensagem.message);
@@ -100,35 +273,31 @@ var redesAdd = {
             }
             // Exibe as divs
             $(".img-crop-container").show();
-            $(".img-crop-preview").show();
+            $(".img-crop-logo-preview").show();
 
             callLoaderAnimation("Carregando imagem...");
 
-            $(".img-crop").attr("src", arquivo.path);
+            $(".img-crop-logo").attr("src", arquivo.path);
             $(".img-upload").val(arquivo.file);
 
-            var imgCrop = $(".img-crop");
-
-            $(".img-crop").on("load", function () {
+            $(".img-crop-logo").on("load", function () {
                 closeLoaderAnimation();
             });
 
-            $(".img-crop").cropper("destroy");
-            imgCrop.cropper({
-                // aspectRatio: 1/1,
-                preview: ".img-crop-preview",
+            $(".img-crop-logo").cropper("destroy");
+            $(".img-crop-logo").cropper({
+                preview: ".img-crop-logo-preview",
                 autoCrop: true,
                 dragDrop: true,
                 movable: true,
                 resizable: true,
-                // zoomable: false,
                 zoomable: true,
                 crop: function (event) {
-                    self.coordenadas(event.detail);
+                    redesAdd.coordenadas(event.detail);
                 }
             });
 
-            imgCrop.data("cropper");
+            $(".img-crop-logo").data("cropper");
         } catch (error) {
             console.log(error);
             var msg = {};
@@ -161,9 +330,7 @@ var redesAdd = {
     uploadImage: async function (image) {
         'use strict';
         let self = this;
-
         var formData = new FormData();
-
         var file = image.target.files[0];
         var response = undefined;
 
@@ -213,7 +380,6 @@ var redesAdd = {
                     }
                     return myXhr;
                 }
-
             })
         );
 
