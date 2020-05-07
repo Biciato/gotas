@@ -35,7 +35,9 @@ use Cake\Routing\Router;
                 </div>
             </div>
     </div>
-    <?php 
+
+    <?php
+        echo $this->element('modal_delete_with_message'); 
         $this->append('script');
         echo $this->Html->css(sprintf("DataTables/datatables.min.css?version=%s", SYSTEM_VERSION));
         $this->end();
@@ -51,6 +53,7 @@ use Cake\Routing\Router;
                     var self = this;
                     self.initDT();
                     $(document).on('click', "#filtrar_usuarios", self.filtrarUsuarios);
+                    $(document).on('change', '#redes_id', self.buscarUnidades);
                     return this;
                   },
                 initDT: function()
@@ -108,6 +111,56 @@ use Cake\Routing\Router;
                          window['#usuarios-table'].clearPipeline().draw();
                       }
                   },
+                buscarUnidades: function(e)
+                  {
+                    var val = $(this).val();
+                    $("#clientes_rede").val("");
+                    if(val == "")
+                      {
+                        $("#clientes_rede").attr('disabled', 'disabled');
+                      }
+                      else
+                      {
+                        $.ajax(
+                          {
+                            url: '/app_gotas/api/clientes/get_clientes_list',
+                            data: {redes_id: val},
+                            method: 'GET',
+                            dataType: 'JSON',
+                            async: true,
+                            success: function(resposta)
+                              {
+                                if(resposta.mensagem.status == true)
+                                  {
+                                    var markup = "<option value=\"\">&lt;Todos&gt;</option>";
+                                    if(resposta.data.clientes.length > 0)
+                                      {
+                                        $.each(resposta.data.clientes, function(i, item)
+                                        {
+                                          markup += "<option value=\"" + item.id + "\">" + item.nome_fantasia_municipio_estado + "</option>";
+                                        });
+                                        $("#clientes_rede").removeAttr('disabled');
+                                        $("#clientes_rede").html(markup);
+                                      }
+                                      else
+                                      {
+                                        $("#clientes_rede").attr('disabled', 'disabled');
+                                      }
+                                  }
+                                else
+                                  {
+                                    toastr.resposta(resposta.mensagem.mensagem);
+                                  }
+                              },
+                            error: function(xhr, status, error)
+                              {
+                                toastr.error(xhr.responseJSON.mensagem.message);
+                                $("#clientes_rede").val("");
+                                $("#clientes_rede").attr("disabled", "disabled");
+                              }
+                          });
+                      }
+                  }
               };
             $(document).ready(function()
               {

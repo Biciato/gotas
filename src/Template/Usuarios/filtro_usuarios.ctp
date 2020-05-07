@@ -154,23 +154,37 @@ if (isset($filter_redes) && $filter_redes) {
                             ?>
                         </div> -->
 
-                        <div class="col-lg-7">
+                        <div class="col-lg-6">
 
                             <?php
-
-                            if (isset($unidades_ids) && sizeof($unidades_ids) > 0) {
-
-                                echo $this->Form->input(
-                                    'filtrar_unidade',
-                                    [
-                                        'type' => 'select',
-                                        'id' => 'filtrar_unidade',
-                                        'label' => "Filtrar por unidade?",
-                                        'empty' => 'Todas',
-                                        'options' => $unidades_ids
+                            echo $this->Form->input(
+                                'redes_id',
+                                [
+                                    'type' => 'select',
+                                    "id" => "redes_id",
+                                    'class' => 'redes_list',
+                                    'options' => $redes,
+                                    'multiple' => false,
+                                    "empty" => "<Todos>",
+                                    'label' => 'Filtrar por rede',
                                     ]
                                 );
-                            }
+                                
+                                ?>
+                        </div>
+                        <div class="col-lg-6">
+                            <?php  echo $this->Form->input(
+                                'clientes_id',
+                                [
+                                    'type' => 'select',
+                                    'id' => 'clientes_rede',
+                                    "empty" => "<Todos>",
+                                    'class' => 'clientes_rede',
+                                    'label' => 'Filtrar por unidade',
+                                    'disabled' => 'disabled',
+                                ]
+                            );
+                            
                             ?>
                         </div>
                     </div>
