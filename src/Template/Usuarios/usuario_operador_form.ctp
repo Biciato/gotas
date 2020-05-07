@@ -14,9 +14,7 @@ use Cake\Routing\Router;
 ?>
 <?= $this->Form->create($usuario) ?>
 <fieldset>
-    <legend>
-        <?= __("{0} Conta", $title) ?>
-    </legend>
+ 
 
     <?= $this->Form->hidden('id', ['id' => 'usuarios_id']); ?>
     <?= $this->Form->hidden('clientes_id', ['id' => 'clientes_id', 'value' => isset($clientesId) ? $clientesId : null]); ?>

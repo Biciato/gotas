@@ -2537,19 +2537,27 @@ class UsuariosTable extends GenericTable
        parse_str($data['filtros'], $filters);
        if(strlen($filters['tipo_perfil']))
          {
-           array_push($conditions['AND'], ['tipo_perfil' => $filters['tipo_perfil']]);
+           array_push($conditions['AND'], ['Usuarios.tipo_perfil' => $filters['tipo_perfil']]);
           }
-        if(strlen($filters['Usuarios.nome']))
+        if(strlen($filters['nome']))
           {
-            array_push($conditions['AND'], ['Usuarios.nome LIKE \'%' . $filters['Usuarios.nome'] . '%\'']); 
+            array_push($conditions['AND'], ['Usuarios.nome LIKE \'%' . $filters['nome'] . '%\'']); 
           }
-        if(strlen($filters['Usuarios.email']))
+        if(strlen($filters['email']))
           {
-            array_push($conditions['AND'], ['Usuarios.email LIKE \'%' . $filters['Usuarios.email'] . '%\'']); 
+            array_push($conditions['AND'], ['Usuarios.email LIKE \'%' . $filters['email'] . '%\'']); 
           }
-        if(strlen($filters['Usuarios.cpf']))
+        if(strlen($filters['cpf']))
           {
-            array_push($conditions['AND'], ['Usuarios.cpf LIKE \'%' . $filters['Usuarios.cpf'] . '%\'']); 
+            array_push($conditions['AND'], ['Usuarios.cpf LIKE \'%' . $filters['cpf'] . '%\'']); 
+          }
+        if(strlen($filters['redes_id']))
+          {
+            array_push($conditions['AND'], ['Redes.id' => $filters['redes_id']]);
+          }
+        if(strlen($filters['clientes_id']))
+          {
+            array_push($conditions['AND'], ['Clientes.id' => $filters['clientes_id']]);
           }
        if(!count($conditions['AND']))
          {

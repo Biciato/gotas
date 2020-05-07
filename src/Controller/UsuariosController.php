@@ -112,6 +112,7 @@ class UsuariosController extends AppController
             $tipoPerfilMin = $tipoPerfil;
             $tipoPerfilMax = $tipoPerfil;
         }
+        $redes = $this->Redes->getRedesList();
 
         $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
@@ -121,7 +122,7 @@ class UsuariosController extends AppController
 
         // DebugUtil::printArray($usuarios);
 
-        $arraySet = array("usuarios", "unidades_ids", "perfisUsuariosList");
+        $arraySet = array("usuarios", "unidades_ids", "perfisUsuariosList", "redes");
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
@@ -137,6 +138,7 @@ class UsuariosController extends AppController
      */
     public function view($id = null)
     {
+        $this->viewBuilder()->setLayout('default_update');
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
@@ -1085,6 +1087,7 @@ class UsuariosController extends AppController
      */
     public function adicionarOperador(int $redesId = null)
     {
+        $this->viewBuilder()->setLayout('default_update');
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
@@ -1302,6 +1305,7 @@ class UsuariosController extends AppController
      */
     public function editarOperador(int $usuarios_id = null)
     {
+        $this->viewBuilder()->setLayout('default_update');
         $sessaoUsuario = $this->getSessionUserVariables();
 
         $origemMeuPerfilAnterior = $this->request->session()->read("Origem.MeuPerfil");
@@ -5393,9 +5397,10 @@ class UsuariosController extends AppController
         }
     }
     public function carregarUsuarios()
-    {
-        if ($this->request->is('GET')); {
-            $data = $this->request->getData();
+      {
+        if($this->request->is('GET'));
+          {
+            $data = $this->request->getQueryParams();
             $usuarios = $this->Usuarios->buscaListaUsuarios($data);
             $tipos_perfil = Configure::read('profileTypesTranslated');
             $botoes_extras = ($this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']);
