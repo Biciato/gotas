@@ -26,14 +26,12 @@ var sammy = Sammy("#content-html", function () {
         })
     });
     self.get("#/redes/view/:id", async function (context) {
-        let id = this.params.id;
-
+        let id = context.params.id;
         let rede = {
             id: id
         };
 
         localStorage.setItem("data", JSON.stringify(rede));
-
         context.partial("view/redes/view.tpl");
     });
     self.get("#/redes/add", (context) => {
@@ -43,12 +41,14 @@ var sammy = Sammy("#content-html", function () {
             $(document).html(html);
         })
     });
-    self.get("#/redes/edit/:id", (context) => {
-        context.partial("view/redes/edit.tpl", {
-            controller: "scripts/redes/add.js"
-        }, function (html) {
-            $(document).html(html);
-        })
+    self.get("#/redes/edit/:id", async function (context) {
+        let id = parseInt(context.params.id);
+        let rede = {
+            id: id
+        };
+
+        localStorage.setItem("data", JSON.stringify(rede));
+        context.partial("view/redes/edit.tpl");
     });
 
     return self;

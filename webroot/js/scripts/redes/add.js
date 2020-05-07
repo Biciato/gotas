@@ -5,7 +5,7 @@
  * @date 2020-05-05
  *
  */
-var redesAdd = {
+var redesEdit = {
     /**
      * Altera estado de habilitado para Checkbox de "Mensagem de Distância ao Comprar"
      *
@@ -55,18 +55,18 @@ var redesAdd = {
 
         document.title = 'GOTAS - Adicionar Rede';
         $("#nome-rede").focus();
-        var image = $(".img-crop-logo");
-        var cropper = image.data("cropper");
-
+        $(".img-crop-logo").data("cropper");
         $("#custo-referencia-gotas").maskMoney();
-
         fixMoneyValue($("#custo-referencia-gotas"));
         $("#app-personalizado").off("click").on("click", self.changeEnabledAppPersonalizado);
 
-        $(document).off("change", "#nome-img").on("change", "#nome-img", self.treatUploadImage);
+        // Eventos
         $(document)
-            .off("click", "#form-redes-add #btn-save")
-            .on("click", "#form-redes-add #btn-save", self.formSubmit);
+            .off("change", "#nome-img")
+            .on("change", "#nome-img", self.treatUploadImage);
+        $(document)
+            .off("click", "#redes-form #btn-save")
+            .on("click", "#redes-form #btn-save", self.formSubmit);
 
         return self;
     },
@@ -78,7 +78,7 @@ var redesAdd = {
         'use strict';
         let self = this;
 
-        $("#form-redes-add").validate({
+        $("#redes-form").validate({
             rules: {
                 nome_rede: {
                     required: true,
@@ -162,7 +162,7 @@ var redesAdd = {
                 evt.preventDefault();
                 evt.stopPropagation();
 
-                redesAdd.save(form);
+                redesEdit.save(form);
             }
         });
         return self;
@@ -194,7 +194,7 @@ var redesAdd = {
         });
 
         try {
-            let response = await self.saveRest(objPost);
+            let response = await redesServices.save(objPost);
 
             if (response === undefined || response === null || !response) {
                 toastr.error(response.mensagem.message);
@@ -224,26 +224,7 @@ var redesAdd = {
 
         return self;
     },
-    /**
-     * Realiza inserção de uma nova rede
-     *
-     * @param {any} data
-     * @returns $.Promise Promise jQuery
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 1.2.3
-     * @date 2020-05-06
-     */
-    saveRest: function (data) {
-        return Promise.resolve(
-            $.ajax({
-                type: "POST",
-                url: "/api/redes",
-                data: data,
-                dataType: "JSON"
-            })
-        );
-    },
+
     /**
      * Trata o envio de uma imagem
      *
@@ -258,7 +239,7 @@ var redesAdd = {
         try {
             let self = this;
             // infelizmente em método de change, o this/self é o próprio elemento
-            let response = await redesAdd.uploadImage(image);
+            let response = await redesServices.uploadImage(image);
 
             if (response === undefined || response === null || (response !== undefined && !response.mensagem.status)) {
                 toastr.error(response.mensagem.message);
@@ -293,7 +274,7 @@ var redesAdd = {
                 resizable: true,
                 zoomable: true,
                 crop: function (event) {
-                    redesAdd.coordenadas(event.detail);
+                    redesEdit.coordenadas(event.detail);
                 }
             });
 
@@ -316,73 +297,5 @@ var redesAdd = {
         }
 
         return self;
-    },
-    /**
-     * Realiza upload de imagem
-     * @param {Event} evt Evento
-     *
-     * @returns void
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 1.2.3
-     * @date 2020-05-05
-     */
-    uploadImage: async function (image) {
-        'use strict';
-        let self = this;
-        var formData = new FormData();
-        var file = image.target.files[0];
-        var response = undefined;
-
-        if (file.size >= 2 * (1024 * 1024)) {
-            response = {
-                mensagem: {
-                    message: "É permitido apenas o envio de imagens menores que 2MB!",
-                    status: false
-                }
-            };
-
-            return response;
-        }
-
-        formData.append("file", image.target.files[0]);
-
-        // A resposta é retornada como ResponseText
-        response = await Promise.resolve(
-            $.ajax({
-                url: "/api/redes/set_image_network",
-                type: "POST",
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                mimeType: "application/x-www-form-urlencoded",
-                xhr: function () {
-                    // Custom XMLHttpRequest
-                    var myXhr = $.ajaxSettings.xhr();
-                    if (myXhr.upload) {
-                        // Avalia se tem suporte a propriedade upload
-                        myXhr.upload.addEventListener(
-                            "progress",
-                            function (event) {
-                                var percentComplete = event.loaded / event.total;
-                                percentComplete = parseInt(percentComplete * 100);
-                                console.log(percentComplete);
-
-                                callLoaderAnimation(
-                                    "Enviando Imagem... " + percentComplete + "% "
-                                );
-
-                                /* faz alguma coisa durante o progresso do upload */
-                            },
-                            false
-                        );
-                    }
-                    return myXhr;
-                }
-            })
-        );
-
-        return JSON.parse(response);
     }
 };

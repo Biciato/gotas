@@ -37,7 +37,7 @@ var redesView = {
         try {
             let redeResponse = await self.getRedeInfoRest(id);
 
-            self.fillData(redeResponse.data);
+            self.fillData(redeResponse.data.rede);
             self.getClientes(id);
         } catch (error) {
             console.log(error);

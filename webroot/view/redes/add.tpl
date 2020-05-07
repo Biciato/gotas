@@ -20,7 +20,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-content">
-                    <form name="form_redes_add" id="form-redes-add">
+                    <form name="redes_form" id="redes-form">
                         <ul class="nav nav-tabs">
                             <li class="active">
                                 <a href="#general" data-toggle="tab">Dados Gerais</a>
@@ -257,10 +257,6 @@
                             <button type="submit" id="btn-save" class="btn btn-primary">
                                 <em class="fas fa-save"></em> Salvar
                             </button>
-
-                            <!-- <div class="btn btn-primary" tooltip="Salvar" id="btn-save">
-                                <i class="fas fa-save"></i> Salvar
-                            </div> -->
                         </div>
                     </form>
                 </div>

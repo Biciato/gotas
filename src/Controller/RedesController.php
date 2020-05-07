@@ -104,8 +104,6 @@ class RedesController extends AppController
      */
     public function view($id = null)
     {
-        // $this->viewBuilder()->setLayout("default_update");
-
         try {
             $rede = $this->Redes->getRedeById($id);
             $imagem = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
@@ -128,7 +126,7 @@ class RedesController extends AppController
                 'rede' => $rede
             ];
 
-            return ResponseUtil::successAPI('', ['data' => $rede]);
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $message = __("Erro ao exibir detalhes de Rede : {0}", $e->getMessage());
