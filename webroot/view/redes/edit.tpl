@@ -137,8 +137,7 @@
                                             <label for="nome-img-atual">Logotipo da Rede Atual</label>
                                             <p>
 
-                                                <img src="" id="nome-img-atual" class="img-crop-logo"
-                                                alt="Ícone Atual da Rede na Lista de Estabelecimentos"
+                                                <img src="" id="nome-img-atual"                                                 alt="Ícone Atual da Rede na Lista de Estabelecimentos"
                                                 title="Ícone Atual na lista de Estabelecimentos da API" />
                                             </p>
 
@@ -267,9 +266,12 @@
                             <div href="#" class="btn btn-default" tooltip="Cancelar" id="btn-cancel">
                                 <i class="fas fa-times"></i> Cancelar
                             </div>
-                            <button type="submit" id="btn-save" class="btn btn-primary">
+                            <div type="submit" id="btn-save" class="btn btn-primary">
                                 <em class="fas fa-save"></em> Salvar
-                            </button>
+                            </div>
+                            <!-- <button type="submit" id="btn-save" class="btn btn-primary">
+                                <em class="fas fa-save"></em> Salvar
+                            </button> -->
                         </div>
                     </form>
                 </div>

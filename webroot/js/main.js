@@ -5,7 +5,7 @@ var sammy = Sammy("#content-html", function () {
     // Caminho para página não encontrada
     self.notFound = function (verb, path) {
         self.runRoute('get', '#/404');
-    }
+    };
 
     self.get("#/", ((context) => {
         context.partial("view/index.tpl", {}, (html) => {
@@ -19,11 +19,7 @@ var sammy = Sammy("#content-html", function () {
     });
 
     self.get("#/redes/index", (context) => {
-        context.partial("view/redes/index.tpl", {
-            controller: "scripts/redes/redes.js"
-        }, function (html) {
-            $(document).html(html);
-        })
+        context.partial("view/redes/index.tpl");
     });
     self.get("#/redes/view/:id", async function (context) {
         let id = context.params.id;

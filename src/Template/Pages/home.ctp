@@ -34,6 +34,7 @@ $titlePage = 'GOTAS';
 ?>
 <!doctype html>
 <html>
+
 <head>
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,54 +51,56 @@ $titlePage = 'GOTAS';
 
     <link href="https://fonts.googleapis.com/css?family=Raleway:500i|Roboto:300,400,700|Roboto+Mono" rel="stylesheet">
 </head>
+
 <body class="home">
 
-    <header class="row">
+    <!-- <header class="row">
         <div class="header-image"><?= $this->Html->image('rti-logo.png') ?></div>
         <div class="header-title">
             <h1>Bem vindo ao sistema GOTAS</h1>
         </div>
-    </header>
+    </header> -->
 
     <!-- <div class="row"> -->
     <div class="columns col-sm-12">
 
         <?php
-        $usuarioLogado = $this->request->session()->read('Auth.User');
+        // $usuarioLogado = $this->request->session()->read('Auth.User');
 
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        // $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        // $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($usuarioAdministrar) {
-            $usuarioLogado = $usuarioAdministrar;
-        }
+        // if ($usuarioAdministrar) {
+        //     $usuarioLogado = $usuarioAdministrar;
+        // }
 
-        if (!empty($usuarioLogado)) {
-            if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                $this->extend('dashboard_desenvolvedor');
-            } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
-                $this->extend('dashboard_administrador');
-            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
-                $this->extend('dashboard_gerente');
+        // if (!empty($usuarioLogado)) {
+        //     if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        //         $this->extend('dashboard_desenvolvedor');
+        //     } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
+        //         $this->extend('dashboard_administrador');
+        //     } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+        //         $this->extend('dashboard_gerente');
 
-            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
-                $this->extend('dashboard_funcionario');
+        //     } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+        //         $this->extend('dashboard_funcionario');
 
-            } else {
-                $this->extend('dashboard_cliente');
-            }
-        } else {
-            ?>
+        //     } else {
+        //         $this->extend('dashboard_cliente');
+        //     }
+        // } else {
+        ?>
 
-            <div class="columns col-sm-6">
+        <!-- <div class="columns col-sm-6">
             <span class="form-label">Para navegar no sistema, é necessário realizar o login.</span>
 
 
-            </div>
+        </div> -->
 
-            <?php
+        <?php
 
-        }
+        // }
         ?>
-    </body>
+</body>
+
 </html>

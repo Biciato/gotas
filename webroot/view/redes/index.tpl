@@ -81,5 +81,5 @@
     </div>
 </div>
 
-<script src="/webroot/js/scripts/redes/redes.js"></script>
+<script src="/webroot/js/scripts/redes/index.js"></script>
 

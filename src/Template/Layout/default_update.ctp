@@ -49,7 +49,7 @@
                     <li>
                         <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
-                            <li class="active"><a href="index.html">Cadastro de Usuários</a></li>
+                            <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
                         </ul>
                     </li>
                     <li>
@@ -203,10 +203,12 @@
                 </div>
             </div> -->
 
-            <div id='content-html'>
+            <div id="content">
                 <?php
-                // echo $this->fetch('content');
+                echo $this->fetch('content');
                 ?>
+            </div>
+            <div id='content-html'>
             </div>
             <div class="footer">
                 <div class="float-right">

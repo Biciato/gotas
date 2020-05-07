@@ -635,7 +635,7 @@ Router::scope("/api", function ($routes) {
             ),
             "carregarUsuarios" => [
                 "action" => "carregarUsuarios",
-                "method" => Request::METHOD_POST,
+                "method" => Request::METHOD_GET,
                 "path" => "carregar-usuarios"
             ]
         ]
