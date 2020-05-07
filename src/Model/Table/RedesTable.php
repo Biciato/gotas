@@ -420,7 +420,7 @@ class RedesTable extends GenericTable
      * @param boolean $pontuacaoExtraProdutoGenerico
      * @param DateTime $dateCreatedMin
      * @param DateTime $dateCreatedMax
-     * @return void
+     * @return \Cake\Orm\Query|\App\Model\Entity\Rede[]
      */
     public function getRedes(
         int $id = null,
@@ -765,16 +765,16 @@ class RedesTable extends GenericTable
      *
      * @return \App\Model\Entity\Clientes $rede
      */
-    public function changeStateEnabledRede(int $id, bool $ativado)
+    public function changeStateNetwork(int $id)
     {
         try {
-
             $rede = $this->find('all')
                 ->where(['id' => $id])
                 ->contain(['RedesHasClientes'])
                 ->first();
 
             $clientesIds = [];
+            $ativado = !$rede->ativado;
 
             foreach ($rede->redes_has_clientes as $key => $value) {
                 $clientesIds[] = $value["clientes_id"];
@@ -793,22 +793,10 @@ class RedesTable extends GenericTable
             $rede->ativado = $ativado;
 
             return $this->save($rede);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            return ['success' => false, 'message' => $stringError];
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
         }
     }
 

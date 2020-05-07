@@ -8,7 +8,9 @@ echo $this->Html->meta('icon');
 
 ?>
 
-<?= $this->Html->css(sprintf("home-rti.css?version=%s", SYSTEM_VERSION)); ?>
+<?php //  echo  $this->Html->css(sprintf("home.css?version=%s", SYSTEM_VERSION));
+?>
+<?php echo $this->Html->css(sprintf("home-rti.css?version=%s", SYSTEM_VERSION)); ?>
 
 
 <!-- <link rel="stylesheet" href="/webroot/css/home-rti.css?version=<?= SYSTEM_VERSION ?>"> -->
@@ -22,9 +24,6 @@ echo $this->Html->meta('icon');
 
 <?= $this->Html->script(sprintf("jquery/jquery.js?version=%s",  SYSTEM_VERSION)); ?>
 <?= $this->Html->script(sprintf("jquery/jquery.min.js?version=%s",  SYSTEM_VERSION)); ?>
-
-<!-- <script src="/app_gotas/js/jquery/jquery.js?version=<?= SYSTEM_VERSION ?>"></script>
-<script src="/webroot/js/jquery/jquery.min.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 
 <!-- Home -->
 <?= $this->Html->script(sprintf("scripts/pages/home.js?version=%s", SYSTEM_VERSION)); ?>
@@ -40,17 +39,32 @@ echo $this->Html->meta('icon');
 
 <!-- Bootstrap CSS 3 -->
 
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s",  SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s.map",  SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s",  SYSTEM_VERSION)); ?>
-<?= $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s.map", SYSTEM_VERSION)); ?>
-<?= $this->Html->script(sprintf("bootstrap/js/bootstrap.js?version=%s", SYSTEM_VERSION)); ?>
+<?php
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s",  SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.css?version=%s.map",  SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap.min.css?version=%s.map", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.css?version=%s.map", SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s",  SYSTEM_VERSION));
+// echo $this->Html->css(sprintf("bootstrap/css/bootstrap-theme.min.css?version=%s.map", SYSTEM_VERSION));
+// echo $this->Html->script(sprintf("bootstrap/js/bootstrap.js?version=%s", SYSTEM_VERSION));
+?>
+
+<?php echo $this->Html->script("layout-update/popper.min.js"); ?>
+<?php echo $this->Html->script("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"); ?>
+<?php echo $this->Html->script("//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"); ?>
+
+<?php echo $this->Html->script("bootbox/bootbox.min.js"); ?>
+<?php echo $this->Html->script("bootbox/bootbox.locales.min.js"); ?>
+
+<?php
+
+echo $this->Html->css(sprintf("bootstrap3-dialog/css/bootstrap-dialog.min.css?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("bootstrap3-dialog/js/bootstrap-dialog.min.js?version=%s", SYSTEM_VERSION));
 
 
+?>
 <!-- Font Awesome -->
 <?= $this->Html->css(sprintf("font-awesome/css/font-awesome.css?version=%s", SYSTEM_VERSION)); ?>
 <?= $this->Html->css(sprintf("font-awesome/css/font-awesome.css?version=%s.map", SYSTEM_VERSION)); ?>
@@ -130,8 +144,10 @@ echo $this->Html->meta('icon');
 <?= $this->Html->css(sprintf("styles/common/loader.css?version=%s",  SYSTEM_VERSION)); ?>
 
 <!-- Icones -->
-<?= $this->Html->image("assets/img/apple-icon.png", ["sizes" => "76x76", "rel" => "apple-touch-icon"]); ?>
-<?= $this->Html->image("favicon.ico", ["sizes" => "96x96", "rel" => "icon"]); ?>
+<?= "" // $this->Html->image("assets/img/apple-icon.png", ["sizes" => "76x76", "rel" => "apple-touch-icon"]);
+?>
+<?= "" // $this->Html->image("favicon.ico", ["sizes" => "96x96", "rel" => "icon"]);
+?>
 
 
 <!-- Desativado por ser Angular JS -->
@@ -139,14 +155,30 @@ echo $this->Html->meta('icon');
 
 <!-- DataTables -->
 
-<?= $this->Html->css(sprintf("DataTables/datatables.min.css?version=%s", SYSTEM_VERSION)); ?>
-<?= $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYSTEM_VERSION)); ?>
+<?php
+echo $this->Html->css(sprintf("DataTables/datatables.min.css?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYSTEM_VERSION));
+?>
 
-<!-- <script src="/webroot/js/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js?version=<?= SYSTEM_VERSION ?>"></script> -->
+
+<!-- Helpers -->
+
+<!-- DataTables -->
+
+<?php
+echo $this->Html->script(sprintf("scripts/helpers/Html/ButtonHelper.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/helpers/DataTables/DataTablesHelper.js?version=%s", SYSTEM_VERSION));
+
+echo $this->Html->script(sprintf('layout-update/pipeline_wrapper.js?version=%s', SYSTEM_VERSION));
+
+
+?>
+
+
 <!-- Fim Estilos -->
 
 <!-- Bibliotecas -->
-<script src="/webroot/app/lib/angularjs/angular.min.js?version=<?= SYSTEM_VERSION ?>"></script>
+<!-- <script src="/webroot/app/lib/angularjs/angular.min.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/lib/angularjs/angular-locale_pt-br.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/lib/angularjs/angular-animate.min.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/lib/angularjs/angular-route.min.js?version=<?= SYSTEM_VERSION ?>"></script>
@@ -157,45 +189,45 @@ echo $this->Html->meta('icon');
 <script src="/webroot/app/lib/ui.bootstrap/ui-bootstrap-tpls-2.5.0.min.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/lib/Blob.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/lib/ui.mask/mask.min.js?version=<?= SYSTEM_VERSION ?>"></script>
-<script src="/webroot/app/lib/ui.select/select.min.js?version=<?= SYSTEM_VERSION ?>"></script>
+<script src="/webroot/app/lib/ui.select/select.min.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 
 
 <!-- angular-toastr -->
 
-<script src="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.min.js?version=<?= SYSTEM_VERSION ?>"></script>
+<!-- <script src="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.min.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.tpls.min.js?version=<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.min.css?version=<?= SYSTEM_VERSION ?>">
+<link rel="stylesheet" href="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.min.css?version=<?= SYSTEM_VERSION ?>"> -->
 
 <!-- Css -->
-<link rel="stylesheet" href="/webroot/app/css/pages/relatorios/usuarios/modalDetalhesUsuario.css?version=<?= SYSTEM_VERSION ?>">
+<!-- <link rel="stylesheet" href="/webroot/app/css/pages/relatorios/usuarios/modalDetalhesUsuario.css?version=<?= SYSTEM_VERSION ?>">
 
 <script src="/webroot/app/js/app.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/app.module.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/configuracoes.module.js?version=<?= SYSTEM_VERSION ?>"></script>
-<script src="/webroot/app/js/config/routeConfig.js?version=<?= SYSTEM_VERSION ?>"></script>
+<script src="/webroot/app/js/config/routeConfig.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 
 <!-- Controllers -->
-<script src="/webroot/app/js/controllers/usuarios/relUsuariosAssiduosController.js?version=<?= SYSTEM_VERSION ?>"></script>
+<!-- <script src="/webroot/app/js/controllers/usuarios/relUsuariosAssiduosController.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/controllers/usuarios/modalDetalhesUsuarioController.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/controllers/usuarios/modalDetalhesAssiduidadeUsuarioController.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/controllers/usuarios/relUsuariosFidelizadosController.js?version=<?= SYSTEM_VERSION ?>"></script>
-<script src="/webroot/app/js/controllers/usuarios/relUsuariosFrequenciaMediaController.js?version=<?= SYSTEM_VERSION ?>"></script>
+<script src="/webroot/app/js/controllers/usuarios/relUsuariosFrequenciaMediaController.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 
 <!-- Services -->
-<script src="/webroot/app/js/services/utils/downloadService.js?version=<?= SYSTEM_VERSION ?>"></script>
+<!-- <script src="/webroot/app/js/services/utils/downloadService.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 
 <!-- Serviços Básicos -->
-<script src="/webroot/app/js/services/clientes/clientesService.js?version=<?= SYSTEM_VERSION ?>"></script>
+<!-- <script src="/webroot/app/js/services/clientes/clientesService.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/services/usuarios/usuariosService.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/services/transportadoras/transportadorasService.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/app/js/services/veiculos/veiculosService.js?version=<?= SYSTEM_VERSION ?>"></script>
 
-<script src="/webroot/app/js/services/usuarios/relUsuariosAssiduosService.js?version=<?= SYSTEM_VERSION ?>"></script>
+<script src="/webroot/app/js/services/usuarios/relUsuariosAssiduosService.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 
-<script src="/webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js?version=<?= SYSTEM_VERSION ?>"></script>
+<!-- <script src="/webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 
 <!-- Diretivas -->
 
-<script src="/webroot/app/js/directives/loading-spinner.js?version=<?= SYSTEM_VERSION ?>"></script>
+<!-- <script src="/webroot/app/js/directives/loading-spinner.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 <!-- /webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js -->
 <!-- <script src="/webroot/app/js/controllers/usuarios/relUsuariosAtivos.js?version=<?= SYSTEM_VERSION ?>" ></script> -->

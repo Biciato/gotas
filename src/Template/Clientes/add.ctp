@@ -22,13 +22,14 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-<?= $this->element('../Clientes/left_menu',
+<?= $this->element(
+    '../Clientes/left_menu',
     [
-    'controller' => 'redes',
-    'action'=> 'ver_detalhes',
-    'id' => $rede->id
+        'controller' => 'redes',
+        'action' => 'ver_detalhes',
+        'id' => $rede->id
     ]
 ) ?>
 <div class="clientes form col-lg-9 col-md-10 columns content">
-    <?= $this->element('../Clientes/clientes_form', ['cliente' => $cliente, 'title' => __('Adicionar Unidade para Rede {0}', $rede->nome_rede), "redesId" => $rede["id"]])?>
+    <?= $this->element('../Clientes/clientes_form', ['cliente' => $cliente, 'title' => __('Adicionar Unidade para Rede {0}', $rede->nome_rede), "redesId" => $rede["id"]]) ?>
 </div>

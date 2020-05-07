@@ -1,7 +1,7 @@
 <?php
 
 
-$filialAdministrar= $this->request->session()->read('Rede.PontoAtendimento');
+$filialAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 ?>
 
 <!-- <div id="footer_common">
@@ -12,9 +12,9 @@ $filialAdministrar= $this->request->session()->read('Rede.PontoAtendimento');
 </div> -->
 
 
-<div id="footer_worker" >
+<div id="footer_worker">
 
-    <div id="footer_content" >
+    <div id="footer_content">
         <div class="wrapper">
 
             <a class="sprite logo_footer" href="http://rtisolutions.com.br/" title="RTI" rel="home">RTI</a>
@@ -22,13 +22,13 @@ $filialAdministrar= $this->request->session()->read('Rede.PontoAtendimento');
             <div class="menu">
                 <ul id="menu-footer" class="menu_footer">
                     <li class="menu_items">
-                        <a href="http://rtisolutions.com.br/seja-um-representante/"  >Seja um representante</a>
+                        <a href="http://rtisolutions.com.br/seja-um-representante/">Seja um representante</a>
                     </li>
                     <li class="menu_items">
                         <a href="http://rtisolutions.com.br/contato/">Envie sua mensagem</a>
                     </li>
-                    <li >
-                    <a href="https://www.facebook.com/pages/RTI-Solu%C3%A7%C3%B5es-Inteligentes/334320489936415" class="sprite facebook">Facebook</a>
+                    <li>
+                        <a href="https://www.facebook.com/pages/RTI-Solu%C3%A7%C3%B5es-Inteligentes/334320489936415" class="sprite facebook">Facebook</a>
                     </li>
                 </ul>
             </div>
