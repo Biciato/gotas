@@ -821,36 +821,6 @@ class RedesTable extends GenericTable
         }
     }
 
-    /**
-     * Atualiza dados de rede
-     *
-     * @param \App\Model\Entity\Redes $rede Objeto de rede
-     *
-     * @return \App\Model\Entity\Redes Objeto de redes atualizado
-     */
-    public function updateRede(\App\Model\Entity\Rede $rede)
-    {
-        try {
-            return $this->save($rede);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            return ['success' => false, 'message' => $stringError];
-        }
-    }
-
     #endregion
 
     #region Delete

@@ -33,7 +33,7 @@
                                     Exibir / Ocultar Filtros
                                 </div>
                             </div>
-                            <div id="filter-coupons" class="panel-collapse collapse in">
+                            <div id="filtro-redes" class="panel-collapse collapse in">
                                 <div class="panel-body">
                                     <form id="form">
                                         <div class="form-group row">
@@ -81,5 +81,12 @@
     </div>
 </div>
 
-<script src="/webroot/js/scripts/redes/index.js"></script>
-
+<link rel="stylesheet" href="/webroot/css/styles/redes/index.css">
+<script>
+    $(document).ready(function () {
+        redesIndex.init();
+    })
+    .ajaxStart(callLoaderAnimation)
+    .ajaxStop(closeLoaderAnimation)
+    .ajaxError(closeLoaderAnimation);
+</script>

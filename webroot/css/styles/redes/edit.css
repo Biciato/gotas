@@ -4,6 +4,13 @@
   * @date     2020-05-05
   */
 
+#nome-img-atual {
+    /* border-radius: 5px; */
+    max-height: 300px;
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
 .img-crop-logo {
     overflow: hidden;
     max-height: 320px;
@@ -23,8 +30,8 @@
     max-width: 200px;
     height: 200px;
     width: 200px;
-    border: 5px solid black;
-    border-radius: 5px;
+    border: 1px solid black;
+    border-radius: 50%;
     left: 0;
     right: 0;
     float: none;

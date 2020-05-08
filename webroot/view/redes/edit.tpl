@@ -263,9 +263,9 @@
                         </div>
 
                         <div class="action-buttons">
-                            <div href="#" class="btn btn-default" tooltip="Cancelar" id="btn-cancel">
+                            <a href="#/redes/index" class="btn btn-default" tooltip="Cancelar" id="btn-cancel">
                                 <i class="fas fa-times"></i> Cancelar
-                            </div>
+                            </a>
                             <div type="submit" id="btn-save" class="btn btn-primary">
                                 <em class="fas fa-save"></em> Salvar
                             </div>

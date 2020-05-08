@@ -21,23 +21,21 @@ var redesView = {
         // Define comportamento do botão de pesquisar estabelecimentos
         $(document)
             .off("click", "#form #btn-search")
-            .on("click", "#form #btn-search", self.filterEstablishments);
+            .on("click", "#form #btn-search", self.refreshDataTable);
         // Adiciona enter dentro do form, pesquisar
         $(document)
-            .off("keyup", "#form")
-            .on("keyup", "#form", function (evt) {
-                evt.preventDefault();
+            .off("keydown", "#form")
+            .on("keydown", "#form", function (evt) {
                 if (evt.keyCode == 13) {
-                    if (typeof window['#clientes-table'] !== 'undefined') {
-                        window['#clientes-table'].clearPipeline().draw();
-                    }
+                    evt.preventDefault();
+                    self.refreshDataTable(evt);
                 }
-            })
+            });
 
         try {
-            let redeResponse = await self.getRedeInfoRest(id);
+            let rede = await redesServices.getById(id);
 
-            self.fillData(redeResponse.data.rede);
+            self.fillData(rede);
             self.getClientes(id);
         } catch (error) {
             console.log(error);
@@ -60,8 +58,14 @@ var redesView = {
     },
 
     /**
+     * Preenche input do form
      *
      * @param {Rede} data
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-04-22
      */
     fillData: function (data) {
         console.log(data);
@@ -115,16 +119,19 @@ var redesView = {
         }
 
     },
-
-    filterEstablishments: function (e) {
-        e.preventDefault();
-        if (typeof window['#clientes-table'] !== 'undefined') {
-            window['#clientes-table'].clearPipeline().draw();
-        }
-    },
-
-    //#region Services
-
+    /**
+     * Obtem dados de Clientes e popula tabela
+     *
+     * @param {Int} redesId
+     * @param {String} nome_fantasia Nome Fantasia
+     * @param {String} razao_social Razao Social
+     * @param {String} cnpj CNPJ
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-04-22
+     */
     getClientes: function (redesId, nome_fantasia, razao_social, cnpj) {
         let url = `/api/clientes/`;
 
@@ -189,10 +196,6 @@ var redesView = {
             [5, 15, 20, 100],
             undefined,
             function (rowData) {
-
-                let columnIndex = 4;
-                let column = rowData[columnIndex];
-
                 let attributes = {
                     id: rowData.id,
                     active: rowData.ativado,
@@ -217,28 +220,16 @@ var redesView = {
         );
     },
     /**
-     * Obtêm redes
+     * Filtra os registros do datatable
      *
-     * @param {String} nomeRede Nome da rede
-     * @param {Boolean} ativado Rede Ativada
-     * @param {Boolean} appPersonalizado Rede com Aplicativos Personalizados
-     * @returns JSON data
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 1.2.3
-     * @date 2020-04-22
+     * @param {Event} e Evento
      */
-    getRedeInfoRest: function (idRede) {
-        let url = `/api/redes/${idRede}`;
+    refreshDataTable: function (event) {
+        event.preventDefault();
+        if (typeof window['#clientes-table'] !== 'undefined') {
+            window['#clientes-table'].clearPipeline().draw();
+        }
+    },
 
-        return Promise.resolve(
-            $.ajax({
-                type: "GET",
-                url: url,
-                dataType: "JSON"
-            }));
-    }
-
-    //#endregion
     //#endregion
 };

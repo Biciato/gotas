@@ -5,7 +5,7 @@
  * @date 2020-05-05
  *
  */
-var redesEdit = {
+var redesAdd = {
     /**
      * Altera estado de habilitado para Checkbox de "Mensagem de Distância ao Comprar"
      *
@@ -38,7 +38,7 @@ var redesEdit = {
      * @since 1.2.3
      * @date 2020-05-05
      */
-    coordenadas: function (param) {
+    getAreaImage: function (param) {
         'use strict';
         $("#crop-height").val(param.height);
         $("#crop-width").val(param.width);
@@ -58,7 +58,9 @@ var redesEdit = {
         $(".img-crop-logo").data("cropper");
         $("#custo-referencia-gotas").maskMoney();
         fixMoneyValue($("#custo-referencia-gotas"));
-        $("#app-personalizado").off("click").on("click", self.changeEnabledAppPersonalizado);
+        $("#app-personalizado")
+            .off("click")
+            .on("click", self.changeEnabledAppPersonalizado);
 
         // Eventos
         $(document)
@@ -77,94 +79,12 @@ var redesEdit = {
     formSubmit: function (evt) {
         'use strict';
         let self = this;
+        evt.preventDefault();
 
-        $("#redes-form").validate({
-            rules: {
-                nome_rede: {
-                    required: true,
-                    minlength: 3
-                },
-                quantidade_pontuacoes_usuarios_dia: {
-                    required: true,
-                    min: 1,
-                    max: 365
-                },
-                quantidade_consumo_usuarios_dia: {
-                    required: true,
-                    min: 1,
-                    max: 365
-                },
-                qte_mesmo_brinde_resgate_dia: {
-                    required: true,
-                    min: 1,
-                    max: 10
-                },
-                tempo_expiracao_gotas_usuarios: {
-                    required: true,
-                    min: 1,
-                    max: 99999
-                },
-                custo_referencia_gotas: {
-                    required: true,
-                    min: 0.01
-                },
-                media_assiduidade_clientes: {
-                    required: true,
-                    min: 1,
-                    max: 30
-                },
-                qte_gotas_minima_bonificacao: "required",
-                qte_gotas_bonificacao: "required"
-            },
-            messages: {
-                nome_rede: {
-                    required: "Informe o Nome da Rede",
-                    minlength: "Nome da Rede deve conter ao menos 3 letras"
-                },
-                quantidade_pontuacoes_usuarios_dia: {
-                    required: "Informe o Máximo de Pontuações Diárias por Usuário",
-                    min: "Mínimo 1 Pontuações por dia",
-                    max: "Máximo 365 Pontuações por dia"
-                },
-                quantidade_consumo_usuarios_dia: {
-                    required: "Informe o Máximo de Consumos (Usos de Brinde) Diários por Usuário",
-                    min: "Mínimo 1 Consumo por dia",
-                    max: "Máximo 365 Consumos por dia"
-                },
-                qte_mesmo_brinde_resgate_dia: {
-                    required: "Informe o Máximo de Resgates de Brinde por dia por Usuário",
-                    min: "Mínimo 1 Resgate por dia",
-                    max: "Máximo 10 Resgate por dia"
-                },
-                tempo_expiracao_gotas_usuarios: {
-                    required: "Informe o Tempo de Expiração de Pontos dos Usuários (em meses)",
-                    min: "Mínimo 1",
-                    max: "Máximo 99999"
-                },
-                custo_referencia_gotas: {
-                    required: "Informe Custo de Referência Gotas",
-                    min: 0.01
-                },
-                media_assiduidade_clientes: {
-                    required: "Informe Média de Assiduidade de Clientes (Por mês)",
-                    min: "Mínimo 1",
-                    max: "Máximo 30"
-                },
-                qte_gotas_minima_bonificacao: {
-                    required: "Informe Quantidade de Gotas/Pontos Mínima para Bonificação Extra"
-                },
-                qte_gotas_bonificacao: {
-                    required: "Informe a Quantidade de Gotas/Pontos de Bonificação para Usuário"
-                }
-            },
-            submitHandler: function (form) {
-                // Evita qualquer submit redirection
-                evt.preventDefault();
-                evt.stopPropagation();
+        if (redesEdit.validateForm("#redes-form").form()) {
+            redesEdit.save($("#redes-form"));
+        }
 
-                redesEdit.save(form);
-            }
-        });
         return self;
     },
     /**
@@ -202,7 +122,6 @@ var redesEdit = {
             }
 
             // Gravação feita com sucesso, redireciona
-
             toastr.success(response.mensagem.message);
             window.location = "#/redes/index";
         } catch (error) {
@@ -274,7 +193,7 @@ var redesEdit = {
                 resizable: true,
                 zoomable: true,
                 crop: function (event) {
-                    redesEdit.coordenadas(event.detail);
+                    redesAdd.getAreaImage(event.detail);
                 }
             });
 
@@ -297,5 +216,104 @@ var redesEdit = {
         }
 
         return self;
-    }
+    },
+    /**
+     * Realiza validação em um formulário selecionado
+     * @param {Form} form Formulário alvo
+     * @returns jQuery.Validation Validação em um Formulário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-07
+     */
+    validateForm: function (form) {
+        var self = this;
+        return $(form).validate({
+            rules: self.validationOptions.rules,
+            messages: self.validationOptions.messages
+        });
+    },
+    /**
+     * Opções de validação
+     */
+    validationOptions: {
+        messages: {
+            nome_rede: {
+                required: "Informe o Nome da Rede",
+                minlength: "Nome da Rede deve conter ao menos 3 letras"
+            },
+            quantidade_pontuacoes_usuarios_dia: {
+                required: "Informe o Máximo de Pontuações Diárias por Usuário",
+                min: "Mínimo 1 Pontuações por dia",
+                max: "Máximo 365 Pontuações por dia"
+            },
+            quantidade_consumo_usuarios_dia: {
+                required: "Informe o Máximo de Consumos (Usos de Brinde) Diários por Usuário",
+                min: "Mínimo 1 Consumo por dia",
+                max: "Máximo 365 Consumos por dia"
+            },
+            qte_mesmo_brinde_resgate_dia: {
+                required: "Informe o Máximo de Resgates de Brinde por dia por Usuário",
+                min: "Mínimo 1 Resgate por dia",
+                max: "Máximo 10 Resgate por dia"
+            },
+            tempo_expiracao_gotas_usuarios: {
+                required: "Informe o Tempo de Expiração de Pontos dos Usuários (em meses)",
+                min: "Mínimo 1",
+                max: "Máximo 99999"
+            },
+            custo_referencia_gotas: {
+                required: "Informe Custo de Referência Gotas",
+                min: 0.01
+            },
+            media_assiduidade_clientes: {
+                required: "Informe Média de Assiduidade de Clientes (Por mês)",
+                min: "Mínimo 1",
+                max: "Máximo 30"
+            },
+            qte_gotas_minima_bonificacao: {
+                required: "Informe Quantidade de Gotas/Pontos Mínima para Bonificação Extra"
+            },
+            qte_gotas_bonificacao: {
+                required: "Informe a Quantidade de Gotas/Pontos de Bonificação para Usuário"
+            }
+        },
+        rules: {
+            nome_rede: {
+                required: true,
+                minlength: 3
+            },
+            quantidade_pontuacoes_usuarios_dia: {
+                required: true,
+                min: 1,
+                max: 365
+            },
+            quantidade_consumo_usuarios_dia: {
+                required: true,
+                min: 1,
+                max: 365
+            },
+            qte_mesmo_brinde_resgate_dia: {
+                required: true,
+                min: 1,
+                max: 10
+            },
+            tempo_expiracao_gotas_usuarios: {
+                required: true,
+                min: 1,
+                max: 99999
+            },
+            custo_referencia_gotas: {
+                required: true,
+                min: 0.01
+            },
+            media_assiduidade_clientes: {
+                required: true,
+                min: 1,
+                max: 30
+            },
+            qte_gotas_minima_bonificacao: "required",
+            qte_gotas_bonificacao: "required"
+        },
+    },
 };

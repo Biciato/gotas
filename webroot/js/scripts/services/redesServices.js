@@ -1,4 +1,56 @@
 var redesServices = {
+
+    /**
+     * Altera o estado de uma rede
+     *
+     * @param {int} id Id da Rede
+     * @returns Promise|false Promise ou status de false da operação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-04-28
+     */
+    changeStatus: async function (id) {
+        if (id === undefined || id === null) {
+            throw "Necessário informar rede à ser apagada!";
+        }
+
+        return await Promise.resolve($.ajax({
+            type: "PUT",
+            url: `/api/redes/change-status/${id}`,
+            dataType: "JSON"
+        }));
+    },
+
+    /**
+     * Remove uma rede
+     *
+     * @param {int} id Id da Rede
+     * @returns Promise|false Promise ou status de false da operação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-04-28
+     */
+    delete: async function (id, password) {
+        if (id === undefined || id === null) {
+            throw "Necessário informar rede à ser apagada!";
+        }
+
+        let url = "/api/redes/" + id;
+
+        let dataRequest = {
+            password: password
+        }
+
+        return Promise.resolve(
+            $.ajax({
+                type: "DELETE",
+                data: dataRequest,
+                url: url,
+                dataType: "JSON",
+            }));
+    },
     /**
      * Obtem registro por Id
      *
@@ -9,30 +61,58 @@ var redesServices = {
      * @since 1.2.3
      * @date 2020-05-07
      */
-    getById: function (id) {
-        return Promise.resolve(
+    getById: async function (id) {
+        let obj = await Promise.resolve(
             $.ajax({
                 type: "GET",
                 url: `/api/redes/${id}`,
                 dataType: "JSON"
             })
         );
+        if (obj === undefined || obj === null || !obj) {
+            toastr.error(response.mensagem.message);
+            throw "Registro não encontrado!";
+        } else if (!obj.mensagem.status) {
+            let msgs = [];
+            let codes = [];
+
+            obj.mensagem.errors.forEach(error => {
+                msgs.push(error);
+            });
+
+            obj.mensagem.error_codes.forEach(error => {
+                codes.push(error);
+            });
+
+            throw new Object({
+                errors: msgs,
+                errorCodes: codes
+            });
+
+
+        }
+
+        return obj.data.rede;
     },
     /**
      * Realiza inserção de uma nova rede
      *
      * @param {any} data
-     * @returns $.Promise Promise jQuery
+     * @returns Rede|generic Object
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.2.3
      * @date 2020-05-06
      */
     save: function (data) {
+        let typeRequest = data.id !== undefined && data.id > 0 ? "PUT" : "POST";
+        let id = data.id !== undefined && data.id > 0 ? data.id : "";
+        let url = `/api/redes/${id}`;
+
         return Promise.resolve(
             $.ajax({
-                type: "POST",
-                url: "/api/redes",
+                type: typeRequest,
+                url: url,
                 data: data,
                 dataType: "JSON"
             })

@@ -167,6 +167,7 @@ echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYST
 <!-- DataTables -->
 
 <?php
+echo $this->Html->script(sprintf("scripts/helpers/Html/ImageHelper.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/helpers/Html/ButtonHelper.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/helpers/DataTables/DataTablesHelper.js?version=%s", SYSTEM_VERSION));
 
@@ -194,6 +195,7 @@ echo $this->Html->script(sprintf("scripts/services/redesServices.js?version=%s",
 <?php
 echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
 
+echo $this->Html->script(sprintf("scripts/redes/index.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/redes/view.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/redes/add.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/redes/edit.js?version=%s", SYSTEM_VERSION));
