@@ -438,6 +438,7 @@ class ClientesTable extends GenericTable
             $selectList = [
                 "Clientes.id",
                 "Clientes.matriz",
+                "Clientes.ativado",
                 "Clientes.tipo_unidade",
                 "Clientes.nome_fantasia",
                 "Clientes.razao_social",

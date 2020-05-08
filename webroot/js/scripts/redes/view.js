@@ -32,6 +32,13 @@ var redesView = {
                 }
             });
 
+        $(document)
+            .off("click", "#form .delete-item")
+            .on("click", "#form .delete-item", self.deleteEstablishment);
+        $(document)
+            .off("click", "#form .change-status")
+            .on("click", "#form .change-status", self.changeStatusEstablishment);
+
         try {
             let rede = await redesServices.getById(id);
 
@@ -201,6 +208,7 @@ var redesView = {
                     active: rowData.ativado,
                     name: rowData.nome_rede
                 };
+                console.log(rowData);
 
                 let actionView = btnHelper.generateLinkViewToDestination(`#/clientes/view/${rowData.id}`, btnHelper.ICON_INFO, null, "Ver Detalhes");
                 let editView = btnHelper.generateLinkEditToDestination(`#/clientes/edit/${rowData.id}`, null, "Editar");
