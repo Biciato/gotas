@@ -9,6 +9,21 @@
 var redesView = {
     id: {},
     // #region Functions
+
+    /**
+     *
+     * @param {int} id Id de registro
+     */
+    changeStatusEstablishment: function (id) {
+
+    },
+    /**
+     *
+     * @param {int} id Id de registro
+     */
+    deleteEstablishment: function (id) {
+
+    },
     init: async function (id) {
         'use strict';
         var self = this;
@@ -33,11 +48,11 @@ var redesView = {
             });
 
         $(document)
-            .off("click", "#form .delete-item")
-            .on("click", "#form .delete-item", self.deleteEstablishment);
+            .off("click", "#clientes-table .delete-item")
+            .on("click", "#clientes-table .delete-item", self.deleteEstablishment);
         $(document)
-            .off("click", "#form .change-status")
-            .on("click", "#form .change-status", self.changeStatusEstablishment);
+            .off("click", "#clientes-table .change-status")
+            .on("click", "#clientes-table .change-status", self.changeStatusEstablishment);
 
         try {
             let rede = await redesServices.getById(id);
