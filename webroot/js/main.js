@@ -18,6 +18,23 @@ var sammy = Sammy("#content-html", function () {
         });
     });
 
+    //#region CLIENTES
+
+    self.get("#/redes/view/:redesId/clientes/view/:id", (context) => {
+        let redesId = context.params.redesId;
+        let id = context.params.id;
+        let cliente = {
+            id: id
+        };
+
+        context.redesId = redesId;
+
+        localStorage.setItem("data", JSON.stringify(cliente));
+        context.partial("view/clientes/view.tpl");
+    });
+    //#endregion
+
+    // #region REDES
     self.get("#/redes/index", (context) => {
         context.partial("view/redes/index.tpl");
     });
@@ -46,6 +63,8 @@ var sammy = Sammy("#content-html", function () {
         localStorage.setItem("data", JSON.stringify(rede));
         context.partial("view/redes/edit.tpl");
     });
+
+    //#endregion
 
     return self;
 });
