@@ -63,20 +63,29 @@
                                                 <div class="panel-body">
                                                     <form id="form">
                                                         <div class="form-group row">
-                                                            <div class="col-lg-4">
+                                                            <div class="col-lg-3">
                                                                 <label for="nome_fantasia">Nome Fantasia:</label>
                                                                 <input type="text" name="nome_fantasia"
                                                                     id="nome-fantasia" class="form-control" />
                                                             </div>
-                                                            <div class="col-lg-4">
+                                                            <div class="col-lg-3">
                                                                 <label for="razao_social">Razão Social:</label>
                                                                 <input type="text" name="razao_social" id="razao-social"
                                                                     class="form-control" />
                                                             </div>
-                                                            <div class="col-lg-4">
+                                                            <div class="col-lg-3">
                                                                 <label for="cnpj">CNPJ:</label>
                                                                 <input type="text" name="cnpj" id="cnpj"
                                                                     class="form-control" />
+                                                            </div>
+                                                            <div class="col-lg-3">
+                                                                <label for="ativado">Ativado:</label>
+                                                                <select name="ativado" id="ativado"
+                                                                    class="form-control">
+                                                                    <option value="">Todos</option>
+                                                                    <option value="1" selected>Sim</option>
+                                                                    <option value="0">Não</option>
+                                                                </select>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">

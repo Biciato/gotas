@@ -11,19 +11,140 @@ var redesView = {
     // #region Functions
 
     /**
+     * Faz solicitação de alterar estado de habilitado do Estabelecimento
      *
      * @param {int} id Id de registro
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-11
      */
-    changeStatusEstablishment: function (id) {
+    changeStatusEstablishment: async function (evt) {
+        let id = event.target.getAttribute('data-id');
+        let networkName = event.target.getAttribute('data-name');
+        let status = event.target.getAttribute('data-status');
+        let question = "Deseja :param o estabelecimento :establishment?"
+            .replace(":param", status ? "ativar" : "desativar")
+            .replace(":establishment", networkName);
 
+        let buttons = [{
+                label: "Cancelar",
+                action: ((dialogItSelf) => dialogItSelf.close())
+            },
+            {
+                label: "OK",
+                action: async function (dialogItSelf) {
+                    try {
+                        let response = await clientesServices.changeStatus(id);
+
+                        if (response === undefined || response === null || !response) {
+                            toastr.error(response.mensagem.message);
+                            return false;
+                        }
+
+                        dialogItSelf.close();
+                    } catch (error) {
+                        console.log(error);
+                        var msg = {};
+
+                        if (error.responseJSON !== undefined) {
+                            toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                            return false;
+                        } else if (error.responseText !== undefined) {
+                            msg = error.responseText;
+                        } else {
+                            msg = error;
+                        }
+
+                        toastr.error(msg);
+                        return false;
+                    }
+
+                    // tudo ok, faz reload
+                    $("#form").find("#btn-search").trigger("click");
+                    return false;
+                }
+            }
+        ];
+
+        let param = {
+            message: question,
+            title: "Atenção!",
+            type: BootstrapDialog.TYPE_DANGER,
+            buttons: buttons
+        };
+
+        BootstrapDialog.show(param);
+    },
+
+    /**
+     * Faz solicitação de remover um estabelecimento do sistema
+     *
+     * @param {int} id Id de registro
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-11
+     */
+    deleteEstablishment: function (event) {
+        event.preventDefault();
+
+        let id = event.target.getAttribute('data-id');
+        let establishmentName = event.target.getAttribute('data-name');
+        let question = "Deseja apagar o estabelecimento :establishment?"
+            .replace(":establishment", establishmentName);
+
+        bootbox.prompt({
+            title: question,
+            message: `
+            <strong>Não será possível recuperar os dados deste estabelecimento!</strong>
+            <p>
+                    Confirme sua senha para continuar
+                </p>`,
+            locale: "pt",
+            inputType: 'password',
+            callback: async function (result) {
+                if (result === null || result === undefined) {
+                    return false;
+                }
+                try {
+                    let response = await clientesServices.delete(id, result);
+
+                    if (response === undefined || response === null || !response) {
+                        return false;
+                    }
+
+                    toastr.success(response.mensagem.message);
+
+                    // tudo ok, faz reload
+                    $("#form").find("#btn-search").trigger("click");
+                    return false;
+                } catch (error) {
+                    console.log(error);
+                    var msg = {};
+
+                    if (error.responseJSON !== undefined) {
+                        toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                        return false;
+                    } else if (error.responseText !== undefined) {
+                        msg = error.responseText;
+                    } else {
+                        msg = error;
+                    }
+
+                    toastr.error(msg);
+                    return false;
+                }
+            },
+        });
     },
     /**
+     * Método 'construtor' da tela
      *
-     * @param {int} id Id de registro
+     * @param {Integer} id Id da Rede
      */
-    deleteEstablishment: function (id) {
-
-    },
     init: async function (id) {
         'use strict';
         var self = this;
@@ -90,7 +211,6 @@ var redesView = {
      * @date 2020-04-22
      */
     fillData: function (data) {
-        console.log(data);
         if (data === undefined || data === null || data.id === undefined) {
             // Se informação vazia, limpa todos os campos
 
@@ -139,7 +259,6 @@ var redesView = {
             $("#msg-distancia-compra-brinde").prop("checked", data.msg_distancia_compra_brinde);
             $("#pontuacao-extra-produto-generico").prop("checked", data.pontuacao_extra_produto_generico);
         }
-
     },
     /**
      * Obtem dados de Clientes e popula tabela
@@ -198,6 +317,7 @@ var redesView = {
                 let nomeFantasia = $("#form #nome-fantasia").val();
                 let razaoSocial = $("#form #razao_social").val();
                 let cnpj = $("#form #cnpj").val();
+                let ativado = $("#form #ativado").val();
 
                 if (nomeFantasia !== undefined && nomeFantasia !== null) {
                     filters.nome_fantasia = nomeFantasia;
@@ -211,6 +331,10 @@ var redesView = {
                     filters.cnpj = cnpj.replace("/\D/", "");
                 }
 
+                if (ativado !== undefined && ativado !== null) {
+                    filters.ativado = ativado;
+                }
+
                 d.filtros = filters;
 
                 return d;
@@ -221,16 +345,14 @@ var redesView = {
                 let attributes = {
                     id: rowData.id,
                     active: rowData.ativado,
-                    name: rowData.nome_rede
+                    name: rowData.nome_fantasia
                 };
-                console.log(rowData);
-
                 let actionView = btnHelper.generateLinkViewToDestination(`#/clientes/view/${rowData.id}`, btnHelper.ICON_INFO, null, "Ver Detalhes");
                 let editView = btnHelper.generateLinkEditToDestination(`#/clientes/edit/${rowData.id}`, null, "Editar");
                 let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
                 let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, undefined, "change-status");
 
-                let buttons = [actionView, editView, deleteBtn, changeStatus];
+                let buttons = [actionView, editView, changeStatus, deleteBtn];
                 let buttonsString = "";
 
                 buttons.forEach(x => {

@@ -185,6 +185,11 @@ Router::scope("/api", function ($routes) {
                 "method" => Request::METHOD_GET,
                 "path" => "/cliente_final"
             ],
+            "changeStatusAPI" => [
+                "action" => "changeStatusAPI",
+                "method" => Request::METHOD_PUT,
+                "path" => "change-status/:id"
+            ]
         )
     ));
 

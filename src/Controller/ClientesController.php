@@ -21,8 +21,10 @@ use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\StringUtil;
 use App\Model\Entity\Cliente;
 use App\Model\Entity\Gota;
+use Cake\Auth\DefaultPasswordHasher;
 use Cake\Http\Client\Request;
 use stdClass;
+use Throwable;
 
 /**
  * Clientes Controller
@@ -64,8 +66,9 @@ class ClientesController extends AppController
                 $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
                 $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
                 $cnpj = !empty($data["cnpj"]) ? preg_replace("/\D/", "", $data["cnpj"]) : null;
+                $ativado = isset($data["ativado"]) && strlen($data["ativado"]) > 0 ? (bool) $data["ativado"] : null;
 
-                $clientes = $this->Clientes->getClientes($redesId, $nomeFantasia, $razaoSocial, $cnpj, true);
+                $clientes = $this->Clientes->getClientes($redesId, $nomeFantasia, $razaoSocial, $cnpj, $ativado);
 
                 $total = $clientes->count();
                 // Cálculo da paginação
@@ -107,64 +110,40 @@ class ClientesController extends AppController
     }
 
     /**
-     * Ativa um registro
+     * Altera o estado de habilitado do Estabelecimento
      *
-     * @return boolean
-     */
-    public function ativar()
-    {
-        $query = $this->request->query();
-
-        $this->_alteraEstadoCliente((int) $query['clientes_id'], true, $query['return_url']);
-    }
-
-    /**
-     * Desativa um registro
+     * @param integer $id Id da unidade
+     * @return json_encode $response Resposta
      *
-     * @return boolean
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-11
      */
-    public function desativar()
+    public function changeStatusAPI(int $id)
     {
-        $query = $this->request->query();
+        $errors = [];
+        $errorCodes = [];
 
-        $this->_alteraEstadoCliente((int) $query['clientes_id'], false, $query['return_url']);
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @param int $clientes_id
-     * @param bool $estado
-     * @return void
-     */
-    private function _alteraEstadoCliente(int $clientes_id, bool $estado, array $return_url)
-    {
         try {
+            $result = $this->Clientes->changeState($id);
+            $word = $result->ativado ? "habilitada" : "desabilitada";
+            $msg = sprintf("A rede foi %s com sucesso!", $word);
 
-            $this->request->allowMethod(['post']);
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['status' => $msg]);
+        } catch (Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-            $result = $this->Clientes->changeStateEnabledCliente($clientes_id, $estado);
-            if ($result) {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableSuccess')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableSuccess')));
-                }
-            } else {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableError')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableError')));
-                }
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            return $this->redirect($return_url);
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
 
-            Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -441,21 +420,70 @@ class ClientesController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete()
+    public function delete($id)
     {
-        $data = $this->request->query();
-        $cliente_id = $data['cliente_id'];
-        $return_url = $data['return_url'];
+        try {
+            $data = $this->request->getData();
+            $senhaUsuario = !empty($data["password"]) ? $data["password"] : null;
+            $usuario = $this->sessaoUsuario["usuarioLogado"];
+            $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
 
-        $this->request->allowMethod(['post', 'delete']);
-        $cliente = $this->Clientes->get($cliente_id);
-        if ($this->Clientes->delete($cliente)) {
-            $this->Flash->success(__('O registro {0} foi removido com sucesso.', $cliente->nome_fantasia));
-        } else {
-            $this->Flash->error(__('The cliente could not be deleted. Please, try again.'));
+            if (empty($senhaUsuario)) {
+                throw new Exception("Para continuar, informe sua senha!");
+            }
+
+            // Testa a senha do usuário
+            if (!(new DefaultPasswordHasher)->check($senhaUsuario, $usuario["senha"])) {
+                throw new Exception(Configure::read("messageUsuarioSenhaDoesntMatch"));
+            }
+
+            $cliente = $this->Clientes->get($id);
+
+            // Faz remoção dos dados associados (Remoção mesmo, sem recuperação)
+
+            // Usuários Has Brindes
+            $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds([$cliente->id]);
+
+            // Remoção de Transaçoes de cupons
+            $this->CuponsTransacoes->deleteAllByRedesId($cliente->id);
+            // Remoção de Cupons
+            $this->Cupons->deleteAllCuponsByClientesIds([$cliente->id]);
+
+            $this->PontuacoesPendentes->deleteAllPontuacoesPendentesByClientesIds([$cliente->id]);
+            $this->Pontuacoes->deleteAllPontuacoesByClientesIds([$cliente->id]);
+            $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds([$cliente->id]);
+
+            // brindes
+            $this->BrindesEstoque->deleteAllBrindesEstoqueByClientesIds([$cliente->id]);
+            $this->BrindesPrecos->deleteAllBrindesPrecosByClientesIds([$cliente->id]);
+            $this->Brindes->deleteAllBrindesByClientesIds([$cliente->id]);
+
+            // gotas
+            $this->Gotas->deleteAllGotasByClientesIds([$cliente->id]);
+
+            // apagar os usuários que são da rede (Administradores da Rede até funcionários)
+            $whereConditions = array();
+            $whereConditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
+            $whereConditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
+
+            // Apaga os funcionários
+            $this->Usuarios->deleteAllUsuariosByClienteIds([$cliente->id], $whereConditions);
+            $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds([$cliente->id]);
+            $this->ClientesHasQuadroHorario->deleteHorariosCliente($cliente->id);
+
+            // Remove o estabelecimento da rede
+            $this->RedesHasClientes->deleteRedesHasClientesByClientesIds([$cliente->id]);
+
+            // Enfim, remove o estabelecimento
+            $this->Clientes->delete($cliente);
+
+            return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_DELETE_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, [$th->getMessage()]);
         }
-
-        return $this->redirect(['action' => 'index']);
     }
 
     /**

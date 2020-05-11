@@ -23,6 +23,7 @@ use App\Custom\RTI\ResponseUtil;
 use Cake\Database\Expression\QueryExpression;
 use Exception;
 use Cake\Database\Exception as CakeDatabaseException;
+use Throwable;
 
 /**
  * Clientes Model
@@ -1112,37 +1113,30 @@ class ClientesTable extends GenericTable
      * Troca estado de unidade
      *
      * @param int  $id      Id de RedesHasClientes
-     * @param bool $ativado Estado de ativação
      *
      * @return \App\Model\Entity\Clientes $cliente
      */
-    public function changeStateEnabledCliente(int $id, bool $ativado)
+    public function changeState(int $id)
     {
         try {
 
-            $cliente = $this->_getClientesTable()->find('all')
+            $cliente = $this->find('all')
+                ->select(
+                    [
+                        "Clientes.id",
+                        "Clientes.ativado",
+                    ]
+                )
                 ->where(['id' => $id])
                 ->first();
 
-            $cliente["ativado"] = $ativado;
+            $cliente->ativado = !$cliente->ativado;
 
-            return $this->_getClientesTable()->save($cliente);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            return ['success' => false, 'message' => $stringError];
+            return $this->save($cliente);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
         }
     }
 

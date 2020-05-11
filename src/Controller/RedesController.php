@@ -25,6 +25,7 @@ use App\Model\Entity\Rede;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 use stdClass;
+use Throwable;
 
 /**
  * Redes Controller
@@ -44,7 +45,7 @@ class RedesController extends AppController
     /**
      * Index method
      *
-     * @return \Cake\Http\Response|void
+     * @return json_encode Data
      */
     public function index()
     {
@@ -458,23 +459,33 @@ class RedesController extends AppController
      * @param bool  $estado     Estado
      * @param array $return_url Url de Retorno
      *
-     * @return void
+     * @return json response
      */
     public function changeStatusAPI($id)
     {
+        $errors = [];
+        $errorCodes = [];
+
         try {
-            $this->request->allowMethod(Request::METHOD_PUT);
             $result = $this->Redes->changeStateNetwork($id);
             $word = $result->ativado ? "habilitada" : "desabilitada";
-            $msg = sprintf("A rede foi %s com sucesso!");
+            $msg = sprintf("A rede foi %s com sucesso!", $word);
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['status_rede' => $msg]);
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} ", $e->getMessage());
+        } catch (Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-            Log::write('error', $stringError);
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
 
-            $this->Flash->error($stringError);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -897,7 +908,7 @@ class RedesController extends AppController
      *
      * @param int @data["redes_id"] Id da Rede
      *
-     * @return json_encode Resposta
+     * @return json_encode $response Resposta
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-10-11

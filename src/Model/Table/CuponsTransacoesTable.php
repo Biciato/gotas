@@ -2,16 +2,15 @@
 
 namespace App\Model\Table;
 
+use DateTime;
+use Exception;
+use Cake\Database\Expression\QueryExpression;
+use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
 use Cake\Validation\Validator;
-use Exception;
+
 use App\Model\Entity\CuponsTransacoes;
-use Cake\Log\Log;
-use DateTime;
-use App\Custom\RTI\DebugUtil;
-use Cake\Database\Expression\QueryExpression;
 
 /**
  * CuponsTransacoes Model
@@ -535,6 +534,29 @@ class CuponsTransacoesTable extends GenericTable
     #endregion
 
     #region Delete
+
+    /**
+     * Remove registros de transação pelo id de estabelecimento
+     *
+     * @param integer $clientesId Id de Cliente
+     *
+     * @return bool
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-11
+     */
+    public function deleteAllByClientesId(int $clientesId)
+    {
+        try {
+            return $this->deleteAll(["clientes_id" => $clientesId]);
+        } catch (\Throwable $th) {
+            $code = MSG_DELETE_EXCEPTION_CODE;
+            $message = sprintf("[%s] %s: %s", MSG_DELETE_EXCEPTION, MSG_DELETE_EXCEPTION_CODE, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $code);
+        }
+    }
 
     /**
      * Remove registros de transação pelo id de rede
