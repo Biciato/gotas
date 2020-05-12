@@ -20,7 +20,7 @@
 
 </head>
 
-<body class="">
+<body id="main_body" class="">
 
     <div id="wrapper">
 

@@ -25,21 +25,7 @@ use Cake\Routing\Router;
         <?php if ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
             <div class='col-lg-4'>
                 <label for="tipo_perfil">Tipo de Perfil*</label>
-                <?php
-                    $listaPerfis = array();
-                    $perfis = array();
-
-                    if (!isset($redesId)) {
-                        // $listaPerfis[] = array(0 => "Administradores da RTI / Desenvolvedor");
-                        $perfis[0] = "Administradores da RTI / Desenvolvedor";
-                    }
-
-                    $perfis[1] = 'Administradores de uma Rede';
-                    $perfis[3] = 'Administrador';
-                    $perfis[4] = 'Gerente';
-                    $perfis[5] = 'Funcionário';
-                    $listaPerfis = $perfis;
-                    ?>
+               
                 <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
@@ -255,3 +241,40 @@ use Cake\Routing\Router;
 
 </div>
 <?= $this->Form->end() ?>
+<?php $this->append('script'); ?>
+    <script type="text/javascript">
+        var usuario_operador = 
+          {
+            init: function()
+              {
+                var self = this;
+                self.carregarOpcoes();
+                return this;
+              },
+            carregarOpcoes: function()
+              {
+                var opcoes_tipos_perfil = '<option value="" selected="selected">Selecione...</option>' ;
+                var opcoes_redes = '<option value="" selected="selected">&lt;Todos&gt </option>' ;
+                  
+                $.ajax(
+                  {
+                    url: '/app_gotas/usuarios/carregar_tipos_perfil',
+                    data: {},
+                    method: 'GET',
+                    success: function(resposta)
+                      {
+                        $.each(resposta.source, function(i, item)
+                          {
+                            opcoes_tipos_perfil += '<option value="' + i + '">' + item + '</option>';
+                          });
+                        $("#tipo_perfil").html(opcoes_tipos_perfil);
+                      }
+                  });
+              }
+          };
+        $(document).ready(function()
+          {
+            usuario_operador.init();
+          });
+    </script>
+<?php $this->end(); ?>

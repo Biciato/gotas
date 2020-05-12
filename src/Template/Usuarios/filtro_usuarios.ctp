@@ -78,8 +78,7 @@ if (isset($filter_redes) && $filter_redes) {
                                         'id' => 'tipo_perfil',
                                         'label' => 'Tipo de Perfil',
                                         "empty" => "<Todos>",
-                                        'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
-                                        "value" => $tipoPerfilFixo,
+                                        'options' => [],
                                         "disabled" => true,
                                         'class' => 'form-control col-lg-2'
                                     ]
@@ -95,7 +94,8 @@ if (isset($filter_redes) && $filter_redes) {
                                         'label' => 'Tipo de Perfil',
                                         "empty" => "<Todos>",
                                         // 'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
-                                        'options' => $perfisUsuariosList,
+                                        'options' =>// $perfisUsuariosList
+                                          [],
                                         'class' => 'form-control col-lg-2'
                                     ]
                                 ) ?>
@@ -163,7 +163,7 @@ if (isset($filter_redes) && $filter_redes) {
                                     'type' => 'select',
                                     "id" => "redes_id",
                                     'class' => 'redes_list',
-                                    'options' => $redes,
+                                    'options' => [],
                                     'multiple' => false,
                                     "empty" => "<Todos>",
                                     'label' => 'Filtrar por rede',
@@ -209,3 +209,54 @@ if (isset($filter_redes) && $filter_redes) {
 </div>
 
 
+<?php $this->append('script'); ?>
+    <script type="text/javascript">
+        var filtro_usuarios = 
+          {
+            init: function()
+              {
+                var self = this;
+                self.carregarOpcoes();
+                return this;
+              },
+            carregarOpcoes: function()
+              {
+                var opcoes_tipos_perfil = '<option value="" selected="selected">&lt;Todos&gt </option>' ;
+                var opcoes_redes = '<option value="" selected="selected">&lt;Todos&gt </option>' ;
+                  
+                $.ajax(
+                  {
+                    url: '/app_gotas/usuarios/carregar_tipos_perfil',
+                    data: {},
+                    method: 'GET',
+                    success: function(resposta)
+                      {
+                        $.each(resposta.source, function(i, item)
+                          {
+                            opcoes_tipos_perfil += '<option value="' + i + '">' + item + '</option>';
+                          });
+                        $("#tipo_perfil").html(opcoes_tipos_perfil);
+                      }
+                  });
+                  $.ajax(
+                  {
+                    url: '/app_gotas/usuarios/carregar_redes',
+                    data: {},
+                    method: 'GET',
+                    success: function(resposta)
+                      {
+                        $.each(resposta.source, function(i, item)
+                          {
+                            opcoes_tipos_perfil += '<option value="' + i + '">' + item + '</option>';
+                          });
+                        $("#redes_id").html(opcoes_tipos_perfil);
+                      }
+                  })
+              }
+          };
+        $(document).ready(function()
+          {
+            filtro_usuarios.init();
+          });
+    </script>
+<?php $this->end(); ?>

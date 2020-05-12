@@ -112,7 +112,7 @@ class UsuariosController extends AppController
             $tipoPerfilMin = $tipoPerfil;
             $tipoPerfilMax = $tipoPerfil;
         }
-        $redes = $this->Redes->getRedesList();
+        
 
         $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
@@ -5396,6 +5396,34 @@ class UsuariosController extends AppController
             Log::write('error', $trace);
         }
     }
+    public function carregarTiposPerfil()
+      {
+        if($this->request->is('GET'))
+          {
+            $perfisUsuariosList = 
+              [
+                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+              ];
+            return ResponseUtil::successAPI('', 
+            ['source' => $perfisUsuariosList]);
+          }
+      }
+    public function carregarRedes()
+      {
+        if($this->request->is('GET'))
+          {
+            $redes = $this->Redes->getRedesList();
+            return ResponseUtil::successAPI('',
+              [
+                'source' => $redes
+              ]);
+          }
+      }
     public function carregarUsuarios()
       {
         if($this->request->is('GET'));
