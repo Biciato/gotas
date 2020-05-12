@@ -198,6 +198,7 @@ echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
 
 // Clientes
 echo $this->Html->script(sprintf("scripts/clientes/view.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/clientes/add.js?version=%s", SYSTEM_VERSION));
 
 // Redes
 echo $this->Html->script(sprintf("scripts/redes/index.js?version=%s", SYSTEM_VERSION));

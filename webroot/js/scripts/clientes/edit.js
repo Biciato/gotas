@@ -1,12 +1,12 @@
 /**
- * Arquivo de funcionalidades do template webroot/view/clientes/view.tpl
+ * Arquivo de funcionalidades do template webroot/view/clientes/add.tpl
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 1.2.3
- * @date 2020-05-11
+ * @date 2020-05-12
  */
 
-var clientesView = {
+var clientesAdd = {
     /**
      * Realiza configuração de eventos dos campos da tela
      *
@@ -252,5 +252,75 @@ var clientesView = {
         value = value.substring(0, size);
 
         return value.replace(format, "($1)$2-$3")
-    }
+    },
+
+    // fillTimeBoards: function () {
+    //     var horas = $("#horario").val().match(/(\d{2})/gm);
+
+    //     if (horas != undefined && horas.length > 0) {
+
+    //         var hora = parseInt(horas[0]);
+    //         var minuto = parseInt(horas[1]);
+
+    //         var qteTurnos = $("#quantidade_turnos").val();
+
+    //         var divisao = 24 / qteTurnos;
+    //         var turnos = [];
+
+    //         var horaTemp = hora;
+
+    //         for (let i = 0; i < qteTurnos; i++) {
+
+    //             var turno = {};
+
+    //             turno.id = i;
+    //             turno.hora = horaTemp.toString().length == 1 ? "0" + horaTemp : horaTemp;
+    //             turno.minuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+    //             var horaTurno = horaTemp + divisao;
+    //             if (horaTurno > 23) {
+    //                 horaTurno = horaTurno - 24;
+    //             }
+
+    //             turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
+    //             turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+
+    //             horaTemp = horaTurno;
+
+    //             turnos.push(turno);
+    //         }
+
+    //         $(".horariosContent").empty();
+    //         $.each(turnos, function (index, value) {
+    //             $(".horariosContent").append("<strong>Turno " + (value.id + 1) + ": </strong> " + value.hora + ":" + value.minuto + " até " + value.proximaHora + ":" + value.proximaMinuto + ".<br />");
+    //         });
+    //     }
+    // },
 };
+
+// $(document).ready(function () {
+
+//     initializeTimePicker("horario");
+//     initializeDatePicker("data_nasc");
+
+
+
+//     $("#quantidade_turnos").on("change", function (ev) {
+//         var max = $("#quantidade_turnos").attr('max');
+
+//         if (this.value > max) {
+//             this.value = max;
+//         }
+
+//         preencheQuadroHorarios();
+//     });
+
+//     preencheQuadroHorarios();
+
+
+//     $("#horario").on("blur", function (ev) {
+//         preencheQuadroHorarios();
+//     });
+
+//     // Dispara atualização de quantidade de turnos se já tiver preenchido
+//     $("#quantidade_turnos").blur();
+// });

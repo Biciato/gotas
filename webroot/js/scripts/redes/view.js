@@ -348,7 +348,7 @@ var redesView = {
                     name: rowData.nome_fantasia
                 };
                 let actionView = btnHelper.generateLinkViewToDestination(`#/redes/view/${redesId}/clientes/view/${rowData.id}`, btnHelper.ICON_INFO, null, "Ver Detalhes");
-                let editView = btnHelper.generateLinkEditToDestination(`#/clientes/edit/${rowData.id}`, null, "Editar");
+                let editView = btnHelper.generateLinkEditToDestination(`#/redes/view/${redesId}/clientes/edit/${rowData.id}`, null, "Editar");
                 let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
                 let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, undefined, "change-status");
 

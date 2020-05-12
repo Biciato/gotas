@@ -32,6 +32,18 @@ var sammy = Sammy("#content-html", function () {
         localStorage.setItem("data", JSON.stringify(cliente));
         context.partial("view/clientes/view.tpl");
     });
+    self.get("#/redes/view/:redesId/clientes/add/", (context) => {
+        let redesId = context.params.redesId;
+        let id = context.params.id;
+        let cliente = {
+            id: id
+        };
+
+        context.redesId = redesId;
+
+        localStorage.setItem("data", JSON.stringify(cliente));
+        context.partial("view/clientes/add.tpl");
+    });
     //#endregion
 
     // #region REDES
@@ -43,6 +55,8 @@ var sammy = Sammy("#content-html", function () {
         let rede = {
             id: id
         };
+
+        context.redesId = id;
 
         localStorage.setItem("data", JSON.stringify(rede));
         context.partial("view/redes/view.tpl");

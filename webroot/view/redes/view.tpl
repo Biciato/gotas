@@ -1,5 +1,5 @@
 <div class="form-group row border-bottom white-bg page-heading">
-    <div class="col-lg-12">
+    <div class="col-lg-8">
         <h2>Informações da Rede</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -12,6 +12,12 @@
                 <strong>Informações da Rede</strong>
             </li>
         </ol>
+    </div>
+    <div class="col-lg-4">
+        <div class="title-action">
+            <a href="#/redes/view/<%=redesId%>/clientes/add/" class="btn btn-primary" tooltip="Salvar"
+                id="redes-new-btn-show"> <i class="fas fa-plus"></i> Novo</a>
+        </div>
     </div>
 </div>
 
@@ -280,19 +286,19 @@
                 </div>
             </div>
         </div>
+        </>
     </div>
-</div>
 
-<link rel="stylesheet" href="/webroot/css/styles/redes/view.css">
+    <link rel="stylesheet" href="/webroot/css/styles/redes/view.css">
 
-<script>
-    $(document)
-        .ready(function () {
-            let dataStorage = JSON.parse(localStorage.getItem("data"));
+    <script>
+        $(document)
+            .ready(function () {
+                let dataStorage = JSON.parse(localStorage.getItem("data"));
 
-            redesView.init(dataStorage.id);
-        })
-        .ajaxStart(callLoaderAnimation)
-        .ajaxStop(closeLoaderAnimation)
-        .ajaxError(closeLoaderAnimation);
-</script>
+                redesView.init(dataStorage.id);
+            })
+            .ajaxStart(callLoaderAnimation)
+            .ajaxStop(closeLoaderAnimation)
+            .ajaxError(closeLoaderAnimation);
+    </script>

@@ -1,12 +1,91 @@
 /**
- * Arquivo de funcionalidades do template webroot/view/clientes/view.tpl
+ * Arquivo de funcionalidades do template webroot/view/clientes/add.tpl
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 1.2.3
- * @date 2020-05-11
+ * @date 2020-05-12
  */
 
-var clientesView = {
+var clientesAdd = {
+
+    //#region Properties
+    validationOptions: {
+        messages: {
+            codigo_equipamento_rti: {
+                required: "Informe o Código de Equipamento RTI, utilizado para impressão de senhas",
+                min: "Valor mínimo 1",
+                max: "Valor máximo 999"
+            },
+            tipo_unidade: {
+                required: "Informe se Estabelecimento é Loja ou Posto"
+            },
+            razao_social: {
+                required: "Informe a Razão Social",
+                minlength: " Fantasia deve conter pelo menos 3 caracteres"
+            },
+            cnpj: {
+                required: "Informe o CNPJ do Estabelecimento",
+                minlength: "Mínimo 14 dígitos"
+            },
+            endereco: {
+                required: "Informe o Endereço",
+                minlength: "Mínimo 3 dígitos"
+            },
+            cep: {
+                required: "Informe o CEP",
+                minlength: "Mínimo 8 dígitos"
+            },
+            estado: {
+                required: "Informe o Estado do Estabelecimento"
+            },
+            tel_celular: {
+                required: "Informe o Celular de contato no formato (XX)XXXXX-XXXX",
+            },
+            inicio_turno: {
+                required: "Informe o Primeiro Turno do Dia (Formato HH:MM)",
+                minlength: "Informe o Primeiro Turno do Dia (Formato HH:MM)",
+                min: "Horário Mínimo 00:00",
+                max: "Horário Mínimo 23:59",
+            }
+        },
+        rules: {
+            codigo_equipamento_rti: {
+                required: true,
+                min: 1,
+                max: 999
+            },
+            tipo_unidade: {
+                required: true
+            },
+            razao_social: {
+                required: true,
+                minlength: 3
+            },
+            cnpj: {
+                required: true,
+                minlength: 14
+            },
+            endereco: {
+                required: true,
+                minlength: 3
+            },
+            cep: {
+                required: true,
+                minlength: 8
+            },
+            estado: "required",
+            tel_celular: {
+                required: true,
+                minlength: 11
+            }
+
+        },
+    },
+
+    //#endregion
+
+    //#region Functions
+
     /**
      * Realiza configuração de eventos dos campos da tela
      *
@@ -39,7 +118,7 @@ var clientesView = {
             .on("blur", "#form #tel-fixo", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 10);
             })
-            .on("keyup", function (event) {
+            .on("keyup", "#form #tel-fixo", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -52,7 +131,7 @@ var clientesView = {
             .on("blur", "#form #tel-celular", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 11);
             })
-            .on("keyup", function (event) {
+            .on("keyup", "#form #tel-celular", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -73,6 +152,16 @@ var clientesView = {
                 }
             });
 
+        $(document)
+            .off("click", "#form #btn-save")
+            .on("click", "#form #btn-save", self.formSubmit)
+            .off("keyup", "#form")
+            .on("keyup", "#form", function (evt) {
+                if (evt.keycode == 13) {
+                    this.formSubmit();
+                }
+            });
+
         return self;
     },
     /**
@@ -85,31 +174,11 @@ var clientesView = {
      * @since 1.2.3
      * @date 2020-05-12
      */
-    init: async function (id) {
+    init: async function () {
         let self = this;
 
+        document.title = "GOTAS - Novo Estabelecimento";
         self.configureEvents();
-
-        try {
-            let cliente = await clientesService.getById(id);
-
-            self.fillData(cliente);
-        } catch (error) {
-            console.log(error);
-            var msg = {};
-
-            if (error.responseJSON !== undefined) {
-                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
-                return false;
-            } else if (error.responseText !== undefined) {
-                msg = error.responseText;
-            } else {
-                msg = error;
-            }
-
-            toastr.error(msg);
-            return false;
-        }
 
         return self;
     },
@@ -234,6 +303,23 @@ var clientesView = {
         }
     },
 
+    /**
+     * Dispara submit ao clicar no botão de salvar do form
+     * @param {*} evt
+     */
+    formSubmit: function (evt) {
+        'use strict';
+        let self = this;
+        evt.preventDefault();
+
+        if (clientesAdd.validateForm("#form").form()) {
+            clientesAdd.save($("#form"));
+        } else {
+            toastr.error("Há erros no formulário. Corrija-os antes de continuar!")
+        }
+
+        return self;
+    },
 
 
     /**
@@ -252,5 +338,95 @@ var clientesView = {
         value = value.substring(0, size);
 
         return value.replace(format, "($1)$2-$3")
+    },
+    /**
+     * Realiza validação em um formulário selecionado
+     * @param {Form} form Formulário alvo
+     * @returns jQuery.Validation Validação em um Formulário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-12
+     */
+    validateForm: function (form) {
+        var self = this;
+        return $(form).validate({
+            rules: self.validationOptions.rules,
+            messages: self.validationOptions.messages,
+            // Utilize a opção a seguir para validar as abas ocultas
+            ignore: "tab-pane"
+        });
     }
+
+    //#endregion
+
+    // fillTimeBoards: function () {
+    //     var horas = $("#horario").val().match(/(\d{2})/gm);
+
+    //     if (horas != undefined && horas.length > 0) {
+
+    //         var hora = parseInt(horas[0]);
+    //         var minuto = parseInt(horas[1]);
+
+    //         var qteTurnos = $("#quantidade_turnos").val();
+
+    //         var divisao = 24 / qteTurnos;
+    //         var turnos = [];
+
+    //         var horaTemp = hora;
+
+    //         for (let i = 0; i < qteTurnos; i++) {
+
+    //             var turno = {};
+
+    //             turno.id = i;
+    //             turno.hora = horaTemp.toString().length == 1 ? "0" + horaTemp : horaTemp;
+    //             turno.minuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+    //             var horaTurno = horaTemp + divisao;
+    //             if (horaTurno > 23) {
+    //                 horaTurno = horaTurno - 24;
+    //             }
+
+    //             turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
+    //             turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+
+    //             horaTemp = horaTurno;
+
+    //             turnos.push(turno);
+    //         }
+
+    //         $(".horariosContent").empty();
+    //         $.each(turnos, function (index, value) {
+    //             $(".horariosContent").append("<strong>Turno " + (value.id + 1) + ": </strong> " + value.hora + ":" + value.minuto + " até " + value.proximaHora + ":" + value.proximaMinuto + ".<br />");
+    //         });
+    //     }
+    // },
 };
+
+// $(document).ready(function () {
+
+//     initializeTimePicker("horario");
+//     initializeDatePicker("data_nasc");
+
+
+
+//     $("#quantidade_turnos").on("change", function (ev) {
+//         var max = $("#quantidade_turnos").attr('max');
+
+//         if (this.value > max) {
+//             this.value = max;
+//         }
+
+//         preencheQuadroHorarios();
+//     });
+
+//     preencheQuadroHorarios();
+
+
+//     $("#horario").on("blur", function (ev) {
+//         preencheQuadroHorarios();
+//     });
+
+//     // Dispara atualização de quantidade de turnos se já tiver preenchido
+//     $("#quantidade_turnos").blur();
+// });
