@@ -7,9 +7,12 @@
  */
 
 var clientesView = {
-
     /**
      * Realiza configuração de eventos dos campos da tela
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-12
      */
     configureEvents: function () {
         'use strict';
@@ -72,6 +75,16 @@ var clientesView = {
 
         return self;
     },
+    /**
+     * 'Construtor'
+     *
+     * @param {Integer} id Id do estabelecimento
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-12
+     */
     init: async function (id) {
         let self = this;
 
@@ -100,6 +113,16 @@ var clientesView = {
 
         return self;
     },
+    /**
+     * Preenche/Limpa os dados do Formulário
+     *
+     * @param {Cliente} data Object Cliente
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-12
+     */
     fillData: function (data) {
         let self = this;
         document.title = "GOTAS - Estabelecimento ";
@@ -108,9 +131,49 @@ var clientesView = {
         if (data === undefined || data === null || data.id === undefined) {
             // Se informação vazia, limpa todos os campos
 
+            $("span[id=nome-fantasia-municipio-estado]").text(null);
+            $("#codigo-equipamento-rti").val(null);
+            $("#tipo-unidade").val();
+            $("#nome-fantasia").val();
+            $("#razao-social").val();
+            $("#cnpj").val(null);
+            $("#endereco").val(null);
+            $("#endereco_numero").val(null);
+            $("#endereco_complemento").val(null);
+            $("#cep").val(null);
+            $("#bairro").val(null);
+            $("#municipio").val(null);
+            $("#estado").val(null);
+            $("#pais").val(null);
+            $("#latitude").val(null);
+            $("#longitude").val(null);
+            $("#tel-fixo").val(null);
+            $("#tel-fax").val(null);
+            $("#tel-celular").val(null);
+            $("#impressao_sw_linha_continua").val(null);
+            $("#delimitador-nota-impressao").val(null);
+            $("#delimitador-nota-produtos-inicial").val(null);
+            $("#delimitador-nota-produtos-final").val(null);
+
+            let quadroHorarios = [];
+            let count = 0;
+
+            // Cria a lista
+            data.clientes_has_quadro_horarios.forEach(item => {
+                let horario = {
+                    id: count,
+                    text: "Turno " + (count + 1),
+                    time: moment(item.horario, "YYYY-MM-DD HH:mm:ss").format("HH:mm")
+                };
+
+                quadroHorarios.push(horario);
+                count++;
+            });
+
+            $("#quadro_horarios").empty();
+
         } else {
             $("span[id=nome-fantasia-municipio-estado]").text(data.nome_fantasia_municipio_estado);
-
             $("#codigo-equipamento-rti").val(data.codigo_equipamento_rti);
             $("#tipo-unidade").val(data.tipo_unidade);
             $("#nome-fantasia").val(data.nome_fantasia);
@@ -135,12 +198,13 @@ var clientesView = {
             $("#delimitador-nota-produtos-final").val(data.delimitador_nota_produtos_final);
 
             let quadroHorarios = [];
-            let count = 1;
+            let count = 0;
 
+            // Cria a lista
             data.clientes_has_quadro_horarios.forEach(item => {
                 let horario = {
                     id: count,
-                    text: "Turno " + count,
+                    text: "Turno " + (count + 1),
                     time: moment(item.horario, "YYYY-MM-DD HH:mm:ss").format("HH:mm")
                 };
 
@@ -150,6 +214,7 @@ var clientesView = {
 
             $("#quadro_horarios").empty();
 
+            // Adiciona os itens na tela
             quadroHorarios.forEach(horario => {
                 let html = `
                 <div class="form-group row">
@@ -160,83 +225,16 @@ var clientesView = {
                     </div>
                 </div>
                 `;
+
+                if (horario.id < (quadroHorarios.length - 1))
+                    html += `<div class="hr-line-dashed"></div>`;
+
                 $("#quadro_horarios").append(html);
             });
-
-
-            /*
-              nome-fantasia-municipio-completo
-                    codigo-equipamento-rti
-                    tipo-unidade
-                    nome-fantasia
-                    razao-social
-                    cnpj
-                    endereco
-                    endereco_numero
-                    endereco_complemento
-                    cep
-                    bairro
-                    municipio
-                    estado
-                    pais
-                    latitude
-                    longitude
-                    tel-fixo
-                    tel-fax
-                    tel-celular
-                    impressao_sw_linha_continua
-                    delimitador-nota-impressao
-                    delimitador-nota-produtos-inicial
-                    delimitador-nota-produtos-final
-                    quadro-horario-1
-             */
-
-        }
-
-    },
-
-    fillTimeBoards: function () {
-        // @todo conferir
-        var horas = $("#horario").val().match(/(\d{2})/gm);
-
-        if (horas != undefined && horas.length > 0) {
-
-            var hora = parseInt(horas[0]);
-            var minuto = parseInt(horas[1]);
-
-            var qteTurnos = $("#quantidade_turnos").val();
-
-            var divisao = 24 / qteTurnos;
-            var turnos = [];
-
-            var horaTemp = hora;
-
-            for (let i = 0; i < qteTurnos; i++) {
-
-                var turno = {};
-
-                turno.id = i;
-                turno.hora = horaTemp.toString().length == 1 ? "0" + horaTemp : horaTemp;
-                turno.minuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
-                var horaTurno = horaTemp + divisao;
-                if (horaTurno > 23) {
-                    horaTurno = horaTurno - 24;
-                }
-
-                turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
-                turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
-
-                horaTemp = horaTurno;
-
-                turnos.push(turno);
-            }
-
-            $(".horariosContent").empty();
-            $.each(turnos, function (index, value) {
-                $(".horariosContent").append("<strong>Turno " + (value.id + 1) + ": </strong> " + value.hora + ":" + value.minuto + " até " + value.proximaHora + ":" + value.proximaMinuto + ".<br />");
-            });
         }
     },
+
+
 
     /**
      * Define formatação de telefone
@@ -255,6 +253,48 @@ var clientesView = {
 
         return value.replace(format, "($1)$2-$3")
     },
+
+    // fillTimeBoards: function () {
+    //     var horas = $("#horario").val().match(/(\d{2})/gm);
+
+    //     if (horas != undefined && horas.length > 0) {
+
+    //         var hora = parseInt(horas[0]);
+    //         var minuto = parseInt(horas[1]);
+
+    //         var qteTurnos = $("#quantidade_turnos").val();
+
+    //         var divisao = 24 / qteTurnos;
+    //         var turnos = [];
+
+    //         var horaTemp = hora;
+
+    //         for (let i = 0; i < qteTurnos; i++) {
+
+    //             var turno = {};
+
+    //             turno.id = i;
+    //             turno.hora = horaTemp.toString().length == 1 ? "0" + horaTemp : horaTemp;
+    //             turno.minuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+    //             var horaTurno = horaTemp + divisao;
+    //             if (horaTurno > 23) {
+    //                 horaTurno = horaTurno - 24;
+    //             }
+
+    //             turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
+    //             turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+
+    //             horaTemp = horaTurno;
+
+    //             turnos.push(turno);
+    //         }
+
+    //         $(".horariosContent").empty();
+    //         $.each(turnos, function (index, value) {
+    //             $(".horariosContent").append("<strong>Turno " + (value.id + 1) + ": </strong> " + value.hora + ":" + value.minuto + " até " + value.proximaHora + ":" + value.proximaMinuto + ".<br />");
+    //         });
+    //     }
+    // },
 };
 
 // $(document).ready(function () {

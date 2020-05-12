@@ -62,6 +62,7 @@
                                                     title="Código Equipamento RTI" value="" disabled readonly />
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="tipo_unidade" class="col-lg-2">Tipo Unidade</label>
                                             <div class="col-lg-10">
@@ -74,6 +75,7 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="nome_fantasia" class="col-lg-2">Nome Fantasia</label>
                                             <div class="col-lg-10">
@@ -82,6 +84,7 @@
                                                     title="Nome Fantasia" value="" disabled readonly />
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="razao_social" class="col-lg-2">Razão Social</label>
                                             <div class="col-lg-10">
@@ -90,6 +93,7 @@
                                                     title="Razão Social" value="" disabled readonly />
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="cnpj" class="col-lg-2">CNPJ</label>
                                             <div class="col-lg-10">
@@ -110,6 +114,7 @@
                                                     placeholder="Endereço" name="endereco" readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="endereco_numero" class="col-lg-2">Número</label>
                                             <div class="col-lg-10">
@@ -118,6 +123,7 @@
                                                     readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="endereco_complemento" class="col-lg-2">Complemento</label>
                                             <div class="col-lg-10">
@@ -126,6 +132,7 @@
                                                     name="endereco_complemento" readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="cep" class="col-lg-2">CEP</label>
                                             <div class="col-lg-10">
@@ -133,6 +140,7 @@
                                                     placeholder="CEP" name="cep" readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="bairro" class="col-lg-2">Bairro</label>
                                             <div class="col-lg-10">
@@ -140,6 +148,7 @@
                                                     name="bairro" placeholder="bairro" readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="municipio" class="col-lg-2">Município</label>
                                             <div class="col-lg-10">
@@ -148,6 +157,7 @@
                                                     value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="estado" class="col-lg-2">Estado</label>
                                             <div class="col-lg-10">
@@ -155,6 +165,7 @@
                                                     name="estado" placeholder="Estado" readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="pais" class="col-lg-2">País</label>
                                             <div class="col-lg-10">
@@ -162,6 +173,7 @@
                                                     name="pais" placeholder="País" readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="latitude" class="col-lg-2">Latitude</label>
                                             <div class="col-lg-10">
@@ -169,6 +181,7 @@
                                                     placeholder="Latitude" name="latitude" readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="longitude" class="col-lg-2">Longitude</label>
                                             <div class="col-lg-10">
@@ -191,6 +204,7 @@
                                                     readonly="readonly" value="">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="tel-fax" class="col-lg-2">Telefone Fax</label>
                                             <div class="col-lg-10">
@@ -200,6 +214,7 @@
                                             </div>
 
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="tel-celular" class="col-lg-2">Telefone Celular</label>
                                             <div class="col-lg-10">
@@ -227,6 +242,7 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="delimitador_nota_impressao" class="col-lg-2">
                                                 Delimitador de Impressão da Nota Fiscal
@@ -238,6 +254,7 @@
                                                     disabled="disabled">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="delimitador_nota_produtos_inicial" class="col-lg-2">
                                                 Delimitador Inicial de Produtos da Nota Fiscal
@@ -249,6 +266,7 @@
                                                     disabled="disabled">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
                                             <label for="delimitador_nota_produtos_final" class="col-lg-2">
                                                 Delimitador Final de Produtos da Nota Fiscal
@@ -276,13 +294,7 @@
                                                     class="form-control" readonly disabled />
                                             </div>
                                         </div>
-                                        <div class="form-group row">
-                                            <label for="quadro_horario_1" class="col-lg-2">Turno 1</label>
-                                            <div class="col-lg-10">
-                                                <input type="text" name="quadro_horario_1" id="quadro-horario-1"
-                                                    class="form-control" readonly disabled />
-                                            </div>
-                                        </div> -->
+                                        -->
                                     </div>
                                 </div>
                             </div>
