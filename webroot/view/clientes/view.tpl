@@ -23,7 +23,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5><span id="nome-rede"></span></h5>
+                    <h5><span id="nome-fantasia-municipio-estado"></span></h5>
                 </div>
                 <div class="ibox-content">
                     <form id="form">
@@ -65,9 +65,13 @@
                                         <div class="form-group row">
                                             <label for="tipo_unidade" class="col-lg-2">Tipo Unidade</label>
                                             <div class="col-lg-10">
-                                                <input type="text" name="tipo_unidade" id="tipo-unidade"
-                                                    class="form-control" placeholder="Tipo Unidade..."
-                                                    title="Tipo Unidade" value="" disabled readonly />
+                                                <select name="tipo_unidade" id="tipo-unidade"
+                                                    title="Tipo de Estabelecimento (Posto / Loja)" disabled="disabled"
+                                                    readonly class="form-control">
+                                                    <option value=""></option>
+                                                    <option value="1">Posto</option>
+                                                    <option value="0">Loja</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="form-group row">
@@ -184,10 +188,7 @@
                                             <div class="col-lg-10">
                                                 <input type="text" class="form-control" title="Telefone Fixo"
                                                     placeholder="Telefone Fixo" id="tel-fixo" name="tel_fixo"
-                                                    value="3199898898">
-                                                <!-- <input type="text" class="form-control" title="Telefone Fixo"
-                                                    placeholder="Telefone Fixo" id="tel-fixo" name="tel_fixo"
-                                                    readonly="readonly" value=""> -->
+                                                    readonly="readonly" value="">
                                             </div>
                                         </div>
                                         <div class="form-group row">
@@ -265,7 +266,10 @@
                                 <!-- Quadros de Horários -->
                                 <div class="tab-pane" id="time-board">
                                     <div class="ibox-content">
-                                        <div class="form-group row">
+                                        <div id="quadro_horarios">
+
+                                        </div>
+                                        <!-- <div class="form-group row">
                                             <label for="quadro_horario_1" class="col-lg-2">Turno 1</label>
                                             <div class="col-lg-10">
                                                 <input type="text" name="quadro_horario_1" id="quadro-horario-1"
@@ -278,7 +282,7 @@
                                                 <input type="text" name="quadro_horario_1" id="quadro-horario-1"
                                                     class="form-control" readonly disabled />
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
@@ -293,12 +297,11 @@
 <link rel="stylesheet" href="/webroot/css/styles/clientes/view.css">
 
 <script>
-    $(document)
-        .ready(function () {
-            let dataStorage = JSON.parse(localStorage.getItem("data"));
+    $(function () {
+        let dataStorage = JSON.parse(localStorage.getItem("data"));
 
-            clientesView.init(dataStorage.id);
-        })
+        clientesView.init(dataStorage.id);
+    })
         .ajaxStart(callLoaderAnimation)
         .ajaxStop(closeLoaderAnimation)
         .ajaxError(closeLoaderAnimation);

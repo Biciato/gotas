@@ -165,7 +165,7 @@ var redesEdit = {
     },
     getById: async function (id) {
         try {
-            return await redesServices.getById(id);
+            return await redesService.getById(id);
         } catch (error) {
             console.log(error);
             var msg = {};
@@ -213,7 +213,7 @@ var redesEdit = {
         objPost.id = self.id;
 
         try {
-            let response = await redesServices.save(objPost);
+            let response = await redesService.save(objPost);
 
             if (response === undefined || response === null || !response) {
                 toastr.error(response.mensagem.message);
@@ -256,7 +256,7 @@ var redesEdit = {
     treatUploadImage: async function (image) {
         try {
             let self = this;
-            let response = await redesServices.uploadImage(image);
+            let response = await redesService.uploadImage(image);
 
             if (response === undefined || response === null || (response !== undefined && !response.mensagem.status)) {
                 toastr.error(response.mensagem.message);

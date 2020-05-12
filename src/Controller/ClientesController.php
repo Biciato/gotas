@@ -209,8 +209,10 @@ class ClientesController extends AppController
     public function view($id = null)
     {
         $cliente = $this->Clientes->getClienteById($id);
+        $data = new stdClass();
+        $data->cliente = $cliente;
 
-        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['cliente' => $cliente]);
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
     }
 
     /**

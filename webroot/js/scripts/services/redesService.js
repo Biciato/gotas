@@ -1,4 +1,4 @@
-var clientesServices = {
+var redesService = {
 
     /**
      * Altera o estado de uma rede
@@ -12,12 +12,12 @@ var clientesServices = {
      */
     changeStatus: async function (id) {
         if (id === undefined || id === null) {
-            throw "Necessário informar estabelecimento à ser alterado o status!";
+            throw "Necessário informar id da rede à ser alterado o status!";
         }
 
         return await Promise.resolve($.ajax({
             type: "PUT",
-            url: `/api/clientes/change-status/${id}`,
+            url: `/api/redes/change-status/${id}`,
             dataType: "JSON"
         }));
     },
@@ -34,10 +34,10 @@ var clientesServices = {
      */
     delete: async function (id, password) {
         if (id === undefined || id === null) {
-            throw "Necessário informar estabelecimento à ser apagado!";
+            throw "Necessário informar rede à ser apagada!";
         }
 
-        let url = "/api/clientes/" + id;
+        let url = "/api/redes/" + id;
 
         let dataRequest = {
             password: password
@@ -65,7 +65,7 @@ var clientesServices = {
         let obj = await Promise.resolve(
             $.ajax({
                 type: "GET",
-                url: `/api/clientes/${id}`,
+                url: `/api/redes/${id}`,
                 dataType: "JSON"
             })
         );
@@ -105,7 +105,7 @@ var clientesServices = {
     save: function (data) {
         let typeRequest = data.id !== undefined && data.id > 0 ? "PUT" : "POST";
         let id = data.id !== undefined && data.id > 0 ? data.id : "";
-        let url = `/api/clientes/${id}`;
+        let url = `/api/redes/${id}`;
 
         return Promise.resolve(
             $.ajax({
@@ -128,7 +128,6 @@ var clientesServices = {
      */
     uploadImage: async function (image) {
         'use strict';
-        // @todo ver necessidade desse método
         let self = this;
         var formData = new FormData();
         var file = image.target.files[0];
@@ -150,7 +149,7 @@ var clientesServices = {
         // A resposta é retornada como ResponseText
         response = await Promise.resolve(
             $.ajax({
-                url: "/api/clientes/set_image_network",
+                url: "/api/redes/set_image_network",
                 type: "POST",
                 data: formData,
                 cache: false,

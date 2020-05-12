@@ -114,7 +114,7 @@ var redesAdd = {
         });
 
         try {
-            let response = await redesServices.save(objPost);
+            let response = await redesService.save(objPost);
 
             if (response === undefined || response === null || !response) {
                 toastr.error(response.mensagem.message);
@@ -158,7 +158,7 @@ var redesAdd = {
         try {
             let self = this;
             // infelizmente em método de change, o this/self é o próprio elemento
-            let response = await redesServices.uploadImage(image);
+            let response = await redesService.uploadImage(image);
 
             if (response === undefined || response === null || (response !== undefined && !response.mensagem.status)) {
                 toastr.error(response.mensagem.message);

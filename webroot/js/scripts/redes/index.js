@@ -36,7 +36,7 @@ var redesIndex = {
                 label: "OK",
                 action: async function (dialogItSelf) {
                     try {
-                        let response = await redesServices.changeStatus(redesId);
+                        let response = await redesService.changeStatus(redesId);
 
                         if (response === undefined || response === null || !response) {
                             return false;
@@ -104,7 +104,7 @@ var redesIndex = {
                     return false;
                 }
                 try {
-                    let response = await redesServices.delete(redesId, result);
+                    let response = await redesService.delete(redesId, result);
 
                     if (response === undefined || response === null || !response) {
                         return false;

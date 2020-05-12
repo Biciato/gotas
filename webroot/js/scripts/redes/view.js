@@ -36,7 +36,7 @@ var redesView = {
                 label: "OK",
                 action: async function (dialogItSelf) {
                     try {
-                        let response = await clientesServices.changeStatus(id);
+                        let response = await clientesService.changeStatus(id);
 
                         if (response === undefined || response === null || !response) {
                             toastr.error(response.mensagem.message);
@@ -110,7 +110,7 @@ var redesView = {
                     return false;
                 }
                 try {
-                    let response = await clientesServices.delete(id, result);
+                    let response = await clientesService.delete(id, result);
 
                     if (response === undefined || response === null || !response) {
                         return false;
@@ -176,7 +176,7 @@ var redesView = {
             .on("click", "#clientes-table .change-status", self.changeStatusEstablishment);
 
         try {
-            let rede = await redesServices.getById(id);
+            let rede = await redesService.getById(id);
 
             self.fillData(rede);
             self.getClientes(id);
