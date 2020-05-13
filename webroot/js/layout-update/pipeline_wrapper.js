@@ -162,7 +162,7 @@ var initPipelinedDT = function (tb_selector, columns, ajax_url, order, custom_da
         dom: 'lfrtip',
         scrollX: '110%',
         language: {
-            url: '/lang.json'
+            url: '/app_gotas/js/DataTables/i18n/dataTables.pt-BR.lang'
         },
         processing: true,
         serverSide: true,
