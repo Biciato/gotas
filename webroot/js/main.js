@@ -36,7 +36,8 @@ var sammy = Sammy("#content-html", function () {
         let redesId = context.params.redesId;
         let id = context.params.id;
         let cliente = {
-            id: id
+            id: id,
+            redesId: redesId
         };
 
         context.redesId = redesId;

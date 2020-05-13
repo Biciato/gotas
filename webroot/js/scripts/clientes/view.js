@@ -154,6 +154,7 @@ var clientesView = {
             $("#delimitador-nota-impressao").val(null);
             $("#delimitador-nota-produtos-inicial").val(null);
             $("#delimitador-nota-produtos-final").val(null);
+            $("#delimitador-qr-code").val(null);
 
             let quadroHorarios = [];
             let count = 0;
@@ -196,6 +197,7 @@ var clientesView = {
             $("#delimitador-nota-impressao").val(data.delimitador_nota_impressao);
             $("#delimitador-nota-produtos-inicial").val(data.delimitador_nota_produtos_inicial);
             $("#delimitador-nota-produtos-final").val(data.delimitador_nota_produtos_final);
+            $("#delimitador-qr-code").val(data.delimitador_qr_code);
 
             let quadroHorarios = [];
             let count = 0;

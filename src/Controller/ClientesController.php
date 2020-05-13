@@ -217,11 +217,11 @@ class ClientesController extends AppController
 
     /**
      * Adiciona uma loja ou posto
-     * @param int $redes_id Id de rede
+     *
      * @author Gustavo Souza Gonçalves
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      */
-    public function add(int $redes_id = null)
+    public function add()
     {
         $errors = [];
         try {
@@ -234,10 +234,11 @@ class ClientesController extends AppController
             }
 
             $usuarioLogado = $this->usuarioLogado;
-            $rede = $this->Redes->getRedeById($redes_id);
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : 0;
+                $rede = $this->Redes->getRedeById($redesId);
                 $cliente = $this->Clientes->patchEntity($cliente, $data);
 
                 // Verifica se ja tem um registro antes
@@ -249,18 +250,17 @@ class ClientesController extends AppController
                     if ($clienteJaExistente) {
                         $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
 
-                        $this->Flash->error($message);
-                        $this->set(compact($arraySet));
-                        $this->set('_serialize', $arraySet);
-                        return;
+                        throw new Exception($message);
                     }
                 }
 
-                if ($cliente = $this->Clientes->addClient($redes_id, $cliente)) {
+                $cliente = $this->Clientes->addClient($redesId, $cliente);
+
+                if ($cliente) {
                     $qteTurnos = $data["qte_turnos"];
                     $horarioInicial = $data["turno"];
                     $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
-                    $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+                    $this->ClientesHasQuadroHorario->addHorariosCliente($redesId, $cliente["id"], $horarios);
 
                     // Adiciona bonificação extra sefaz para novo posto
                     $gotas = [];
@@ -290,9 +290,9 @@ class ClientesController extends AppController
 
                     $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
                     $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
-
-                    return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
                 }
+
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
@@ -841,7 +841,6 @@ class ClientesController extends AppController
         for ($i = 0; $i < $qteTurnos; $i++) {
             $turno = array();
 
-            // $turno["id"] = $i;
             $turno["hora"] = strlen($horaTemp) == 1 ? "0" . $horaTemp : $horaTemp;
             $turno["minuto"] = strlen($minuto) == 1 ? "0" . $minuto : $minuto;
 

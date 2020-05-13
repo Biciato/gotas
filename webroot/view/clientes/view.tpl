@@ -278,6 +278,16 @@
                                                     disabled="disabled">
                                             </div>
                                         </div>
+                                        <div class="form-group row">
+                                            <label for="delimitador_qr_code" class="col-lg-2">
+                                                Delimitador de QR Code
+                                            </label>
+                                            <div class="col-lg-10">
+                                                <input type="text" name="delimitador_qr_code" id="delimitador-qr-code"
+                                                    class="form-control" value="" placeholder="Delimitador de QR Code"
+                                                    readonly disabled>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

@@ -9,6 +9,9 @@
 var clientesAdd = {
 
     //#region Properties
+
+    redesId: {},
+
     validationOptions: {
         messages: {
             codigo_equipamento_rti: {
@@ -98,6 +101,7 @@ var clientesAdd = {
         var self = this;
 
         $(document).find("#form #codigo-equipamento-rti").mask("999");
+        $(document).find("#form #codigo-equipamento-rti").focus();
         $(document)
             .off("blur", "#codigo-equipamento-rti")
             .on('blur', "#codigo-equipamento-rti", function () {
@@ -139,7 +143,7 @@ var clientesAdd = {
             .on("blur", "#form #tel-fax", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 10);
             })
-            .on("keyup", function (event) {
+            .on("keyup", "#form #tel-fax", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -192,16 +196,17 @@ var clientesAdd = {
     /**
      * 'Construtor'
      *
-     * @param {Integer} id Id do estabelecimento
+     * @param {Integer} id Id da rede
      * @returns void
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.2.3
      * @date 2020-05-12
      */
-    init: async function () {
+    init: async function (redesId) {
         let self = this;
 
+        self.redesId = redesId;
         document.title = "GOTAS - Novo Estabelecimento";
         self.configureEvents();
 
@@ -264,7 +269,7 @@ var clientesAdd = {
                 count++;
             });
 
-            $("#quadro_horarios").empty();
+            $("#quadro-horarios").empty();
 
         } else {
             $("span[id=nome-fantasia-municipio-estado]").text(data.nome_fantasia_municipio_estado);
@@ -306,7 +311,7 @@ var clientesAdd = {
                 count++;
             });
 
-            $("#quadro_horarios").empty();
+            $("#quadro-horarios").empty();
 
             // Adiciona os itens na tela
             quadroHorarios.forEach(horario => {
@@ -323,7 +328,7 @@ var clientesAdd = {
                 if (horario.id < (quadroHorarios.length - 1))
                     html += `<div class="hr-line-dashed"></div>`;
 
-                $("#quadro_horarios").append(html);
+                $("#quadro-horarios").append(html);
             });
         }
     },
@@ -389,9 +394,10 @@ var clientesAdd = {
         'use strict';
         evt.preventDefault();
 
+        // use somente para testes
         clientesAdd.save($("#form"));
+        return;
 
-        return self;
         if (clientesAdd.validateForm("#form").form()) {
             clientesAdd.save($("#form"));
         } else {
@@ -425,12 +431,15 @@ var clientesAdd = {
             objPost[item.name] = item.value;
         });
 
+        // Remove formatação de campos numéricos
         objPost.cnpj = objPost.cnpj.replace(/\D/gm, "");
         objPost.cep = objPost.cep.replace(/\D/gi, "");
+        objPost.tel_fax = objPost.tel_fax.replace(/\D/gi, "");
+        objPost.tel_fixo = objPost.tel_fixo.replace(/\D/gi, "");
+        objPost.tel_celular = objPost.tel_celular.replace(/\D/gi, "");
+        objPost.redes_id = self.redesId;
 
         console.log(objPost);
-        return;
-
         try {
             let response = await clientesService.save(objPost);
 
@@ -441,12 +450,16 @@ var clientesAdd = {
 
             // Gravação feita com sucesso, redireciona
             toastr.success(response.mensagem.message);
-            window.location = "#/redes/index";
+            window.location = `#/redes/view/${self.redesId}`;
         } catch (error) {
             console.log(error);
             var msg = {};
 
-            if (error.responseJSON !== undefined) {
+            if (error.responseJSON.code !== undefined) {
+                toastr.error(error.responseJSON.message);
+
+                return false;
+            } else if (error.responseJSON !== undefined && error.responseJSON.mensagem !== undefined) {
                 toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
                 return false;
             } else if (error.responseText !== undefined) {

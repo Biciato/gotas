@@ -327,6 +327,16 @@
                                                     placeholder="Delimitador Final de Produtos da Nota Fiscal">
                                             </div>
                                         </div>
+                                        <div class="hr-line-dashed"></div>
+                                        <div class="form-group row">
+                                            <label for="delimitador_qr_code" class="col-lg-2">
+                                                Delimitador de QR Code
+                                            </label>
+                                            <div class="col-lg-10">
+                                                <input type="text" name="delimitador_qr_code" id="delimitador-qr-code"
+                                                    class="form-control" value="" placeholder="Delimitador de QR Code">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -362,14 +372,16 @@
                                 </div>
                             </div>
 
-                            <div class="action-buttons">
-                                <a href="#/redes/view/<%=redesId %>" class="btn btn-default" tooltip="Cancelar"
-                                    id="btn-cancel">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </a>
-                                <button type="submit" id="btn-save" class="btn btn-primary">
-                                    <em class="fas fa-save"></em> Salvar
-                                </button>
+                            <div class="form-group row">
+                                <div class="col-lg-12 action-buttons">
+                                    <a href="#/redes/view/<%=redesId %>" class="btn btn-default" tooltip="Cancelar"
+                                        id="btn-cancel">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                    <button type="submit" id="btn-save" class="btn btn-primary">
+                                        <em class="fas fa-save"></em> Salvar
+                                    </button>
+                                </div>
                             </div>
                         </fieldset>
                     </form>
@@ -385,7 +397,7 @@
     $(function () {
         let dataStorage = JSON.parse(localStorage.getItem("data"));
 
-        clientesAdd.init(dataStorage.id);
+        clientesAdd.init(dataStorage.redesId);
     })
         .ajaxStart(callLoaderAnimation)
         .ajaxStop(closeLoaderAnimation)

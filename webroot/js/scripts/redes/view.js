@@ -160,8 +160,8 @@ var redesView = {
             .on("click", "#form #btn-search", self.refreshDataTable);
         // Adiciona enter dentro do form, pesquisar
         $(document)
-            .off("keydown", "#form")
-            .on("keydown", "#form", function (evt) {
+            .off("keyup", "#form")
+            .on("keyup", "#form", function (evt) {
                 if (evt.keyCode == 13) {
                     evt.preventDefault();
                     self.refreshDataTable(evt);

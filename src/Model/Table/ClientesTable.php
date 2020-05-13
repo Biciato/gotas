@@ -171,7 +171,7 @@ class ClientesTable extends GenericTable
         $validator
             ->integer('tipo_unidade')
             ->requirePresence('tipo_unidade', 'create')
-            ->notEmpty('tipo_unidade');
+            ->notEmpty('tipo_unidade', "Informe se Estabelecimento é Loja ou Posto!");
 
         $validator
             ->allowEmpty('codigo_equipamento_rti');
@@ -181,10 +181,10 @@ class ClientesTable extends GenericTable
 
         $validator
             ->requirePresence('razao_social', 'create')
-            ->notEmpty('razao_social');
+            ->notEmpty('razao_social', "Informe a Razão Social do Estabelecimento!");
 
         $validator
-            ->notEmpty('cnpj');
+            ->notEmpty('cnpj', 'Necessário informar um CNPJ para realizar a importação de dados da SEFAZ!');
 
         $validator
             ->allowEmpty('endereco');
@@ -311,6 +311,23 @@ class ClientesTable extends GenericTable
             $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
             $cliente['cep'] = $this->cleanNumber($cliente['cep']);
 
+            if (count($cliente->errors()) > 0) {
+                $errorList = [];
+
+                foreach ($cliente->errors() as $key => $error) {
+                    $itemErrorDetails = [];
+
+                    foreach ($error as $itemError) {
+                        $itemErrorDetails[] = $itemError;
+                    }
+
+                    // @TODO Procurar uma forma de melhorar esta exibição no futuro
+                    $errorList[] = sprintf("<br /> [%s]: %s", $key, implode(", ", $itemErrorDetails));
+                }
+
+                throw new Exception(sprintf("Há campos não preenchidos!: %s .", implode(" \n ", $errorList)));
+            }
+
             $cliente = $this->save($cliente);
 
             // salvou o cliente
@@ -327,7 +344,7 @@ class ClientesTable extends GenericTable
         } catch (\Exception $e) {
             $stringError = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $e->getMessage());
             Log::write('error', $stringError);
-            throw new Exception($stringError);
+            throw new Exception($e->getMessage(), $e->getCode());
         }
     }
 
