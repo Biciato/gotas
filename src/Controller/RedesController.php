@@ -25,6 +25,7 @@ use App\Model\Entity\Rede;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 use stdClass;
+use Throwable;
 
 /**
  * Redes Controller
@@ -44,55 +45,92 @@ class RedesController extends AppController
     /**
      * Index method
      *
-     * @return \Cake\Http\Response|void
+     * @return json_encode Data
      */
     public function index()
     {
-        if ($this->request->is(Request::METHOD_GET)) {
-            $data = $this->request->getQueryParams();
+        $errors = [];
+        $errorCodes = [];
 
-            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
+        try {
 
-            $nomeRede = !empty($data["nome_rede"]) ? $data["nome_rede"] : null;
-            $ativado = isset($data["ativado"]) && strlen($data["ativado"]) > 0 ? (bool) $data["ativado"] : null;
-            $appPersonalizado = isset($data["app_personalizado"]) && strlen($data["app_personalizado"]) > 0 ? (bool) $data["app_personalizado"] : null;
+            // Parâmetro de paginação
+            $pagination = new stdClass();
+            $pagination->start = 1;
+            $pagination->length = 1000;
+
+
+            if ($this->request->is(Request::METHOD_GET)) {
+                $getData = $this->request->getQueryParams();
+
+                // Parâmetro de paginação
+                $pagination = new stdClass();
+                $pagination->start = isset($getData["start"]) ? (int) $getData["start"] : $pagination->start;
+                $pagination->length = isset($getData["length"]) ? (int) $getData["length"] : $pagination->length;
+
+                $data = $getData["filtros"];
+
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
+
+                $nomeRede = !empty($data["nome_rede"]) ? $data["nome_rede"] : null;
+                $ativado = isset($data["ativado"]) && strlen($data["ativado"]) > 0 ? (bool) $data["ativado"] : null;
+                $appPersonalizado = isset($data["app_personalizado"]) && strlen($data["app_personalizado"]) > 0 ? (bool) $data["app_personalizado"] : null;
+            }
+
+            $redes = $this->Redes->getRedes(
+                null,
+                $nomeRede,
+                $ativado,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $appPersonalizado
+            );
+
+            $total = $redes->count();
+            // Cálculo da paginação
+
+            if (isset($pagination->start) && isset($pagination->length)) {
+                $redes = $redes
+                    ->limit($pagination->length)
+                    ->page(floor(($pagination->start + $pagination->length) / $pagination->length))->toArray();
+            }
+
+            $dataTableSource = new stdClass();
+            $dataTableSource->draw = $data['draw'];
+            $dataTableSource->recordsTotal = $total;
+            $dataTableSource->recordsFiltered = $total;
+            $dataTableSource->data = $redes;
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
-
-        $redes = $this->Redes->getRedes(
-            null,
-            $nomeRede,
-            $ativado,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $appPersonalizado
-        );
-
-        $total = $redes->count();
-        $redes = $redes->toArray();
-
-        $redes = array_slice($redes, $data['start'], $data['length']);
-
-        $dataTableSource = new stdClass();
-        $dataTableSource->draw = $data['draw'];
-        $dataTableSource->recordsTotal = $total;
-        $dataTableSource->recordsFiltered = $total;
-        $dataTableSource->data = $redes;
-
-        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
     }
 
     /**
@@ -104,7 +142,8 @@ class RedesController extends AppController
      */
     public function view($id = null)
     {
-        $this->viewBuilder()->setLayout("default_update");
+        $errors = [];
+        $errorCodes = [];
 
         try {
             $rede = $this->Redes->getRedeById($id);
@@ -114,7 +153,7 @@ class RedesController extends AppController
             $cnpj = null;
             $clientesIds = array();
 
-            if ($this->request->is("post")) {
+            if ($this->request->is("GET")) {
                 $data = $this->request->getData();
                 $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
                 $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
@@ -124,16 +163,25 @@ class RedesController extends AppController
             $redesHasClientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
             $this->paginate($redesHasClientes, ['limit' => 10]);
 
-            $arraySet = ['rede', 'redesHasClientes', 'imagem'];
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $message = __("Erro ao exibir detalhes de Rede : {0}", $e->getMessage());
-            Log::write('error', $message);
-            Log::write("error", $trace);
+            $data = [
+                'rede' => $rede
+            ];
 
-            $this->Flash->error($message);
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, $errors, [], $errorCodes);
         }
     }
 
@@ -150,24 +198,23 @@ class RedesController extends AppController
             $rede["quantidade_pontuacoes_usuarios_ida"] = 3;
             $rede["quantidade_consumo_usuarios_dia"] = 10;
             if ($this->request->is('post')) {
-
                 $data = $this->request->getData();
 
-                if (strlen($data['crop-height']) > 0) {
-
-                    // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
-
+                /**
+                 * Caso tenha informação de img_upload, significa que foi feito upload anteriormente
+                 * de uma foto. obtem as informações da foto e faz o tratamento necessário
+                 */
+                if (!empty($data["img_upload"])) {
                     // obtem dados de redimensionamento
-
-                    $height = $data["crop-height"];
-                    $width = $data["crop-width"];
-                    $valueX = $data["crop-x1"];
-                    $valueY = $data["crop-y1"];
+                    $height = $data["crop_height"];
+                    $width = $data["crop_width"];
+                    $valueX = $data["crop_x1"];
+                    $valueY = $data["crop_y1"];
 
                     $nomeImgRede = StringUtil::gerarNomeArquivoAleatorio();
                     $nomeImgRede = $nomeImgRede["fileName"];
 
-                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
+                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img_upload"]);
                     $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $nomeImgRede);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
 
@@ -179,27 +226,23 @@ class RedesController extends AppController
                 }
 
                 $rede = $this->Redes->patchEntity($rede, $data);
+                $rede = $this->Redes->saveUpdate($rede);
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['rede' => $rede]);
+            }
+        } catch (\Exception $e) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-                if ($this->Redes->addRede($rede)) {
-                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-
-                    return $this->redirect(['action' => 'index']);
-                }
-                $this->Flash->error(__(Configure::read('messageSavedError')));
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            $imagemOriginal = null;
-            $arraySet = array("rede", "imagemOriginal");
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
 
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $message = __("Erro ao adicionar nova rede: {0}", $e->getMessage());
-
-            Log::write('error', $message);
-
-            $this->Flash->error($message);
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -212,32 +255,35 @@ class RedesController extends AppController
      */
     public function edit($id)
     {
+        $errors = [];
+        $errorCodes = [];
+
         try {
             $imagemOriginal = null;
             $rede = $this->Redes->getRedeById($id);
 
-            if (strlen($rede->nome_img) > 0) {
+            if (!empty($rede->nome_img)) {
                 $imagemOriginal = __("{0}{1}", PATH_IMAGES_READ_REDES, $rede->nome_img);
             }
 
-            if ($this->request->is(['post', 'put'])) {
+            if ($this->request->is([Request::METHOD_POST, Request::METHOD_PUT])) {
                 $data = $this->request->getData();
                 $trocaImagem = 0;
 
-                // DebugUtil::printArray($data);
-
-                if (strlen($data['crop-height']) > 0) {
-                    // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
-
+                /**
+                 * Caso tenha informação de img_upload, significa que foi feito upload anteriormente
+                 * de uma foto. obtem as informações da foto e faz o tratamento necessário
+                 */
+                if (strlen($data['crop_height']) > 0) {
                     // obtem dados de redimensionamento
-                    $height = $data["crop-height"];
-                    $width = $data["crop-width"];
-                    $valueX = $data["crop-x1"];
-                    $valueY = $data["crop-y1"];
+                    $height = $data["crop_height"];
+                    $width = $data["crop_width"];
+                    $valueX = $data["crop_x1"];
+                    $valueY = $data["crop_y1"];
                     $nomeImgRede = StringUtil::gerarNomeArquivoAleatorio();
                     $nomeImgRede = $nomeImgRede["fileName"];
 
-                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
+                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img_upload"]);
                     $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $nomeImgRede);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, $width, $height, $valueX, $valueY, $width, $height, 90);
 
@@ -255,9 +301,10 @@ class RedesController extends AppController
 
                 $rede->msg_distancia_compra_brinde = $rede->app_personalizado ? $rede->msg_distancia_compra_brinde : 0;
 
-                $rede = $this->Redes->patchEntity($rede, $data);
+                $redeMerged = $this->Redes->patchEntity($rede, $data);
+                $rede = $this->Redes->saveUpdate($redeMerged);
 
-                if ($this->Redes->updateRede($rede)) {
+                if ($rede) {
                     // Atualiza todas as bonificações de gotas dos postos que é de sistema (bonificação extra SEFAZ)
                     $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
 
@@ -276,30 +323,33 @@ class RedesController extends AppController
                     }
 
                     foreach ($gotas as $gota) {
-                        $this->Gotas->saveUpdateExtraPoints($clientesIds, $gota->multiplicador_gota, $gota->nome_parametro);
+                        $this->Gotas->saveUpdateExtraPoints(
+                            $clientesIds,
+                            $gota->multiplicador_gota,
+                            $gota->nome_parametro
+                        );
                     }
 
-                    if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
-                        if (file_exists($imagemOriginal)) {
-                            unlink($imagemOriginal);
-                        }
+                    if ($trocaImagem && !is_null($imagemOriginal) && file_exists($imagemOriginal)) {
+                        unlink($imagemOriginal);
                     }
-
-                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-                    return $this->redirect(['action' => 'index']);
                 }
-                $this->Flash->error(__(Configure::read('messageSavedError')));
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
             }
-            $arraySet = array('rede', 'imagem', 'imagemOriginal');
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $message = __("Erro ao adicionar nova rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-            Log::write('error', $message);
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
 
-            $this->Flash->error($message);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -409,23 +459,33 @@ class RedesController extends AppController
      * @param bool  $estado     Estado
      * @param array $return_url Url de Retorno
      *
-     * @return void
+     * @return json response
      */
     public function changeStatusAPI($id)
     {
+        $errors = [];
+        $errorCodes = [];
+
         try {
-            $this->request->allowMethod(Request::METHOD_PUT);
             $result = $this->Redes->changeStateNetwork($id);
             $word = $result->ativado ? "habilitada" : "desabilitada";
-            $msg = sprintf("A rede foi %s com sucesso!");
+            $msg = sprintf("A rede foi %s com sucesso!", $word);
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['status_rede' => $msg]);
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} ", $e->getMessage());
+        } catch (Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-            Log::write('error', $stringError);
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
 
-            $this->Flash->error($stringError);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -703,7 +763,7 @@ class RedesController extends AppController
      */
 
     /**
-     * RedesController::enviaImagemRede
+     * RedesController::setImageNetworkAPI
      *
      * Envia imagem de rede de forma assíncrona
      *
@@ -712,7 +772,7 @@ class RedesController extends AppController
      *
      * @return json_object
      */
-    public function enviaImagemRede()
+    public function setImageNetworkAPI()
     {
         $mensagem = null;
         $status = false;
@@ -721,13 +781,9 @@ class RedesController extends AppController
         $arquivos = array();
         try {
             if ($this->request->is('post')) {
-
-                $data = $this->request->getData();
-
                 $arquivos = FilesUtil::uploadFiles(Configure::read("imageNetworkPathTemp"));
 
-                $status = true;
-                $message = __("Envio concluído com sucesso!");
+                return ResponseUtil::successAPI(MSG_FILE_UPLOAD_SUCCESS, ['files' => $arquivos]);
             }
         } catch (\Exception $e) {
             $messageString = __("Não foi possível enviar imagem de rede!");
@@ -737,19 +793,6 @@ class RedesController extends AppController
 
             Log::write("error", $messageStringDebug);
         }
-
-        $mensagem = array("status" => 1, "message" => null);
-
-        $result = array("mensagem" => $mensagem, "arquivos" => $arquivos);
-
-        // echo json_encode($result);
-        $arraySet = array(
-            "arquivos",
-            "mensagem"
-        );
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -865,7 +908,7 @@ class RedesController extends AppController
      *
      * @param int @data["redes_id"] Id da Rede
      *
-     * @return json_encode Resposta
+     * @return json_encode $response Resposta
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-10-11

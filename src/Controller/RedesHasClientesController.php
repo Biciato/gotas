@@ -902,7 +902,7 @@ class RedesHasClientesController extends AppController
                     "nome_img_completo"
                 );
 
-                $resultado = $this->Clientes->getClientes($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
+                $resultado = $this->Clientes->getClientesProximos($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
 
                 // Se chegou até aqui, ocorreu tudo bem
 
@@ -1055,7 +1055,7 @@ class RedesHasClientesController extends AppController
                             $whereConditions[] = array("Clientes.cnpj like '%{$data["cnpj"]}%'");
                         }
 
-                        $resultado = $this->Clientes->getClientes($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
+                        $resultado = $this->Clientes->getClientesProximos($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
                         $clientes = $resultado["clientes"];
                         $resumo_gotas = $resultado["resumo_gotas"];
 

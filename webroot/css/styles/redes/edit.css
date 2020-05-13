@@ -1,0 +1,77 @@
+/**
+  * @author   Gustavo Souza Gonçalves
+  * @file     webroot/css/styles/pages/redes/add.css
+  * @date     2020-05-05
+  */
+
+#nome-img-atual {
+    /* border-radius: 5px; */
+    max-height: 300px;
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
+.img-crop-logo {
+    overflow: hidden;
+    max-height: 320px;
+    max-width: 600px;
+    border-radius: 5px;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-logo-preview {
+    display: none;
+    overflow: hidden;
+    max-height: 200px;
+    max-width: 200px;
+    height: 200px;
+    width: 200px;
+    border: 1px solid black;
+    border-radius: 50%;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-propaganda {
+    overflow: hidden;
+    max-height: 600px;
+    max-width: 600px;
+    border-radius: 5px;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-preview-propaganda {
+    display: none;
+    overflow: hidden;
+    max-height: 600px;
+    max-width: 600px;
+    height: 600px;
+    width: 600px;
+    border: 5px solid black;
+    border-radius: 5px;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-container {
+    display: none;
+}
+
+.imagem-rede {
+    max-width: 600px;
+    max-height: 480px;
+}

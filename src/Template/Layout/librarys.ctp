@@ -96,6 +96,7 @@ echo $this->Html->script(sprintf("bootstrap3-dialog/js/bootstrap-dialog.min.js?v
 
 <!-- jQuery Validation Form -->
 <?= $this->Html->script(sprintf("jquery-validation/dist/jquery.validate.min.js?version=%s", SYSTEM_VERSION)); ?>
+<?= $this->Html->script(sprintf("jquery-validation/dist/additional-methods.min.js?version=%s", SYSTEM_VERSION)); ?>
 
 <!-- jQuery Pagination -->
 <?= $this->Html->script(sprintf("jquery-pagination/dist/pagination.js?version=%s", SYSTEM_VERSION)); ?>
@@ -166,13 +167,47 @@ echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYST
 <!-- DataTables -->
 
 <?php
+echo $this->Html->script(sprintf("scripts/helpers/Html/ImageHelper.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/helpers/Html/ButtonHelper.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/helpers/DataTables/DataTablesHelper.js?version=%s", SYSTEM_VERSION));
 
 echo $this->Html->script(sprintf('layout-update/pipeline_wrapper.js?version=%s', SYSTEM_VERSION));
+?>
 
+<!-- Sammy.JS -->
+
+<?php
+
+echo $this->Html->script(sprintf("sammy-master/lib/min/sammy-latest.min.js?version=%s", SYSTEM_VERSION));
+// echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.ejs.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?version=%s", SYSTEM_VERSION));
+// echo $this->Html->script(sprintf("sammy-master/lib/sammy.js?version=%s", SYSTEM_VERSION));
+?>
+
+<!-- Services JS -->
+
+<?php
+echo $this->Html->script(sprintf("scripts/services/clientesService.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/redesService.js?version=%s", SYSTEM_VERSION));
+?>
+
+<!-- Controllers JS -->
+
+<?php
+echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
+
+// Clientes
+echo $this->Html->script(sprintf("scripts/clientes/view.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/clientes/add.js?version=%s", SYSTEM_VERSION));
+
+// Redes
+echo $this->Html->script(sprintf("scripts/redes/index.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/redes/view.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/redes/add.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/redes/edit.js?version=%s", SYSTEM_VERSION));
 
 ?>
+
 
 
 <!-- Fim Estilos -->

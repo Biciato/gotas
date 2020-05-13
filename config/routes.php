@@ -185,6 +185,11 @@ Router::scope("/api", function ($routes) {
                 "method" => Request::METHOD_GET,
                 "path" => "/cliente_final"
             ],
+            "changeStatusAPI" => [
+                "action" => "changeStatusAPI",
+                "method" => Request::METHOD_PUT,
+                "path" => "change-status/:id"
+            ]
         )
     ));
 
@@ -338,7 +343,13 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources("Redes", [
-        "map" => [
+        "map" =>
+        [
+            // "view" => [
+            //     "action" => "view",
+            //     "method" => Request::METHOD_GET,
+            //     "path" => "view/:id"
+            // ],
             "getRedeAPI" => [
                 "action" => "getRedeAPI",
                 "method" => Request::METHOD_GET,
@@ -354,6 +365,11 @@ Router::scope("/api", function ($routes) {
                 "action" => "getRedesListAPI",
                 "method" => Request::METHOD_GET,
                 "path" => "/get_redes_list"
+            ],
+            "setImageNetworkAPI" => [
+                "action" => "setImageNetworkAPI",
+                "method" => Request::METHOD_POST,
+                "path" => "/set_image_network"
             ],
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",
@@ -624,7 +640,7 @@ Router::scope("/api", function ($routes) {
             ),
             "carregarUsuarios" => [
                 "action" => "carregarUsuarios",
-                "method" => Request::METHOD_POST,
+                "method" => Request::METHOD_GET,
                 "path" => "carregar-usuarios"
             ]
         ]

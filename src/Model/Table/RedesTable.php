@@ -136,13 +136,14 @@ class RedesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    #region Create
+    #region Save
 
     /**
      * Adiciona uma rede
      *
      * @param \App\Model\Entity\Rede $rede Objeto Rede
      *
+     * @deprecated 1.2.3 Utilizar method saveUpdate()
      * @return bool
      */
     public function addRede(\App\Model\Entity\Rede $rede)
@@ -167,6 +168,26 @@ class RedesTable extends GenericTable
 
             $error = ['success' => false, 'message' => $stringError];
             return $error;
+        }
+    }
+
+    /**
+     * Salva um registro
+     *
+     * @param RedesCpfListaNegra $record Entidade
+     * @return RedesCpfListaNegra $record Entidade salva com Id
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     */
+    public function saveUpdate(\App\Model\Entity\Rede $record)
+    {
+        try {
+            return $this->save($record);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MSG_SAVED_EXCEPTION_CODE);
         }
     }
 
@@ -797,36 +818,6 @@ class RedesTable extends GenericTable
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message, $th->getCode());
-        }
-    }
-
-    /**
-     * Atualiza dados de rede
-     *
-     * @param \App\Model\Entity\Redes $rede Objeto de rede
-     *
-     * @return \App\Model\Entity\Redes Objeto de redes atualizado
-     */
-    public function updateRede(\App\Model\Entity\Rede $rede)
-    {
-        try {
-            return $this->save($rede);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            return ['success' => false, 'message' => $stringError];
         }
     }
 

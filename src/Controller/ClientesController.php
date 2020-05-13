@@ -21,8 +21,10 @@ use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\StringUtil;
 use App\Model\Entity\Cliente;
 use App\Model\Entity\Gota;
+use Cake\Auth\DefaultPasswordHasher;
 use Cake\Http\Client\Request;
 use stdClass;
+use Throwable;
 
 /**
  * Clientes Controller
@@ -44,92 +46,104 @@ class ClientesController extends AppController
      */
     public function index()
     {
-        $conditions = [];
+        // Se a pesquisa é feita por alguém que está vinculado à uma rede, fixa o id da rede
+        $redesId = !empty($this->rede) ? $this->rede->id : 0;
+        $errors = [];
+        $errorCodes = [];
 
-        if ($this->request->is('post')) {
-
-            $data = $this->request->getData();
-
-            if (sizeof($data) > 0) {
-                if ($data['opcoes'] == 'cnpj') {
-                    $value = $this->cleanNumber($data['parametro']);
-                } else {
-                    $value = $data['parametro'];
-                }
-
-                array_push($conditions, [$data['opcoes'] . ' like ' => '%' . $value . '%']);
-            }
-        }
-
-        $clientes = $this->Clientes->getAllClientes($conditions);
-        $this->paginate($clientes, ['limit' => 10]);
-
-
-        // $clientes = $this->paginate($this->Clientes->find()->where(['matriz_id IS' => null]));
-
-        $this->set(compact('clientes'));
-        $this->set('_serialize', ['clientes']);
-    }
-
-    /**
-     * Ativa um registro
-     *
-     * @return boolean
-     */
-    public function ativar()
-    {
-        $query = $this->request->query();
-
-        $this->_alteraEstadoCliente((int) $query['clientes_id'], true, $query['return_url']);
-    }
-
-    /**
-     * Desativa um registro
-     *
-     * @return boolean
-     */
-    public function desativar()
-    {
-        $query = $this->request->query();
-
-        $this->_alteraEstadoCliente((int) $query['clientes_id'], false, $query['return_url']);
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @param int $clientes_id
-     * @param bool $estado
-     * @return void
-     */
-    private function _alteraEstadoCliente(int $clientes_id, bool $estado, array $return_url)
-    {
         try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $getData = $this->request->getQueryParams();
 
-            $this->request->allowMethod(['post']);
+                // Parâmetro de paginação
+                $pagination = new stdClass();
+                $pagination->start = isset($getData["start"]) ? (int) $getData["start"] : 1;
+                $pagination->length = isset($getData["length"]) ? (int) $getData["length"] : 10000;
 
-            $result = $this->Clientes->changeStateEnabledCliente($clientes_id, $estado);
-            if ($result) {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableSuccess')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableSuccess')));
+                $data = $getData["filtros"];
+
+                $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : $redesId;
+                $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+                $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
+                $cnpj = !empty($data["cnpj"]) ? preg_replace("/\D/", "", $data["cnpj"]) : null;
+                $ativado = isset($data["ativado"]) && strlen($data["ativado"]) > 0 ? (bool) $data["ativado"] : null;
+
+                $clientes = $this->Clientes->getClientes($redesId, $nomeFantasia, $razaoSocial, $cnpj, $ativado);
+
+                $total = $clientes->count();
+                // Cálculo da paginação
+
+                if (isset($pagination->start) && isset($pagination->length)) {
+                    $clientes = $clientes
+                        ->limit($pagination->length)
+                        ->page(floor(($pagination->start + $pagination->length) / $pagination->length))->toArray();
                 }
-            } else {
-                if ($estado) {
-                    $this->Flash->success(__(Configure::read('messageEnableError')));
-                } else {
-                    $this->Flash->success(__(Configure::read('messageDisableError')));
+
+                // Faz formatação necessária somente no resultado da paginação
+                foreach ($clientes as $cliente) {
+                    $cliente->cnpj = preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $cliente->cnpj);
                 }
+
+                $dataTableSource = new stdClass();
+                $dataTableSource->draw = $data['draw'];
+                $dataTableSource->recordsTotal = $total;
+                $dataTableSource->recordsFiltered = $total;
+                $dataTableSource->data = $clientes;
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            return $this->redirect($return_url);
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao realizar procedimento de alteração de estado de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
 
-            Log::write('error', $stringError);
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
 
-            $this->Flash->error($stringError);
+    /**
+     * Altera o estado de habilitado do Estabelecimento
+     *
+     * @param integer $id Id da unidade
+     * @return json_encode $response Resposta
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-11
+     */
+    public function changeStatusAPI(int $id)
+    {
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            $result = $this->Clientes->changeState($id);
+            $word = $result->ativado ? "habilitada" : "desabilitada";
+            $msg = sprintf("A rede foi %s com sucesso!", $word);
+
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['status' => $msg]);
+        } catch (Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -192,12 +206,13 @@ class ClientesController extends AppController
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function verDetalhes($id = null)
+    public function view($id = null)
     {
         $cliente = $this->Clientes->getClienteById($id);
+        $data = new stdClass();
+        $data->cliente = $cliente;
 
-        $this->set('cliente', $cliente);
-        $this->set('_serialize', ['cliente']);
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
     }
 
     /**
@@ -208,92 +223,92 @@ class ClientesController extends AppController
      */
     public function add(int $redes_id = null)
     {
-        $arraySet = array('cliente', 'clientes', 'rede', "redesId", 'usuarioLogado');
+        $errors = [];
+        try {
+            $cliente = $this->Clientes->newEntity();
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        $cliente = $this->Clientes->newEntity();
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
-        }
-
-        $usuarioLogado = $this->usuarioLogado;
-        $rede = $this->Redes->getRedeById($redes_id);
-
-        if ($this->request->is('post')) {
-            $data = $this->request->getData();
-            $cliente = $this->Clientes->patchEntity($cliente, $data);
-
-            // Verifica se ja tem um registro antes
-            $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
-
-            if ($cnpj) {
-                $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
-
-                if ($clienteJaExistente) {
-                    $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
-
-                    $this->Flash->error($message);
-                    $this->set(compact($arraySet));
-                    $this->set('_serialize', $arraySet);
-                    return;
-                }
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            if ($cliente = $this->Clientes->addClient($redes_id, $cliente)) {
-                $qteTurnos = $data["quantidade_turnos"];
-                $horarioInicial = $data["horario"];
-                $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
-                $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+            $usuarioLogado = $this->usuarioLogado;
+            $rede = $this->Redes->getRedeById($redes_id);
 
-                // Adiciona bonificação extra sefaz para novo posto
-                $gotas = [];
-                $gota = new Gota();
-                $gota->nome_parametro = GOTAS_BONUS_SEFAZ;
-                $gota->multiplicador_gota = $rede->qte_gotas_bonificacao;
-                $gotas[] = $gota;
+            if ($this->request->is('post')) {
+                $data = $this->request->getData();
+                $cliente = $this->Clientes->patchEntity($cliente, $data);
 
-                if ($rede->pontuacao_extra_produto_generico) {
+                // Verifica se ja tem um registro antes
+                $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
+
+                if ($cnpj) {
+                    $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
+
+                    if ($clienteJaExistente) {
+                        $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
+
+                        $this->Flash->error($message);
+                        $this->set(compact($arraySet));
+                        $this->set('_serialize', $arraySet);
+                        return;
+                    }
+                }
+
+                if ($cliente = $this->Clientes->addClient($redes_id, $cliente)) {
+                    $qteTurnos = $data["qte_turnos"];
+                    $horarioInicial = $data["turno"];
+                    $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
+                    $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+
+                    // Adiciona bonificação extra sefaz para novo posto
+                    $gotas = [];
                     $gota = new Gota();
-                    $gota->nome_parametro = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
-                    $gota->multiplicador_gota = 1;
+                    $gota->nome_parametro = GOTAS_BONUS_SEFAZ;
+                    $gota->multiplicador_gota = $rede->qte_gotas_bonificacao;
                     $gotas[] = $gota;
+
+                    if ($rede->pontuacao_extra_produto_generico) {
+                        $gota = new Gota();
+                        $gota->nome_parametro = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
+                        $gota->multiplicador_gota = 1;
+                        $gotas[] = $gota;
+                    }
+
+                    foreach ($gotas as $gota) {
+                        $this->Gotas->saveUpdateExtraPoints([$cliente->id], $gota->multiplicador_gota, $gota->nome_parametro);
+                    }
+
+                    // Adiciona Gota de Ajuste de pontos
+                    $this->Gotas->saveUpdateGotasAdjustment([$cliente->id]);
+
+                    // Adiciona o funcionário de sistema como o primeiro funcionário da rede
+                    // Ele será necessário para funções automáticas de venda de brinde via API
+                    $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
+
+                    $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
+
+                    return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
                 }
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-                foreach ($gotas as $gota) {
-                    $this->Gotas->saveUpdateExtraPoints([$cliente->id], $gota->multiplicador_gota, $gota->nome_parametro);
-                }
-
-                // Adiciona Gota de Ajuste de pontos
-
-                $this->Gotas->saveUpdateGotasAdjustment([$cliente->id]);
-
-                // Adiciona o funcionário de sistema como o primeiro funcionário da rede
-                // Ele será necessário para funções automáticas de venda de brinde via API
-                $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
-
-                $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
-
-                $this->Flash->success(__("Registro gravado com sucesso."));
-
-                return $this->redirect(
-                    [
-                        'controller' => 'redes',
-                        'action' => 'ver_detalhes',
-                        $rede->id
-                    ]
-                );
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            $this->Flash->error(__("Não foi possível gravar o registro!"));
-        }
-        $clientes = $this->Clientes->find('list', ['limit' => 200]);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
 
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
+        }
     }
 
     /**
@@ -407,21 +422,70 @@ class ClientesController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete()
+    public function delete($id)
     {
-        $data = $this->request->query();
-        $cliente_id = $data['cliente_id'];
-        $return_url = $data['return_url'];
+        try {
+            $data = $this->request->getData();
+            $senhaUsuario = !empty($data["password"]) ? $data["password"] : null;
+            $usuario = $this->sessaoUsuario["usuarioLogado"];
+            $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
 
-        $this->request->allowMethod(['post', 'delete']);
-        $cliente = $this->Clientes->get($cliente_id);
-        if ($this->Clientes->delete($cliente)) {
-            $this->Flash->success(__('O registro {0} foi removido com sucesso.', $cliente->nome_fantasia));
-        } else {
-            $this->Flash->error(__('The cliente could not be deleted. Please, try again.'));
+            if (empty($senhaUsuario)) {
+                throw new Exception("Para continuar, informe sua senha!");
+            }
+
+            // Testa a senha do usuário
+            if (!(new DefaultPasswordHasher)->check($senhaUsuario, $usuario["senha"])) {
+                throw new Exception(Configure::read("messageUsuarioSenhaDoesntMatch"));
+            }
+
+            $cliente = $this->Clientes->get($id);
+
+            // Faz remoção dos dados associados (Remoção mesmo, sem recuperação)
+
+            // Usuários Has Brindes
+            $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds([$cliente->id]);
+
+            // Remoção de Transaçoes de cupons
+            $this->CuponsTransacoes->deleteAllByRedesId($cliente->id);
+            // Remoção de Cupons
+            $this->Cupons->deleteAllCuponsByClientesIds([$cliente->id]);
+
+            $this->PontuacoesPendentes->deleteAllPontuacoesPendentesByClientesIds([$cliente->id]);
+            $this->Pontuacoes->deleteAllPontuacoesByClientesIds([$cliente->id]);
+            $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds([$cliente->id]);
+
+            // brindes
+            $this->BrindesEstoque->deleteAllBrindesEstoqueByClientesIds([$cliente->id]);
+            $this->BrindesPrecos->deleteAllBrindesPrecosByClientesIds([$cliente->id]);
+            $this->Brindes->deleteAllBrindesByClientesIds([$cliente->id]);
+
+            // gotas
+            $this->Gotas->deleteAllGotasByClientesIds([$cliente->id]);
+
+            // apagar os usuários que são da rede (Administradores da Rede até funcionários)
+            $whereConditions = array();
+            $whereConditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
+            $whereConditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
+
+            // Apaga os funcionários
+            $this->Usuarios->deleteAllUsuariosByClienteIds([$cliente->id], $whereConditions);
+            $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds([$cliente->id]);
+            $this->ClientesHasQuadroHorario->deleteHorariosCliente($cliente->id);
+
+            // Remove o estabelecimento da rede
+            $this->RedesHasClientes->deleteRedesHasClientesByClientesIds([$cliente->id]);
+
+            // Enfim, remove o estabelecimento
+            $this->Clientes->delete($cliente);
+
+            return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_DELETE_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, [$th->getMessage()]);
         }
-
-        return $this->redirect(['action' => 'index']);
     }
 
     /**

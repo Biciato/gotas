@@ -1,28 +1,28 @@
 /**
- * Helper to Generate Buttons
- *
- * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 1.2.3
- * @date 2020-04-27
- */
-const ICON_CONFIG = "config";
-const ICON_INFO = "info";
-const ICON_DELETE_V4 = "fa fa-trash";
-const ICON_DELETE_V5 = "fas fa-trash";
-const ICONS_DELETE = [{
-        key: 4,
-        value: ICON_DELETE_V4,
-    },
-    {
-        key: 5,
-        value: ICON_DELETE_V5
-    }
-];
-
-/**
  * Class to Generate Buttons
  */
 class ButtonHelper {
+
+    /**
+     * Helper to Generate Buttons
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-04-27
+     */
+    ICON_CONFIG = "config";
+    ICON_INFO = "info";
+    ICON_DELETE_V4 = "fa fa-trash";
+    ICON_DELETE_V5 = "fas fa-trash";
+    ICONS_DELETE = [{
+            key: 4,
+            value: this.ICON_DELETE_V4,
+        },
+        {
+            key: 5,
+            value: this.ICON_DELETE_V5
+        }
+    ];
 
     /**
      * Constructor
@@ -39,21 +39,28 @@ class ButtonHelper {
      * Generates a link button to a destination
      *
      * @param {String} url Destination
-     * @param {*} typeIcon Type Icon (config, info)
-     * @param {*} text Text within link
-     * @param {*} tooltip Tooltip
+     * @param {String} typeIcon Type Icon (config, info)
+     * @param {String} text Text within link
+     * @param {String} tooltip Tooltip
+     * @param {String} customClass Custom Class
      * @returns Element HTML
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.2.3
      * @date 2020-04-24
      */
-    generateLinkViewToDestination(url, typeIcon = undefined, text = undefined, tooltip = undefined) {
+    generateLinkViewToDestination(url, typeIcon = undefined, text = undefined, tooltip = undefined, customClass = undefined) {
         let linkElement = document.createElement("a");
         linkElement.href = url;
 
         if (this.bootstrapVersion = 3) {
-            linkElement.classList = "btn btn-default";
+            linkElement.classList.add("btn");
+
+            if (typeIcon !== undefined && typeIcon === this.ICON_CONFIG) {
+                linkElement.classList.add("btn-primary");
+            } else {
+                linkElement.classList.add("btn-default");
+            }
         }
 
         // @TODO add bootstrap 4
@@ -208,7 +215,7 @@ class ButtonHelper {
             linkElement.classList.add(customClass);
         }
 
-        let iconClass = imgClass !== undefined && imgClass !== null ? imgClass : ICONS_DELETE.filter(x => x.key === this.fontAwesomeVersion)[0].value;
+        let iconClass = imgClass !== undefined && imgClass !== null ? imgClass : this.ICONS_DELETE.filter(x => x.key === this.fontAwesomeVersion)[0].value;
         let iconElement = document.createElement("i");
         iconElement.classList = iconClass;
 

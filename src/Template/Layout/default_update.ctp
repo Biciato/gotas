@@ -43,11 +43,20 @@
                             </ul>
                         </div>
                         <div class="logo-element">
-                            GOTAS
+                            <a href="#/">GOTAS </a>
                         </div>
                     </li>
                     <li>
-                        <a href="javascript:void(0)"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboard</span> <span class="fa arrow"></span></a>
+                        <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="index.html"><i class="fas fa-building"></i> <span class="nav-label">Redes</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
+                        </ul>
                     </li>
                 </ul>
 
@@ -194,8 +203,12 @@
                 </div>
             </div> -->
 
-            <div>
-                <?php echo $this->fetch('content'); ?>
+            <div id="content">
+                <?php
+                echo $this->fetch('content');
+                ?>
+            </div>
+            <div id='content-html'>
             </div>
             <div class="footer">
                 <div class="float-right">

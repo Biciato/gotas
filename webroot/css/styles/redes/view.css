@@ -4,8 +4,8 @@
   * @date     06/07/2018
   */
 
-.imagem-rede{
-    /* max-width: 100%; */
-    max-width: 640px;
-    max-height: 480px;
+  /* Esta imagem sempre será em formato banner  */
+#nome-img{
+    /* max-width: 640px; */
+    max-height: 300px;
 }

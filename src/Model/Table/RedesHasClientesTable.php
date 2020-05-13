@@ -52,7 +52,7 @@ class RedesHasClientesTable extends GenericTable
             array(
                 "className" => "Redes",
                 'foreignKey' => 'redes_id',
-                'joinType' => 'LEFT'
+                'joinType' => Query::JOIN_TYPE_LEFT
             )
         );
 
@@ -60,7 +60,7 @@ class RedesHasClientesTable extends GenericTable
             'RedesHasClientesAdministradores',
             [
                 'foreignKey' => 'redes_has_clientes_id',
-                'joinType' => 'INNER'
+                'joinType' => Query::JOIN_TYPE_INNER
             ]
         );
 

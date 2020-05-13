@@ -264,6 +264,7 @@ return [
             'username' => __DATABASE__,
             // 'username' => 'rti_gotas',
             // 'password' => 'nanoboost',
+            // 'password' => ']tS(nyjFXBwP=u8+',
             'password' => 'nanoboost',
             // 'database' => 'rti_gotas',
             'database' => __DATABASE__,

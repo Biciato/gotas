@@ -1305,6 +1305,8 @@ class UsuariosController extends AppController
      */
     public function editarOperador(int $usuarios_id = null)
     {
+        $usuarios_id = preg_replace("/\D/", "", $usuarios_id);
+
         $this->viewBuilder()->setLayout('default_update');
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -1330,29 +1332,35 @@ class UsuariosController extends AppController
         }
 
         $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
-        $usuario["cliente_has_usuario"] = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarios_id, true);
-        $rede = $sessaoUsuario["rede"];
 
-        $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
-            [
-                'ClientesHasUsuarios.usuarios_id' => $usuarios_id,
-                // 'ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']
-            ]
-        );
+        $clienteHasUsuario = null;
 
-        $clientesId = $clienteHasUsuario["clientes_id"];
+        if ($usuario->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER) {
+            $usuario["cliente_has_usuario"] = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarios_id, true);
+            $rede = $sessaoUsuario["rede"];
 
-        // se a rede estiver nula, procura pela rede através do clientes_has_usuarios
+            $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
+                [
+                    'ClientesHasUsuarios.usuarios_id' => $usuarios_id,
+                    // 'ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']
+                ]
+            );
 
-        if (!isset($redesId)) {
-            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
+            $clientesId = $clienteHasUsuario["clientes_id"];
 
-            $rede = $this->Redes->getAllRedes('all', ['id' => $redes_has_cliente->redes_id])->first();
+            // se a rede estiver nula, procura pela rede através do clientes_has_usuarios
+
+            if (!isset($redesId)) {
+                $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
+
+                $rede = $this->Redes->getAllRedes('all', ['id' => $redes_has_cliente->redes_id])->first();
+            }
+
+            $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
+
+            $redesId = $rede["id"];
         }
 
-        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
-
-        $redesId = $rede["id"];
 
         $redes = $this->Redes->getRedesList($redesId);
 
@@ -1360,7 +1368,7 @@ class UsuariosController extends AppController
         $unidadeRedeId = 0;
         if ($this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $this->usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_ADMIN_REGIONAL) {
             $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $usuarioLogado["id"]);
-        } else {
+        } elseif (!empty($redesId)) {
             // $unidadesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
             // $unidadesQuery = $unidadesQuery->toArray();
             // foreach ($unidadesQuery as $unidade) {
@@ -1369,9 +1377,15 @@ class UsuariosController extends AppController
             $unidadesRede = $this->Clientes->getClientesListByRedesId($redesId);
         }
         // Como estamos editando, o usuário já tem vinculo
-        $unidadeRede = $this->ClientesHasUsuarios->getVinculoClienteUsuario($redesId, $usuario["id"]);
 
-        $unidadeRedeId = $unidadeRede["clientes_id"];
+        $unidadeRede = 0;
+        $unidadeRedeId = 0;
+
+        if (!empty($redesId)) {
+            $unidadeRede = $this->ClientesHasUsuarios->getVinculoClienteUsuario($redesId, $usuario["id"]);
+
+            $unidadeRedeId = $unidadeRede["clientes_id"];
+        }
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -1960,6 +1974,7 @@ class UsuariosController extends AppController
      */
     public function usuariosRede(int $redesId = null)
     {
+        $this->viewBuilder()->setLayout('default_update');
         $sessaoUsuario = $this->getSessionUserVariables();
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
@@ -1979,7 +1994,13 @@ class UsuariosController extends AppController
         $conditions = array();
 
         // se for developer / rti / rede, mostra todas as unidades da rede
-        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->usuarioLogado['id']);
+
+        $unidadesIds = [];
+
+
+        if (!empty($redesId)) {
+            $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->usuarioLogado['id']);
+        }
 
         // DebugUtil::printArray($unidadesIds);
 
@@ -5425,9 +5446,8 @@ class UsuariosController extends AppController
           }
       }
     public function carregarUsuarios()
-      {
-        if($this->request->is('GET'));
-          {
+    {
+        if ($this->request->is('GET')) {
             $data = $this->request->getQueryParams();
             $usuarios = $this->Usuarios->buscaListaUsuarios($data);
             $tipos_perfil = Configure::read('profileTypesTranslated');
