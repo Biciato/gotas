@@ -53,7 +53,7 @@
                                     <div class="ibox-content">
                                         <div class="form-group row">
                                             <label for="codigo_equipamento_rti" class="col-lg-2">
-                                                Cód. Equipamento RTI*
+                                                Código Equipamento RTI*
                                             </label>
                                             <div class="col-lg-10">
                                                 <input type="text" name="codigo_equipamento_rti"
@@ -347,15 +347,14 @@
                                             </div>
                                         </div>
                                         <div class="form-group row">
-                                            <label for="inicio_turno" class="col-lg-2">
+                                            <label for="turno" class="col-lg-2">
                                                 Primeiro Turno do Dia*
                                             </label>
                                             <div class="col-lg-10">
-                                                <input type="text" name="inicio_turno" id="inicio-turno"
-                                                    class="form-control" />
+                                                <input type="text" name="turno" id="turno" class="form-control" />
                                             </div>
                                         </div>
-                                        <div id="quadro_horarios">
+                                        <div id="quadro-horarios">
 
                                         </div>
 

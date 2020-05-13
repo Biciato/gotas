@@ -223,92 +223,92 @@ class ClientesController extends AppController
      */
     public function add(int $redes_id = null)
     {
-        $arraySet = array('cliente', 'clientes', 'rede', "redesId", 'usuarioLogado');
+        $errors = [];
+        try {
+            $cliente = $this->Clientes->newEntity();
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        $cliente = $this->Clientes->newEntity();
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
-        }
-
-        $usuarioLogado = $this->usuarioLogado;
-        $rede = $this->Redes->getRedeById($redes_id);
-
-        if ($this->request->is('post')) {
-            $data = $this->request->getData();
-            $cliente = $this->Clientes->patchEntity($cliente, $data);
-
-            // Verifica se ja tem um registro antes
-            $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
-
-            if ($cnpj) {
-                $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
-
-                if ($clienteJaExistente) {
-                    $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
-
-                    $this->Flash->error($message);
-                    $this->set(compact($arraySet));
-                    $this->set('_serialize', $arraySet);
-                    return;
-                }
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            if ($cliente = $this->Clientes->addClient($redes_id, $cliente)) {
-                $qteTurnos = $data["quantidade_turnos"];
-                $horarioInicial = $data["horario"];
-                $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
-                $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+            $usuarioLogado = $this->usuarioLogado;
+            $rede = $this->Redes->getRedeById($redes_id);
 
-                // Adiciona bonificação extra sefaz para novo posto
-                $gotas = [];
-                $gota = new Gota();
-                $gota->nome_parametro = GOTAS_BONUS_SEFAZ;
-                $gota->multiplicador_gota = $rede->qte_gotas_bonificacao;
-                $gotas[] = $gota;
+            if ($this->request->is('post')) {
+                $data = $this->request->getData();
+                $cliente = $this->Clientes->patchEntity($cliente, $data);
 
-                if ($rede->pontuacao_extra_produto_generico) {
+                // Verifica se ja tem um registro antes
+                $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
+
+                if ($cnpj) {
+                    $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
+
+                    if ($clienteJaExistente) {
+                        $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
+
+                        $this->Flash->error($message);
+                        $this->set(compact($arraySet));
+                        $this->set('_serialize', $arraySet);
+                        return;
+                    }
+                }
+
+                if ($cliente = $this->Clientes->addClient($redes_id, $cliente)) {
+                    $qteTurnos = $data["qte_turnos"];
+                    $horarioInicial = $data["turno"];
+                    $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
+                    $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+
+                    // Adiciona bonificação extra sefaz para novo posto
+                    $gotas = [];
                     $gota = new Gota();
-                    $gota->nome_parametro = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
-                    $gota->multiplicador_gota = 1;
+                    $gota->nome_parametro = GOTAS_BONUS_SEFAZ;
+                    $gota->multiplicador_gota = $rede->qte_gotas_bonificacao;
                     $gotas[] = $gota;
+
+                    if ($rede->pontuacao_extra_produto_generico) {
+                        $gota = new Gota();
+                        $gota->nome_parametro = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
+                        $gota->multiplicador_gota = 1;
+                        $gotas[] = $gota;
+                    }
+
+                    foreach ($gotas as $gota) {
+                        $this->Gotas->saveUpdateExtraPoints([$cliente->id], $gota->multiplicador_gota, $gota->nome_parametro);
+                    }
+
+                    // Adiciona Gota de Ajuste de pontos
+                    $this->Gotas->saveUpdateGotasAdjustment([$cliente->id]);
+
+                    // Adiciona o funcionário de sistema como o primeiro funcionário da rede
+                    // Ele será necessário para funções automáticas de venda de brinde via API
+                    $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
+
+                    $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
+
+                    return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
                 }
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-                foreach ($gotas as $gota) {
-                    $this->Gotas->saveUpdateExtraPoints([$cliente->id], $gota->multiplicador_gota, $gota->nome_parametro);
-                }
-
-                // Adiciona Gota de Ajuste de pontos
-
-                $this->Gotas->saveUpdateGotasAdjustment([$cliente->id]);
-
-                // Adiciona o funcionário de sistema como o primeiro funcionário da rede
-                // Ele será necessário para funções automáticas de venda de brinde via API
-                $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
-
-                $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
-
-                $this->Flash->success(__("Registro gravado com sucesso."));
-
-                return $this->redirect(
-                    [
-                        'controller' => 'redes',
-                        'action' => 'ver_detalhes',
-                        $rede->id
-                    ]
-                );
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            $this->Flash->error(__("Não foi possível gravar o registro!"));
-        }
-        $clientes = $this->Clientes->find('list', ['limit' => 200]);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
 
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
+        }
     }
 
     /**

@@ -97,16 +97,11 @@ var clientesAdd = {
         'use strict';
         var self = this;
 
-        $(document).find("#codigo_equipamento_rti").mask("999");
+        $(document).find("#form #codigo-equipamento-rti").mask("999");
         $(document)
-            .off("blur", "#codigo_equipamento_rti")
-            .on('blur', "#codigo_equipamento_rti", function () {
-                var valueCheck = this.value;
-
-                while (valueCheck.length < 3) {
-                    valueCheck = "0" + valueCheck;
-                }
-                this.value = valueCheck;
+            .off("blur", "#codigo-equipamento-rti")
+            .on('blur', "#codigo-equipamento-rti", function () {
+                this.value = this.value.padStart(3, '0');
             });
 
         $(document).find("#cnpj").mask('99.999.999/9999-99');
@@ -138,7 +133,7 @@ var clientesAdd = {
                     event.target.value = event.target.value.replace(/\D/g, "");
                 }
             });
-        $("#tel-fax")
+        $(document)
             .off("blur", "#form #tel-fax")
             .off("keydown", "#form #tel-fax")
             .on("blur", "#form #tel-fax", function () {
@@ -150,6 +145,36 @@ var clientesAdd = {
                 if (value !== undefined && value !== null) {
                     event.target.value = event.target.value.replace(/\D/g, "");
                 }
+            });
+
+        $(document)
+            .off("change", "#form #qte-turnos")
+            .on("change", "#form #qte-turnos", function (event) {
+                let self = clientesAdd;
+
+                self.fillTimeBoards();
+            });
+        $(document)
+            .off("blur", "#form #turno")
+            .off("keyup", "#form #turno")
+            .on("blur", "#form #turno", function () {
+                let self = clientesAdd;
+
+                let value = this.value;
+                value = value.replace(/^(\d{2})(\d{2})/g, "$1:$2");
+
+                if (value > 2359) value = 2359;
+
+                this.value = value;
+
+                self.fillTimeBoards();
+            }).on("keyup", "#form #turno", function (event) {
+                let value = this.value;
+                value = value.replace(/\D/g, "").substring(0, 4);
+
+                if (value > 2359) value = 2359;
+
+                this.value = value;
             });
 
         $(document)
@@ -302,16 +327,71 @@ var clientesAdd = {
             });
         }
     },
+    /**
+     * Preenche a region que demonstra os horários de trabalho
+     *
+     * @returns void
+     */
+    fillTimeBoards: function () {
+        var horas = $("#turno").val().match(/(\d{2})/gm);
+
+        if (horas != undefined && horas.length > 0) {
+
+            var hora = parseInt(horas[0]);
+            var minuto = parseInt(horas[1]);
+            var qteTurnos = $("#qte-turnos").val();
+            var divisao = 24 / qteTurnos;
+            var turnos = [];
+            var horaTemp = hora;
+
+            for (let i = 0; i < qteTurnos; i++) {
+                var turno = {};
+                turno.id = i;
+                turno.hora = horaTemp.toString().length == 1 ? "0" + horaTemp : horaTemp;
+                turno.minuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+                var horaTurno = horaTemp + divisao;
+                if (horaTurno > 23) {
+                    horaTurno = horaTurno - 24;
+                }
+
+                turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
+                turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+                horaTemp = horaTurno;
+
+                turnos.push(turno);
+            }
+
+            $("#quadro-horarios").empty();
+            let count = 0;
+            $.each(turnos, function (index, value) {
+                let horaAtual = value.hora + ":" + value.minuto;
+                let horaProxima = value.proximaHora + ":" + value.proximaMinuto;
+                let html = `
+                <div class="form-group row">
+                    <label class="col-lg-2">Turno ${count + 1}</label>
+                    <div class="col-lg-10">
+                        <input type="text"
+                            class="form-control" readonly disabled value="${horaAtual} até ${horaProxima}" />
+                    </div>
+                </div>
+                `;
+                $("#quadro-horarios").append(html);
+                count++;
+            });
+        }
+    },
 
     /**
      * Dispara submit ao clicar no botão de salvar do form
      * @param {*} evt
      */
-    formSubmit: function (evt) {
+    formSubmit: function (evt, self) {
         'use strict';
-        let self = this;
         evt.preventDefault();
 
+        clientesAdd.save($("#form"));
+
+        return self;
         if (clientesAdd.validateForm("#form").form()) {
             clientesAdd.save($("#form"));
         } else {
@@ -320,7 +400,67 @@ var clientesAdd = {
 
         return self;
     },
+    /**
+     * Trata os dados antes de submeter ao salvar
+     *
+     * @param {FormElement} FormElement
+     *
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-06
+     */
+    save: async function (form) {
+        let self = this;
+        // serializa o form e remove espaços em branco, transforma em array
+        let objToTreat = JSON.parse(JSON.stringify($(form).serializeArray()));
+        let objPost = {};
 
+        /**
+         * Todos os elementos da tela que não precisam de tratamento, são convertidos em objeto
+         * Caso alguma das propriedades precise de um tratamento adicional, faça após o foreach
+         */
+        objToTreat.forEach(item => {
+            objPost[item.name] = item.value;
+        });
+
+        objPost.cnpj = objPost.cnpj.replace(/\D/gm, "");
+        objPost.cep = objPost.cep.replace(/\D/gi, "");
+
+        console.log(objPost);
+        return;
+
+        try {
+            let response = await clientesService.save(objPost);
+
+            if (response === undefined || response === null || !response) {
+                toastr.error(response.mensagem.message);
+                return false;
+            }
+
+            // Gravação feita com sucesso, redireciona
+            toastr.success(response.mensagem.message);
+            window.location = "#/redes/index";
+        } catch (error) {
+            console.log(error);
+            var msg = {};
+
+            if (error.responseJSON !== undefined) {
+                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                return false;
+            } else if (error.responseText !== undefined) {
+                msg = error.responseText;
+            } else {
+                msg = error;
+            }
+
+            toastr.error(msg);
+            return false;
+        }
+
+        return self;
+    },
 
     /**
      * Define formatação de telefone
@@ -359,74 +499,4 @@ var clientesAdd = {
     }
 
     //#endregion
-
-    // fillTimeBoards: function () {
-    //     var horas = $("#horario").val().match(/(\d{2})/gm);
-
-    //     if (horas != undefined && horas.length > 0) {
-
-    //         var hora = parseInt(horas[0]);
-    //         var minuto = parseInt(horas[1]);
-
-    //         var qteTurnos = $("#quantidade_turnos").val();
-
-    //         var divisao = 24 / qteTurnos;
-    //         var turnos = [];
-
-    //         var horaTemp = hora;
-
-    //         for (let i = 0; i < qteTurnos; i++) {
-
-    //             var turno = {};
-
-    //             turno.id = i;
-    //             turno.hora = horaTemp.toString().length == 1 ? "0" + horaTemp : horaTemp;
-    //             turno.minuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
-    //             var horaTurno = horaTemp + divisao;
-    //             if (horaTurno > 23) {
-    //                 horaTurno = horaTurno - 24;
-    //             }
-
-    //             turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
-    //             turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
-
-    //             horaTemp = horaTurno;
-
-    //             turnos.push(turno);
-    //         }
-
-    //         $(".horariosContent").empty();
-    //         $.each(turnos, function (index, value) {
-    //             $(".horariosContent").append("<strong>Turno " + (value.id + 1) + ": </strong> " + value.hora + ":" + value.minuto + " até " + value.proximaHora + ":" + value.proximaMinuto + ".<br />");
-    //         });
-    //     }
-    // },
 };
-
-// $(document).ready(function () {
-
-//     initializeTimePicker("horario");
-//     initializeDatePicker("data_nasc");
-
-
-
-//     $("#quantidade_turnos").on("change", function (ev) {
-//         var max = $("#quantidade_turnos").attr('max');
-
-//         if (this.value > max) {
-//             this.value = max;
-//         }
-
-//         preencheQuadroHorarios();
-//     });
-
-//     preencheQuadroHorarios();
-
-
-//     $("#horario").on("blur", function (ev) {
-//         preencheQuadroHorarios();
-//     });
-
-//     // Dispara atualização de quantidade de turnos se já tiver preenchido
-//     $("#quantidade_turnos").blur();
-// });
