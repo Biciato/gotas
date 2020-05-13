@@ -59,13 +59,6 @@
     cursor: pointer;
 }
 
-.nav>li>div:hover,
-div:active {
-    text-decoration: none;
-    background-color: #eee;
-    transition: all 0.5s;
-}
-
 
 /* Configurações para table */
 
