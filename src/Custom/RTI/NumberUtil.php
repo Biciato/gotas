@@ -33,7 +33,8 @@ class NumberUtil
      * Construtor
      */
     function __construct()
-    { }
+    {
+    }
 
     /**
      * NumberUtil::calculaDistanciaLatitudeLongitude
@@ -222,7 +223,7 @@ class NumberUtil
      */
     public static function limparFormatacaoNumeros(string $data)
     {
-        return preg_replace('/[^0-9]/', "", $data);
+        return preg_replace("/\D/", "", $data);
     }
 
     /**

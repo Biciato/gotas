@@ -145,11 +145,11 @@ class ClientesTable extends GenericTable
 
         $this->hasMany(
             "ClientesHasQuadroHorarios",
-            array(
+            [
                 "className" => "ClientesHasQuadroHorario",
                 "foreignKey" => "clientes_id",
-                "join" => "LEFT"
-            )
+                "join" => Query::JOIN_TYPE_LEFT
+            ]
         );
     }
 
@@ -720,32 +720,39 @@ class ClientesTable extends GenericTable
      * @return entity $cliente
      *
      **/
-    public function getClienteById($clientes_id, $selectFields = array())
+    public function getClienteById($clientesId, $selectFields = array())
     {
         try {
+            $where = function (QueryExpression $exp) use ($clientesId) {
+                return $exp->eq("Clientes.id", $clientesId);
+            };
 
             $cliente = $this
                 ->find('all')
                 ->where(
+                    $where
+                )->contain(
                     [
-                        'Clientes.id' => $clientes_id
+                        'RedesHasClientes.Redes',
+                        "ClientesHasQuadroHorarios" => function ($q) {
+                            return $q->where(
+                                [
+                                    "ClientesHasQuadroHorarios.ativado" => true
+                                ]
+                            );
+                        }
                     ]
-                )->contain(['RedesHasClientes.Redes', "ClientesHasQuadroHorarios"]);
+                );
 
-            if (sizeof($selectFields) > 0) {
+            if (count($selectFields) > 0) {
                 $cliente = $cliente->select($selectFields);
             }
 
-            $cliente = $cliente->first();
-
-            return $cliente;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
+            return $cliente->first();
+        } catch (\Throwable $th) {
+            $stringError = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write('error', $stringError);
-
-            return ['success' => 'false', 'message' => $stringError];
+            throw new Exception($th->getMessage(), $th->getCode());
         }
     }
 
@@ -1151,30 +1158,25 @@ class ClientesTable extends GenericTable
 
             return $this->save($cliente);
         } catch (Throwable $th) {
-            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message, $th->getCode());
         }
     }
 
     /**
-     * Update entity in BD
+     * Salva um registro
      *
-     * @param entity $cliente
-     * @return void
+     * @param \App\Model\Entity\Cliente $record Entidade
+     * @return \App\Model\Entity\Cliente $record Entidade salva com Id
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
      */
-    public function updateClient($cliente)
+    public function saveUpdate(\App\Model\Entity\Cliente $cliente)
     {
         try {
-            $cliente->codigo_equipamento_rti = str_pad($cliente->codigo_equipamento_rti, 3, "0", STR_PAD_LEFT);
-            $cliente['cnpj'] = $this->cleanNumber($cliente['cnpj']);
-            $cliente['tel_fixo'] = $this->cleanNumber($cliente['tel_fixo']);
-            $cliente['tel_celular'] = $this->cleanNumber($cliente['tel_celular']);
-            $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
-            $cliente['cep'] = $this->cleanNumber($cliente['cep']);
-            $clienteToUpdate = $cliente;
-
-            return $this->save($clienteToUpdate);
+            return $this->save($cliente);
         } catch (\Exception $e) {
             $stringError = sprintf("[%s] %s", MSG_SAVED_EXCEPTION, $e->getMessage());
             Log::write('error', $stringError);

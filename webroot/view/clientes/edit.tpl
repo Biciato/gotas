@@ -1,6 +1,6 @@
 <div class="form-group row border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>Novo Estabelecimento</h2>
+        <h2>Editar Estabelecimento</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <a href="#/">Início</a>
@@ -12,7 +12,7 @@
                 <a href="#/redes/view/<%= redesId %>">Informações da Rede</a>
             </li>
             <li class="breadcrumb-item active">
-                <strong>Novo Estabelecimento</strong>
+                <strong>Editar Estabelecimento</strong>
             </li>
         </ol>
     </div>
@@ -23,10 +23,10 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5>Novo Estabelecimento</h5>
+                    <h5>Editar Estabelecimento <span id="nome-fantasia-municipio-estado"></span></h5>
                 </div>
                 <div class="ibox-content">
-                    <form id="clientes-add-form">
+                    <form id="clientes-edit-form">
                         <fieldset>
                             <ul class="nav nav-tabs">
                                 <li class="active">
@@ -391,13 +391,13 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="/webroot/css/styles/clientes/add.css">
+<link rel="stylesheet" href="/webroot/css/styles/clientes/edit.css">
 
 <script>
     $(function () {
         let dataStorage = JSON.parse(localStorage.getItem("data"));
 
-        clientesAdd.init(dataStorage.redesId);
+        clientesEdit.init(dataStorage.id, dataStorage.redesId);
     })
         .ajaxStart(callLoaderAnimation)
         .ajaxStop(closeLoaderAnimation)

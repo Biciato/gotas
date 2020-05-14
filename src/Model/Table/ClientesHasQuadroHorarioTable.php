@@ -43,10 +43,13 @@ class ClientesHasQuadroHorarioTable extends Table
             'joinType' => 'INNER'
         ]);
 
-        $this->belongsTo('Clientes', [
-            'foreignKey' => 'clientes_id',
-            'joinType' => 'INNER'
-        ]);
+        $this->belongsTo(
+            'Clientes',
+            [
+                'foreignKey' => 'clientes_id',
+                'joinType' => Query::JOIN_TYPE_LEFT
+            ]
+        );
     }
 
     /**
@@ -199,14 +202,14 @@ class ClientesHasQuadroHorarioTable extends Table
 
     /**
      * ClientesHasQuadroHorarioTable::disableHorariosCliente
-     * 
+     *
      * Atualiza todos os registros de Horários do Posto para desativados
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-06-21
-     * 
+     *
      * @param integer $clientesId Id do Posto Cliente
-     * 
+     *
      * @return bool Status de Update
      */
     public function disableHorariosCliente(int $clientesId)

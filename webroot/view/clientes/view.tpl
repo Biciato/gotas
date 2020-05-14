@@ -159,10 +159,41 @@
                                         </div>
                                         <div class="hr-line-dashed"></div>
                                         <div class="form-group row">
-                                            <label for="estado" class="col-lg-2">Estado</label>
+                                            <label for="estado" class="col-lg-2">
+                                                Estado*
+                                            </label>
                                             <div class="col-lg-10">
-                                                <input type="text" class="form-control" title="Estado" id="estado"
-                                                    name="estado" placeholder="Estado" readonly="readonly" value="">
+                                                <select id="estado" name="estado" class="form-control" title="Estado"
+                                                    placeholder="Estado" readonly>
+                                                    <option></option>
+                                                    <option value="AC">Acre</option>
+                                                    <option value="AL">Alagoas</option>
+                                                    <option value="AP">Amapá</option>
+                                                    <option value="AM">Amazonas</option>
+                                                    <option value="BA">Bahia</option>
+                                                    <option value="CE">Ceará</option>
+                                                    <option value="DF">Distrito Federal</option>
+                                                    <option value="ES">Espírito Santo</option>
+                                                    <option value="GO">Goiás</option>
+                                                    <option value="MA">Maranhão</option>
+                                                    <option value="MT">Mato Grosso</option>
+                                                    <option value="MS">Mato Grosso do Sul</option>
+                                                    <option value="MG">Minas Gerais</option>
+                                                    <option value="PA">Pará</option>
+                                                    <option value="PB">Paraíba</option>
+                                                    <option value="PR">Paraná</option>
+                                                    <option value="PE">Pernambuco</option>
+                                                    <option value="PI">Piauí</option>
+                                                    <option value="RJ">Rio de Janeiro</option>
+                                                    <option value="RN">Rio Grande do Norte</option>
+                                                    <option value="RS">Rio Grande do Sul</option>
+                                                    <option value="RO">Rondônia</option>
+                                                    <option value="RR">Roraima</option>
+                                                    <option value="SC">Santa Catarina</option>
+                                                    <option value="SP">São Paulo</option>
+                                                    <option value="SE">Sergipe</option>
+                                                    <option value="TO">Tocantins</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="hr-line-dashed"></div>
@@ -294,9 +325,11 @@
                                 <!-- Quadros de Horários -->
                                 <div class="tab-pane" id="time-board">
                                     <div class="ibox-content">
-                                        <div id="quadro_horarios">
+                                        <div id="quadro-horarios">
 
                                         </div>
+                                        <input type="hidden" id="qte-turnos" />
+                                        <input type="hidden" id="turno" />
                                         <!-- <div class="form-group row">
                                             <label for="quadro_horario_1" class="col-lg-2">Turno 1</label>
                                             <div class="col-lg-10">

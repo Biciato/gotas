@@ -199,45 +199,71 @@ var clientesView = {
             $("#delimitador-nota-produtos-final").val(data.delimitador_nota_produtos_final);
             $("#delimitador-qr-code").val(data.delimitador_qr_code);
 
-            let quadroHorarios = [];
-            let count = 0;
+            if ((data.clientes_has_quadro_horarios !== undefined && data.clientes_has_quadro_horarios !== null) && data.clientes_has_quadro_horarios.length > 0) {
 
-            // Cria a lista
-            data.clientes_has_quadro_horarios.forEach(item => {
-                let horario = {
-                    id: count,
-                    text: "Turno " + (count + 1),
-                    time: moment(item.horario, "YYYY-MM-DD HH:mm:ss").format("HH:mm")
-                };
+                let horario = data.clientes_has_quadro_horarios[0].horario;
+                horario = moment(horario, "YYYY-MM-DD HH:mm:ss").format("HH:mm");
+                $("#qte-turnos").val(data.clientes_has_quadro_horarios.length);
+                $("#turno").val(horario);
 
-                quadroHorarios.push(horario);
-                count++;
-            });
-
-            $("#quadro_horarios").empty();
-
-            // Adiciona os itens na tela
-            quadroHorarios.forEach(horario => {
-                let html = `
-                <div class="form-group row">
-                    <label for="quadro_horario_${horario.id}" class="col-lg-2">${horario.text}</label>
-                    <div class="col-lg-10">
-                        <input type="text" name="quadro_horario_${horario.id}" id="quadro-horario-${horario.id}"
-                            class="form-control" readonly disabled value="${horario.time}" />
-                    </div>
-                </div>
-                `;
-
-                if (horario.id < (quadroHorarios.length - 1))
-                    html += `<div class="hr-line-dashed"></div>`;
-
-                $("#quadro_horarios").append(html);
-            });
+                self.fillTimeBoards();
+            }
         }
     },
 
+    /**
+     * Preenche a region que demonstra os horários de trabalho
+     *
+     * @returns void
+     */
+    fillTimeBoards: function () {
+        var horas = $("#turno").val().match(/(\d{2})/gm);
 
+        if (horas != undefined && horas.length > 0) {
 
+            var hora = parseInt(horas[0]);
+            var minuto = parseInt(horas[1]);
+            var qteTurnos = $("#qte-turnos").val();
+            var divisao = 24 / qteTurnos;
+            var turnos = [];
+            var horaTemp = hora;
+
+            for (let i = 0; i < qteTurnos; i++) {
+                var turno = {};
+                turno.id = i;
+                turno.hora = horaTemp.toString().length == 1 ? "0" + horaTemp : horaTemp;
+                turno.minuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+                var horaTurno = horaTemp + divisao;
+                if (horaTurno > 23) {
+                    horaTurno = horaTurno - 24;
+                }
+
+                turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
+                turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+                horaTemp = horaTurno;
+
+                turnos.push(turno);
+            }
+
+            $("#quadro-horarios").empty();
+            let count = 0;
+            $.each(turnos, function (index, value) {
+                let horaAtual = value.hora + ":" + value.minuto;
+                let horaProxima = value.proximaHora + ":" + value.proximaMinuto;
+                let html = `
+                <div class="form-group row">
+                    <label class="col-lg-2">Turno ${count + 1}</label>
+                    <div class="col-lg-10">
+                        <input type="text"
+                            class="form-control" readonly disabled value="${horaAtual} até ${horaProxima}" />
+                    </div>
+                </div>
+                `;
+                $("#quadro-horarios").append(html);
+                count++;
+            });
+        }
+    },
     /**
      * Define formatação de telefone
      * @param {String} value Telefone

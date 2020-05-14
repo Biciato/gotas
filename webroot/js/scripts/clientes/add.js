@@ -100,8 +100,8 @@ var clientesAdd = {
         'use strict';
         var self = this;
 
-        $(document).find("#form #codigo-equipamento-rti").mask("999");
-        $(document).find("#form #codigo-equipamento-rti").focus();
+        $(document).find("#clientes-add-form #codigo-equipamento-rti").mask("999");
+        $(document).find("#clientes-add-form #codigo-equipamento-rti").focus();
         $(document)
             .off("blur", "#codigo-equipamento-rti")
             .on('blur', "#codigo-equipamento-rti", function () {
@@ -112,12 +112,12 @@ var clientesAdd = {
         $(document).find("#cep").mask("99.999-999");
 
         $(document)
-            .off("blur", "#form #tel-fixo")
-            .off("keydown", "#form #tel-fixo")
-            .on("blur", "#form #tel-fixo", function () {
+            .off("blur", "#clientes-add-form #tel-fixo")
+            .off("keydown", "#clientes-add-form #tel-fixo")
+            .on("blur", "#clientes-add-form #tel-fixo", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 10);
             })
-            .on("keyup", "#form #tel-fixo", function (event) {
+            .on("keyup", "#clientes-add-form #tel-fixo", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -125,12 +125,12 @@ var clientesAdd = {
                 }
             });
         $(document)
-            .off("blur", "#form #tel-celular")
-            .off("keydown", "#form #tel-celular")
-            .on("blur", "#form #tel-celular", function () {
+            .off("blur", "#clientes-add-form #tel-celular")
+            .off("keydown", "#clientes-add-form #tel-celular")
+            .on("blur", "#clientes-add-form #tel-celular", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 11);
             })
-            .on("keyup", "#form #tel-celular", function (event) {
+            .on("keyup", "#clientes-add-form #tel-celular", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -138,12 +138,12 @@ var clientesAdd = {
                 }
             });
         $(document)
-            .off("blur", "#form #tel-fax")
-            .off("keydown", "#form #tel-fax")
-            .on("blur", "#form #tel-fax", function () {
+            .off("blur", "#clientes-add-form #tel-fax")
+            .off("keydown", "#clientes-add-form #tel-fax")
+            .on("blur", "#clientes-add-form #tel-fax", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 10);
             })
-            .on("keyup", "#form #tel-fax", function (event) {
+            .on("keyup", "#clientes-add-form #tel-fax", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -152,16 +152,17 @@ var clientesAdd = {
             });
 
         $(document)
-            .off("change", "#form #qte-turnos")
-            .on("change", "#form #qte-turnos", function (event) {
+            .off("change", "#clientes-add-form #qte-turnos")
+            .on("change", "#clientes-add-form #qte-turnos", function (event) {
                 let self = clientesAdd;
 
                 self.fillTimeBoards();
             });
         $(document)
-            .off("blur", "#form #turno")
-            .off("keyup", "#form #turno")
-            .on("blur", "#form #turno", function () {
+            .off("blur", "#clientes-add-form #turno")
+            .off("keydown", "#clientes-add-form #turno")
+            .off("keyup", "#clientes-add-form #turno")
+            .on("blur", "#clientes-add-form #turno", function () {
                 let self = clientesAdd;
 
                 let value = this.value;
@@ -172,21 +173,31 @@ var clientesAdd = {
                 this.value = value;
 
                 self.fillTimeBoards();
-            }).on("keyup", "#form #turno", function (event) {
+            })
+            .on("keydown", "#clientes-add-form #turno", function (event) {
                 let value = this.value;
-                value = value.replace(/\D/g, "").substring(0, 4);
-
-                if (value > 2359) value = 2359;
+                if (event.keyCode == 13)
+                    value = value.replace(/(\d{2})(\d{2})/, "$1:$2");
 
                 this.value = value;
+            })
+            .on("keyup", "#clientes-add-form #turno", function (event) {
+                if (event.keyCode !== 13) {
+                    let value = this.value;
+                    value = value.replace(/\D/g, "").substring(0, 4);
+
+                    if (value > 2359) value = 2359;
+
+                    this.value = value;
+                }
             });
 
         $(document)
-            .off("click", "#form #btn-save")
-            .on("click", "#form #btn-save", self.formSubmit)
-            .off("keyup", "#form")
-            .on("keyup", "#form", function (evt) {
-                if (evt.keycode == 13) {
+            .off("click", "#clientes-add-form #btn-save")
+            .on("click", "#clientes-add-form #btn-save", self.formSubmit)
+            .off("keyup", "#clientes-add-form")
+            .on("keyup", "#clientes-add-form", function (evt) {
+                if (evt.keyCode == 13) {
                     this.formSubmit();
                 }
             });
@@ -395,11 +406,11 @@ var clientesAdd = {
         evt.preventDefault();
 
         // use somente para testes
-        clientesAdd.save($("#form"));
-        return;
+        // clientesAdd.save($("#clientes-add-form"));
+        // return;
 
-        if (clientesAdd.validateForm("#form").form()) {
-            clientesAdd.save($("#form"));
+        if (clientesAdd.validateForm("#clientes-add-form").form()) {
+            clientesAdd.save($("#clientes-add-form"));
         } else {
             toastr.error("Há erros no formulário. Corrija-os antes de continuar!")
         }

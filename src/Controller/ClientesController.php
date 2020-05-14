@@ -233,9 +233,7 @@ class ClientesController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $usuarioLogado = $this->usuarioLogado;
-
-            if ($this->request->is('post')) {
+            if ($this->request->is(Request::METHOD_POST)) {
                 $data = $this->request->getData();
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : 0;
                 $rede = $this->Redes->getRedeById($redesId);
@@ -318,20 +316,11 @@ class ClientesController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
      */
-    public function editar($id = null)
+    public function edit($id = null)
     {
+        $errors = [];
+
         try {
-            $arraySet = array('cliente', "redesId");
-            $sessaoUsuario = $this->getSessionUserVariables();
-            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-
-            if ($usuarioAdministrar) {
-                $usuarioLogado = $usuarioAdministrar;
-                $this->usuarioLogado = $usuarioLogado;
-            }
-
             $cliente = $this->Clientes->getClienteById($id);
             $redesId = $cliente["redes_has_cliente"]["redes_id"];
 
@@ -343,17 +332,10 @@ class ClientesController extends AppController
                 $turnoInicial = $cliente["clientes_has_quadro_horarios"][0]["horario"]->format("H:i");
             }
 
-            $cliente["quantidade_turnos"] = $quantidadeTurnos;
-            $cliente["horario"] = $turnoInicial;
-
-            if ($this->request->is(['patch', 'post', 'put'])) {
+            if ($this->request->is([REQUEST::METHOD_POST, Request::METHOD_PUT])) {
                 $data = $this->request->getData();
 
-                // DebugUtil::print($data);
                 $cliente = $this->Clientes->patchEntity($cliente, $data);
-
-                // $cliente = $this->Clientes->patchEntity($cliente, $this->request->getData());
-
                 $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
 
                 if ($cnpj) {
@@ -361,57 +343,50 @@ class ClientesController extends AppController
 
                     if ($clienteJaExistente && $clienteJaExistente["id"] != $cliente["id"]) {
                         $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
-                        $this->Flash->error($message);
 
-                        $this->set(compact($arraySet));
-                        $this->set('_serialize', $arraySet);
-                        return;
+                        throw new Exception($message);
                     }
                 }
 
+                // Atualiza o registro
 
-                if ($this->Clientes->updateClient($cliente)) {
+                $cliente->codigo_equipamento_rti = str_pad($cliente->codigo_equipamento_rti, 3, "0", STR_PAD_LEFT);
+                $cliente->cnpj = NumberUtil::limparFormatacaoNumeros($cliente['cnpj']);
+                $cliente->tel_fixo = NumberUtil::limparFormatacaoNumeros($cliente['tel_fixo']);
+                $cliente->tel_celular = NumberUtil::limparFormatacaoNumeros($cliente['tel_celular']);
+                $cliente->tel_fax = NumberUtil::limparFormatacaoNumeros($cliente['tel_fax']);
+                $cliente->cep = NumberUtil::limparFormatacaoNumeros($cliente['cep']);
+                $this->Clientes->saveUpdate($cliente);
 
-                    /** Atualização do quadro de horarios
-                     * Se o primeiro horário e a quantidade de turno for diferente,
-                     * apaga todos e grava novamente
-                     */
+                /** Atualização do quadro de horarios
+                 * Se o primeiro horário e a quantidade de turno for diferente,
+                 * apaga todos e grava novamente
+                 */
+                $novaQteTurnos = $data["qte_turnos"];
+                $novoTurno = $data["turno"];
 
-                    $novaQteTurnos = $data["quantidade_turnos"];
-                    $novoTurno = $data["horario"];
-
-                    if (($novaQteTurnos != $quantidadeTurnos) || ($novoTurno != $turnoInicial)) {
-                        $horarios = $this->calculaTurnos($novaQteTurnos, $novoTurno);
-
-                        $resultDisable = $this->ClientesHasQuadroHorario->disableHorariosCliente($cliente["id"]);
-
-                        $status = $this->ClientesHasQuadroHorario->addHorariosCliente($redesId, $cliente["id"], $horarios);
-                    }
-
-                    $this->Flash->success(__('O registro foi atualizado com sucesso.'));
-
-                    return $this->redirect(
-                        [
-                            'controller' => 'redes',
-                            'action' => 'ver_detalhes',
-                            $cliente->redes_has_cliente->redes_id
-                        ]
-                    );
+                if (($novaQteTurnos != $quantidadeTurnos) || ($novoTurno != $turnoInicial)) {
+                    $horarios = $this->calculaTurnos($novaQteTurnos, $novoTurno);
+                    $this->ClientesHasQuadroHorario->disableHorariosCliente($cliente->id);
+                    $this->ClientesHasQuadroHorario->addHorariosCliente($redesId, $cliente->id, $horarios);
                 }
-                $this->Flash->error(__('O registro não pode ser atualizado.'));
 
-                $this->Flash->error($result['message']);
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao obter cupom fiscal para consulta: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
 
-            Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            return ResponseUtil::errorAPI(MSG_SAVED_EXCEPTION, $errors, [], $errorCodes);
         }
     }
 
@@ -720,7 +695,7 @@ class ClientesController extends AppController
 
                 $cliente = $this->Redes->patchEntity($cliente, $data);
 
-                if ($this->Clientes->updateClient($cliente)) {
+                if ($this->Clientes->saveUpdate($cliente)) {
 
                     $this->Flash->success(MESSAGE_SAVED_SUCCESS);
 

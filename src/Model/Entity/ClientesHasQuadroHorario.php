@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
@@ -7,8 +8,10 @@ use Cake\ORM\Entity;
  * ClientesHasQuadroHorario Entity
  *
  * @property int $id
+ * @property int $redes_id
  * @property int $clientes_id
  * @property \Cake\I18n\FrozenTime $horario
+ * @property bool $ativado
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *
