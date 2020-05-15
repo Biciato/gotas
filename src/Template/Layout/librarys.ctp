@@ -187,8 +187,8 @@ echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?ver
 <!-- Services JS -->
 
 <?php
-echo $this->Html->script(sprintf("scripts/services/clientesService.js?version=%s", SYSTEM_VERSION));
-echo $this->Html->script(sprintf("scripts/services/redesService.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/clientes-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/redes-service.js?version=%s", SYSTEM_VERSION));
 ?>
 
 <!-- Controllers JS -->

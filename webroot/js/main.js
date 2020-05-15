@@ -4,6 +4,7 @@ var sammy = Sammy("#content-html", function () {
 
     // Caminho para página não encontrada
     self.notFound = function (verb, path) {
+        document.title = 'GOTAS - Página não encontrada';
         self.runRoute('get', '#/404');
     };
 
@@ -17,6 +18,14 @@ var sammy = Sammy("#content-html", function () {
             $(document).html(html);
         });
     });
+
+    //#region ADMIN
+
+    self.get("#/admin/master/manage-user", function (context) {
+        context.partial("view/admin/master/manage-user.tpl");
+    });
+
+    ////#endregion
 
     //#region CLIENTES
 

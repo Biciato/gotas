@@ -58,6 +58,12 @@
                             <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
                         </ul>
                     </li>
+                    <li>
+                        <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li class="active"><a href="#/admin/master/manage-user"> <i class="fas fa-eye"></i> Controlar Usuário</a></li>
+                        </ul>
+                    </li>
                 </ul>
 
             </div>
