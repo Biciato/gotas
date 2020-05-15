@@ -33,6 +33,15 @@ echo $this->Html->meta('icon');
 <?= $this->Html->script(sprintf("moment/min/moment-with-locales.min.js?version=%s", SYSTEM_VERSION)); ?>
 <?= $this->Html->script(sprintf("moment/min/locales.min.js?version=%s", SYSTEM_VERSION)); ?>
 
+<!-- Select2 -->
+<?php
+
+echo $this->Html->css(sprintf("select2-4.0.13/css/select2.min.css?version=%s", SYSTEM_VERSION));
+echo $this->Html->css(sprintf("select2-4.0.13/css/select2-bootstrap.min.css?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("select2-4.0.13/js/select2.min.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("select2-4.0.13/js/i18n/pt-BR.js?version=%s", SYSTEM_VERSION));
+?>
+
 <!-- <script src="/webroot/app/lib/moment/moment.min.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 <!-- <script src="/webroot/app/lib/moment/moment-with-locales.min.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 <!-- <script src="/webroot/app/lib/moment/locales.min.js?version=<?= SYSTEM_VERSION ?>"></script> -->
@@ -188,6 +197,7 @@ echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?ver
 
 <?php
 echo $this->Html->script(sprintf("scripts/services/clientes-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/usuarios-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/redes-service.js?version=%s", SYSTEM_VERSION));
 ?>
 
@@ -195,6 +205,10 @@ echo $this->Html->script(sprintf("scripts/services/redes-service.js?version=%s",
 
 <?php
 echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
+
+// Administrativo
+
+echo $this->Html->script(sprintf("scripts/admin/manage-user.js?version=%s", SYSTEM_VERSION));
 
 // Clientes
 echo $this->Html->script(sprintf("scripts/clientes/view.js?version=%s", SYSTEM_VERSION));

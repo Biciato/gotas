@@ -21,8 +21,8 @@ var sammy = Sammy("#content-html", function () {
 
     //#region ADMIN
 
-    self.get("#/admin/master/manage-user", function (context) {
-        context.partial("view/admin/master/manage-user.tpl");
+    self.get("#/admin/manage-user", function (context) {
+        context.partial("view/admin/manage-user.tpl");
     });
 
     ////#endregion

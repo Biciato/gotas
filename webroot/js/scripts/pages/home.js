@@ -1,6 +1,10 @@
 /**
  * Classe javascript para ações de uso comum
  */
+
+// Configuração padrão de tema para select2
+$.fn.select2.defaults.set("theme", "bootstrap");
+
 $(document).ready(function () {
     validacaoGenericaForm();
 
