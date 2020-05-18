@@ -10,6 +10,7 @@ class ButtonHelper {
      * @since 1.2.3
      * @date 2020-04-27
      */
+    ICON_DELETE = "delete";
     ICON_CONFIG = "config";
     ICON_INFO = "info";
     ICON_DELETE_V4 = "fa fa-trash";
@@ -33,6 +34,93 @@ class ButtonHelper {
     constructor(bootstrapVersion = 3, fontAwesomeVersion = 5) {
         this.bootstrapVersion = bootstrapVersion;
         this.fontAwesomeVersion = fontAwesomeVersion;
+    }
+
+    /**
+     * Generates a link button to a destination
+     *
+     * @param {Object} dataAttributes Object of Data Attributes
+     * @param {String} btnClass Type Icon (config, info)
+     * @param {String} text Text within link
+     * @param {String} tooltip Tooltip
+     * @param {String} iconClass Type Icon (config, info)
+     * @param {String} customClass Custom Class
+     * @returns Element HTML
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-04-24
+     */
+    generateSimpleButton(dataAttributes = [], btnClass = undefined, text = undefined, tooltip = undefined, iconClass = undefined, customClass = undefined) {
+        let divElement = document.createElement("div");
+        divElement.href = "#";
+
+        if (this.bootstrapVersion = 3) {
+            divElement.classList.add("btn");
+
+            if (btnClass !== undefined) {
+                if (btnClass === this.ICON_CONFIG) {
+                    divElement.classList.add("btn-primary");
+                } else if (btnClass === this.ICON_DELETE_V4) {
+                    divElement.classList.add("btn-danger");
+
+                }
+            } else {
+                divElement.classList.add("btn-default");
+            }
+        }
+
+        // @TODO add bootstrap 4
+        let iconElement = document.createElement("i");
+
+        console.log(btnClass);
+
+        switch (iconClass) {
+            case "config":
+                iconClass = "fas fa-cogs";
+                break;
+            case "delete":
+                iconClass = "fas fa-trash";
+                break;
+            case "alert":
+                iconClass = "fas fa-exclamation";
+                break;
+            case "info":
+                iconClass = "fas fa-info";
+                break;
+            default:
+                break;
+        }
+
+        iconElement.classList = iconClass;
+
+        if (customClass !== undefined && customClass !== null) {
+            customClass.split(" ").forEach(classItem => {
+                iconElement.classList.add(classItem);
+                divElement.classList.add(classItem);
+            });
+        }
+
+        // Attributes will be wrapped in linkElement because it is this dom element which will be accessed on event trigger
+        let keys = Object.keys(dataAttributes);
+        keys.forEach(key => {
+            divElement.setAttribute("data-" + key, dataAttributes[key]);
+            iconElement.setAttribute("data-" + key, dataAttributes[key]);
+        });
+
+        divElement.append(iconElement);
+
+        if (text !== undefined && text !== null) {
+            let textElement = document.createElement("span");
+            textElement.textContent = " " + text;
+            divElement.append(textElement);
+        }
+
+        if (tooltip !== undefined && tooltip !== null) {
+            divElement.title = tooltip;
+        }
+
+        return divElement;
     }
 
     /**
