@@ -11,7 +11,7 @@ recuperarSenha: function(e)
     e.preventDefault();
     $.ajax(
         {
-        url: '/app_gotas/usuarios/esqueci_minha_senha',
+        url: '/api/usuarios/esqueci_minha_senha',
         data: $("#form-recuperar-senha").serialize(),
         dataType: 'JSON',
         method: 'POST',
@@ -22,7 +22,7 @@ recuperarSenha: function(e)
                 toastr.success('Senha enviada com sucesso!');
                 setTimeout(function()
                     {
-                    window.location.href = '/app_gotas/usuarios/login';
+                    window.location.href = '/usuarios/login';
                     }, 1000);
                 }
             else

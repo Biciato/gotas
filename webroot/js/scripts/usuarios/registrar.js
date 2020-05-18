@@ -20,7 +20,7 @@ registrar: function(e)
     e.preventDefault();
     $.ajax(
       {
-        url: '/app_gotas/usuarios/registrar',
+        url: '/api/usuarios/registrar',
         data: $("#form-registrar").serialize(),
         dataType: 'JSON',
         method: 'POST',
@@ -31,7 +31,7 @@ registrar: function(e)
                 toastr.success('Usuário criado com sucesso!');
                 setTimeout(function()
                   {
-                    window.location.href = "/app_gotas/usuarios/login";
+                    window.location.href = "/usuarios/login";
                   }, 1000);
               }
             else
