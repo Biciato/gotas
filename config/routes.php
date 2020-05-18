@@ -638,10 +638,10 @@ Router::scope("/api", function ($routes) {
                 "method" => Request::METHOD_POST,
                 "path" => "/generate_excel_usuarios_fidelizados"
             ),
-            "carregarTiposPerfil" => [
-                "action" => "carregarTiposPerfil",
+            "getProfileTypes" => [
+                "action" => "getProfileTypes",
                 "method" => Request::METHOD_GET,
-                "path" => "carregar_tipos_perfil"
+                "path" => "get_profile_types"
             ],
             "carregarUsuarios" => [
                 "action" => "carregarUsuarios",

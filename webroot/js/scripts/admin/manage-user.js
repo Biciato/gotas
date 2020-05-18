@@ -21,8 +21,8 @@ var manageUser = {
         self.fillTipoPerfisSelectList("#tipo-perfis-select-list")
         self.fillRedesSelectList("#redes-select-list");
 
-        $(document).find(".manage-user #tipo-perfis-select-list").select2();
-        $(document).find(".manage-user #redes-select-list").select2();
+        // $(document).find(".manage-user #tipo-perfis-select-list").select2();
+        // $(document).find(".manage-user #redes-select-list").select2();
         // Adiciona enter dentro do form, pesquisar
         $(document)
             .off("keydown", "#manage-user-form")

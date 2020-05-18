@@ -25,9 +25,6 @@ echo $this->Html->meta('icon');
 <?= $this->Html->script(sprintf("jquery/jquery.js?version=%s",  SYSTEM_VERSION)); ?>
 <?= $this->Html->script(sprintf("jquery/jquery.min.js?version=%s",  SYSTEM_VERSION)); ?>
 
-<!-- Home -->
-<?= $this->Html->script(sprintf("scripts/pages/home.js?version=%s", SYSTEM_VERSION)); ?>
-
 <!-- Moment -->
 <?= $this->Html->script(sprintf("moment/min/moment.min.js?version=%s", SYSTEM_VERSION)); ?>
 <?= $this->Html->script(sprintf("moment/min/moment-with-locales.min.js?version=%s", SYSTEM_VERSION)); ?>
@@ -223,7 +220,8 @@ echo $this->Html->script(sprintf("scripts/redes/edit.js?version=%s", SYSTEM_VERS
 
 ?>
 
-
+<!-- Home -->
+<?= $this->Html->script(sprintf("scripts/pages/home.js?version=%s", SYSTEM_VERSION)); ?>
 
 <!-- Fim Estilos -->
 

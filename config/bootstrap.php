@@ -768,7 +768,7 @@ const PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE = "Administrador";
 const PROFILE_TYPE_MANAGER_TRANSLATE = "Gerente";
 const PROFILE_TYPE_WORKER_TRANSLATE = "Funcionário";
 const PROFILE_TYPE_USER_TRANSLATE = "Usuário";
-const PROFILE_TYPE_DUMMY_WORKER_TRANSLATE = "Funcionário Fictício";
+const PROFILE_TYPE_DUMMY_WORKER_TRANSLATE = "Funcionário API/Fictício";
 const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
 
 /**

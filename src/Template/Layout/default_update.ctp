@@ -240,7 +240,7 @@
     <?php echo $this->Html->script("layout-update/pace/pace.min"); ?>
     <?php echo $this->Html->script("layout-update/metisMenu/jquery.metisMenu.js"); ?>
     <?php echo $this->Html->script("layout-update/slimscroll/jquery.slimscroll.min.js"); ?>
-    <?php echo $this->Html->script("/js/scripts/pages/home");
+
     ?>
 
 

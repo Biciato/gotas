@@ -42,7 +42,7 @@
                                                             Tipo de Perfil
                                                         </label>
                                                         <select id="tipo-perfis-select-list" name="tipo_perfil"
-                                                            class="form-control col-lg-2">
+                                                            class="form-control col-lg-2 select2-list-generic">
                                                             <option value="">&lt;Todos&gt;</option>
                                                         </select>
                                                     </div>
@@ -53,7 +53,7 @@
                                                             Rede
                                                         </label>
                                                         <select name="redes_id" id="redes-select-list"
-                                                            class="form-control">
+                                                            class="form-control select2-list-generic">
                                                             <option value=""></option>
                                                         </select>
                                                     </div>
