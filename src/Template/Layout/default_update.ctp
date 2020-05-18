@@ -58,6 +58,17 @@
                             <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
                         </ul>
                     </li>
+                    <li>
+                        <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li class="active">
+                                <a href="#/admin/manage-user">
+                                    <i class="fas fa-eye"></i>
+                                    Controlar Usuário
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
 
             </div>
@@ -229,7 +240,7 @@
     <?php echo $this->Html->script("layout-update/pace/pace.min"); ?>
     <?php echo $this->Html->script("layout-update/metisMenu/jquery.metisMenu.js"); ?>
     <?php echo $this->Html->script("layout-update/slimscroll/jquery.slimscroll.min.js"); ?>
-    <?php echo $this->Html->script("/js/scripts/pages/home");
+
     ?>
 
 

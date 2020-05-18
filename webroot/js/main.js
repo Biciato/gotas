@@ -4,6 +4,7 @@ var sammy = Sammy("#content-html", function () {
 
     // Caminho para página não encontrada
     self.notFound = function (verb, path) {
+        document.title = 'GOTAS - Página não encontrada';
         self.runRoute('get', '#/404');
     };
 
@@ -17,6 +18,14 @@ var sammy = Sammy("#content-html", function () {
             $(document).html(html);
         });
     });
+
+    //#region ADMIN
+
+    self.get("#/admin/manage-user", function (context) {
+        context.partial("view/admin/manage-user.tpl");
+    });
+
+    ////#endregion
 
     //#region CLIENTES
 
@@ -36,13 +45,27 @@ var sammy = Sammy("#content-html", function () {
         let redesId = context.params.redesId;
         let id = context.params.id;
         let cliente = {
-            id: id
+            id: id,
+            redesId: redesId
         };
 
         context.redesId = redesId;
 
         localStorage.setItem("data", JSON.stringify(cliente));
         context.partial("view/clientes/add.tpl");
+    });
+    self.get("#/redes/view/:redesId/clientes/edit/:id", (context) => {
+        let redesId = context.params.redesId;
+        let id = context.params.id;
+        let cliente = {
+            id: id,
+            redesId: redesId
+        };
+
+        context.redesId = redesId;
+
+        localStorage.setItem("data", JSON.stringify(cliente));
+        context.partial("view/clientes/edit.tpl");
     });
     //#endregion
 

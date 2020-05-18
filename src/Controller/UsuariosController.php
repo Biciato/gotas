@@ -14,6 +14,7 @@ use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\Entity\TipoPerfilResponse;
 use App\Model\Entity\Usuario;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
@@ -112,7 +113,7 @@ class UsuariosController extends AppController
             $tipoPerfilMin = $tipoPerfil;
             $tipoPerfilMax = $tipoPerfil;
         }
-        
+
 
         $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
@@ -5417,34 +5418,180 @@ class UsuariosController extends AppController
             Log::write('error', $trace);
         }
     }
-    public function carregarTiposPerfil()
-      {
-        if($this->request->is('GET'))
-          {
-            $perfisUsuariosList = 
-              [
-                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
-                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
-                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
-                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
-                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
-                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
-              ];
-            return ResponseUtil::successAPI('', 
-            ['source' => $perfisUsuariosList]);
-          }
-      }
+
+    /**
+     * Retorna via json a lista de perfis permitida à aquele usuário logado.
+     *
+     * @return json_encode Dados em *JSON*
+     *
+     * @author Vinicius - Aigen <vinicius@aigen.com.br>
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-18
+     */
+    public function getProfileTypes()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $tipoPerfil = (int) $sessao['usuarioLogado']->tipo_perfil;
+        $perfis = new TipoPerfilResponse;
+
+        // use esta variavel para fazer o teste entre os vários tipos de perfis
+        // $tipoPerfil = 0;
+
+        if ($this->request->is(Request::METHOD_GET)) {
+            if ($tipoPerfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
+                $perfis->no_rule = [
+                    PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_USER => PROFILE_TYPE_DUMMY_USER_TRANSLATE,
+                ];
+                $perfis->filter = [
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                ];
+                $perfis->insert = [
+                    PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                ];
+            } elseif ($tipoPerfil === PROFILE_TYPE_ADMIN_NETWORK) {
+                $perfis->no_rule = [
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->filter = [
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->insert = [
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    // Criação de funcionários fictícios só deve ser feito pela RTI
+                    // Entretanto, pode-se filtrar para analise de relatórios
+                    // PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+                ];
+            } elseif ($tipoPerfil === PROFILE_TYPE_ADMIN_REGIONAL) {
+                $perfis->no_rule = [
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->filter = [
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->insert = [
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    // Criação de funcionários fictícios só deve ser feito pela RTI
+                    // Entretanto, pode-se filtrar para analise de relatórios
+                    // PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+                ];
+            } elseif ($tipoPerfil === PROFILE_TYPE_ADMIN_LOCAL) {
+                $perfis->no_rule = [
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->filter = [
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->insert = [
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    // Criação de funcionários fictícios só deve ser feito pela RTI
+                    // Entretanto, pode-se filtrar para analise de relatórios
+                    // PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+                ];
+            } elseif ($tipoPerfil === PROFILE_TYPE_MANAGER) {
+                $perfis->no_rule = [
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->filter = [
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->insert = [
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    // Criação de funcionários fictícios só deve ser feito pela RTI
+                    // Entretanto, pode-se filtrar para analise de relatórios
+                    // PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+                ];
+            } elseif ($tipoPerfil === PROFILE_TYPE_WORKER) {
+                $perfis->no_rule = [
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                ];
+                $perfis->filter = [
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+                ];
+                $perfis->insert = [
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+                ];
+            }
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $perfis]);
+        }
+    }
     public function carregarRedes()
-      {
-        if($this->request->is('GET'))
-          {
+    {
+        if ($this->request->is('GET')) {
             $redes = $this->Redes->getRedesList();
-            return ResponseUtil::successAPI('',
-              [
-                'source' => $redes
-              ]);
-          }
-      }
+            return ResponseUtil::successAPI(
+                '',
+                [
+                    'source' => $redes
+                ]
+            );
+        }
+    }
     public function carregarUsuarios()
     {
         if ($this->request->is('GET')) {

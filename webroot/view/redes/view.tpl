@@ -217,7 +217,7 @@
                                 <div class="form-group row">
                                     <div class="form-group row">
                                         <div class="col-lg-12">
-                                            <label>Imagem Atual da Rede</label>
+                                            <label>Imagem Atual da Rede (Exibida no Aplicativo) </label>
                                             <div>
                                                 <img src=""" alt=" Imagem da Rede" id="nome-img" />
                                             </div>

@@ -1,5 +1,3 @@
-aaa
-
 <script>
     var page = {
         init: function () {
@@ -7,5 +5,5 @@ aaa
         },
     };
 
-        page.init();
+    page.init();
 </script>

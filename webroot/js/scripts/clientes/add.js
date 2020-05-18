@@ -9,6 +9,9 @@
 var clientesAdd = {
 
     //#region Properties
+
+    redesId: {},
+
     validationOptions: {
         messages: {
             codigo_equipamento_rti: {
@@ -97,7 +100,8 @@ var clientesAdd = {
         'use strict';
         var self = this;
 
-        $(document).find("#form #codigo-equipamento-rti").mask("999");
+        $(document).find("#clientes-add-form #codigo-equipamento-rti").mask("999");
+        $(document).find("#clientes-add-form #codigo-equipamento-rti").focus();
         $(document)
             .off("blur", "#codigo-equipamento-rti")
             .on('blur', "#codigo-equipamento-rti", function () {
@@ -108,12 +112,12 @@ var clientesAdd = {
         $(document).find("#cep").mask("99.999-999");
 
         $(document)
-            .off("blur", "#form #tel-fixo")
-            .off("keydown", "#form #tel-fixo")
-            .on("blur", "#form #tel-fixo", function () {
+            .off("blur", "#clientes-add-form #tel-fixo")
+            .off("keydown", "#clientes-add-form #tel-fixo")
+            .on("blur", "#clientes-add-form #tel-fixo", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 10);
             })
-            .on("keyup", "#form #tel-fixo", function (event) {
+            .on("keyup", "#clientes-add-form #tel-fixo", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -121,12 +125,12 @@ var clientesAdd = {
                 }
             });
         $(document)
-            .off("blur", "#form #tel-celular")
-            .off("keydown", "#form #tel-celular")
-            .on("blur", "#form #tel-celular", function () {
+            .off("blur", "#clientes-add-form #tel-celular")
+            .off("keydown", "#clientes-add-form #tel-celular")
+            .on("blur", "#clientes-add-form #tel-celular", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 11);
             })
-            .on("keyup", "#form #tel-celular", function (event) {
+            .on("keyup", "#clientes-add-form #tel-celular", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -134,12 +138,12 @@ var clientesAdd = {
                 }
             });
         $(document)
-            .off("blur", "#form #tel-fax")
-            .off("keydown", "#form #tel-fax")
-            .on("blur", "#form #tel-fax", function () {
+            .off("blur", "#clientes-add-form #tel-fax")
+            .off("keydown", "#clientes-add-form #tel-fax")
+            .on("blur", "#clientes-add-form #tel-fax", function () {
                 this.value = clientesView.setTelephoneFormat(this.value, 10);
             })
-            .on("keyup", function (event) {
+            .on("keyup", "#clientes-add-form #tel-fax", function (event) {
                 let value = event.target.value;
 
                 if (value !== undefined && value !== null) {
@@ -148,16 +152,17 @@ var clientesAdd = {
             });
 
         $(document)
-            .off("change", "#form #qte-turnos")
-            .on("change", "#form #qte-turnos", function (event) {
+            .off("change", "#clientes-add-form #qte-turnos")
+            .on("change", "#clientes-add-form #qte-turnos", function (event) {
                 let self = clientesAdd;
 
                 self.fillTimeBoards();
             });
         $(document)
-            .off("blur", "#form #turno")
-            .off("keyup", "#form #turno")
-            .on("blur", "#form #turno", function () {
+            .off("blur", "#clientes-add-form #turno")
+            .off("keydown", "#clientes-add-form #turno")
+            .off("keyup", "#clientes-add-form #turno")
+            .on("blur", "#clientes-add-form #turno", function () {
                 let self = clientesAdd;
 
                 let value = this.value;
@@ -168,21 +173,31 @@ var clientesAdd = {
                 this.value = value;
 
                 self.fillTimeBoards();
-            }).on("keyup", "#form #turno", function (event) {
+            })
+            .on("keydown", "#clientes-add-form #turno", function (event) {
                 let value = this.value;
-                value = value.replace(/\D/g, "").substring(0, 4);
-
-                if (value > 2359) value = 2359;
+                if (event.keyCode == 13)
+                    value = value.replace(/(\d{2})(\d{2})/, "$1:$2");
 
                 this.value = value;
+            })
+            .on("keyup", "#clientes-add-form #turno", function (event) {
+                if (event.keyCode !== 13) {
+                    let value = this.value;
+                    value = value.replace(/\D/g, "").substring(0, 4);
+
+                    if (value > 2359) value = 2359;
+
+                    this.value = value;
+                }
             });
 
         $(document)
-            .off("click", "#form #btn-save")
-            .on("click", "#form #btn-save", self.formSubmit)
-            .off("keyup", "#form")
-            .on("keyup", "#form", function (evt) {
-                if (evt.keycode == 13) {
+            .off("click", "#clientes-add-form #btn-save")
+            .on("click", "#clientes-add-form #btn-save", self.formSubmit)
+            .off("keyup", "#clientes-add-form")
+            .on("keyup", "#clientes-add-form", function (evt) {
+                if (evt.keyCode == 13) {
                     this.formSubmit();
                 }
             });
@@ -192,16 +207,17 @@ var clientesAdd = {
     /**
      * 'Construtor'
      *
-     * @param {Integer} id Id do estabelecimento
+     * @param {Integer} id Id da rede
      * @returns void
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.2.3
      * @date 2020-05-12
      */
-    init: async function () {
+    init: async function (redesId) {
         let self = this;
 
+        self.redesId = redesId;
         document.title = "GOTAS - Novo Estabelecimento";
         self.configureEvents();
 
@@ -264,7 +280,7 @@ var clientesAdd = {
                 count++;
             });
 
-            $("#quadro_horarios").empty();
+            $("#quadro-horarios").empty();
 
         } else {
             $("span[id=nome-fantasia-municipio-estado]").text(data.nome_fantasia_municipio_estado);
@@ -306,7 +322,7 @@ var clientesAdd = {
                 count++;
             });
 
-            $("#quadro_horarios").empty();
+            $("#quadro-horarios").empty();
 
             // Adiciona os itens na tela
             quadroHorarios.forEach(horario => {
@@ -323,7 +339,7 @@ var clientesAdd = {
                 if (horario.id < (quadroHorarios.length - 1))
                     html += `<div class="hr-line-dashed"></div>`;
 
-                $("#quadro_horarios").append(html);
+                $("#quadro-horarios").append(html);
             });
         }
     },
@@ -389,11 +405,12 @@ var clientesAdd = {
         'use strict';
         evt.preventDefault();
 
-        clientesAdd.save($("#form"));
+        // use somente para testes
+        // clientesAdd.save($("#clientes-add-form"));
+        // return;
 
-        return self;
-        if (clientesAdd.validateForm("#form").form()) {
-            clientesAdd.save($("#form"));
+        if (clientesAdd.validateForm("#clientes-add-form").form()) {
+            clientesAdd.save($("#clientes-add-form"));
         } else {
             toastr.error("Há erros no formulário. Corrija-os antes de continuar!")
         }
@@ -425,12 +442,15 @@ var clientesAdd = {
             objPost[item.name] = item.value;
         });
 
+        // Remove formatação de campos numéricos
         objPost.cnpj = objPost.cnpj.replace(/\D/gm, "");
         objPost.cep = objPost.cep.replace(/\D/gi, "");
+        objPost.tel_fax = objPost.tel_fax.replace(/\D/gi, "");
+        objPost.tel_fixo = objPost.tel_fixo.replace(/\D/gi, "");
+        objPost.tel_celular = objPost.tel_celular.replace(/\D/gi, "");
+        objPost.redes_id = self.redesId;
 
         console.log(objPost);
-        return;
-
         try {
             let response = await clientesService.save(objPost);
 
@@ -441,12 +461,16 @@ var clientesAdd = {
 
             // Gravação feita com sucesso, redireciona
             toastr.success(response.mensagem.message);
-            window.location = "#/redes/index";
+            window.location = `#/redes/view/${self.redesId}`;
         } catch (error) {
             console.log(error);
             var msg = {};
 
-            if (error.responseJSON !== undefined) {
+            if (error.responseJSON.code !== undefined) {
+                toastr.error(error.responseJSON.message);
+
+                return false;
+            } else if (error.responseJSON !== undefined && error.responseJSON.mensagem !== undefined) {
                 toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
                 return false;
             } else if (error.responseText !== undefined) {

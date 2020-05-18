@@ -1,7 +1,29 @@
 /**
  * Classe javascript para ações de uso comum
  */
+
+// Configuração padrão de tema para select2
+$.fn.select2.defaults.set("theme", "bootstrap");
+
 $(document).ready(function () {
+    // Todos os elementos de lista com classe select2-list serão inicializados
+    setInterval(() => {
+        /**
+         * Verifica todos os elementos da tela se possuem o atributo 'select2',
+         * que sejam da classe select2-list-generic. se não tiver, então inicializa
+         * o element select2.
+         *
+         * Isso garante que o elemento não será feito o refresh
+         *
+         */
+        $(document).find("select.select2-list-generic").each(function (index, element) {
+            if ($(`#${element.id}`).data('select2') === undefined) {
+                $("#" + element.id).select2();
+            }
+        });
+    }, 500);
+
+
     validacaoGenericaForm();
 
     $(".botao-pesquisar").on("click", function () {

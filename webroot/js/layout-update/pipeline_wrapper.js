@@ -153,6 +153,8 @@ var initPipelinedDT = function (tb_selector, columns, ajax_url, order, custom_da
             return row_data;
         }
     }
+
+    let prefix = document.URL.indexOf("app_gotas") >= 0 ? "/app_gotas" : "";
     window[tb_selector] = $(tb_selector).DataTable({
         columns: columns,
         searchDelay: 400,
@@ -162,7 +164,7 @@ var initPipelinedDT = function (tb_selector, columns, ajax_url, order, custom_da
         dom: 'lfrtip',
         scrollX: '110%',
         language: {
-            url: '/app_gotas/js/DataTables/i18n/dataTables.pt-BR.lang'
+            url: `${prefix}/js/DataTables/i18n/dataTables.pt-BR.lang`
         },
         processing: true,
         serverSide: true,

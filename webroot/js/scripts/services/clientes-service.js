@@ -95,8 +95,8 @@ var clientesService = {
     /**
      * Realiza inserção de uma nova rede
      *
-     * @param {any} data
-     * @returns Rede|generic Object
+     * @param Cliente data
+     * @returns Cliente|Object Object
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.2.3
