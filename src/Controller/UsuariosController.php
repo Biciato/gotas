@@ -5436,7 +5436,7 @@ class UsuariosController extends AppController
         $perfis = new TipoPerfilResponse;
 
         // use esta variavel para fazer o teste entre os vários tipos de perfis
-        $tipoPerfil = 0;
+        // $tipoPerfil = 0;
 
         if ($this->request->is(Request::METHOD_GET)) {
             if ($tipoPerfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
