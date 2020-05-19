@@ -1,6 +1,25 @@
 var usuariosService = {
 
     /**
+     * Finaliza gerenciamento de usuário
+     *
+     * @returns Promise|false Promise ou status de false da operação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-19
+     */
+    finishManageUser: async function () {
+        return await Promise.resolve(
+            $.ajax({
+                type: "POST",
+                url: "/api/usuarios/finish_manage_user",
+                dataType: "JSON"
+            })
+        );
+    },
+
+    /**
      * Obtem lista de perfis
      *
      * @returns Promise|false Promise ou status de false da operação
@@ -44,7 +63,17 @@ var usuariosService = {
         return obj.data;
     },
 
-    manageUser: async function (id) {
+    /**
+     * Realiza troca de sessão do usuário atual com usuário alvo
+     *
+     * @param {Integer} id Id do usuário
+     * @returns Promise|false Promise ou status de false da operação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-19
+     */
+    startManageUser: async function (id) {
         let dataRequest = {
             usuarios_id: id
         };
@@ -52,7 +81,7 @@ var usuariosService = {
         return await Promise.resolve(
             $.ajax({
                 type: "POST",
-                url: "/api/usuarios/manage_user",
+                url: "/api/usuarios/start_manage_user",
                 data: dataRequest,
                 dataType: "JSON"
             })

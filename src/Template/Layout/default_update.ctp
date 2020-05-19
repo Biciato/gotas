@@ -20,7 +20,10 @@
 
 </head>
 
+
 <body id="main_body" class="">
+
+    <?= $this->element('header') ?>
 
     <div id="wrapper">
 
@@ -46,29 +49,46 @@
                             <a href="#/">GOTAS </a>
                         </div>
                     </li>
-                    <li>
-                        <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level">
-                            <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="index.html"><i class="fas fa-building"></i> <span class="nav-label">Redes</span> <span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level">
-                            <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level">
-                            <li class="active">
-                                <a href="#/admin/manage-user">
-                                    <i class="fas fa-eye"></i>
-                                    Controlar Usuário
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+
+                    <?php
+
+                    if ($sessao->usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    ?>
+
+                        <li>
+                            <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="index.html"><i class="fas fa-building"></i> <span class="nav-label">Redes</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active">
+                                    <a href="#/admin/manage-user">
+                                        <i class="fas fa-eye"></i>
+                                        Controlar Usuário
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    <?php
+                    } elseif ($sessao->usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_NETWORK) {
+                    ?>
+                        <li>
+                            <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Minha Equipe (Usuários da Rede)</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                            </ul>
+                        </li>
+                    <?php } ?>
                 </ul>
 
             </div>

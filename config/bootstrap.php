@@ -298,6 +298,9 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 
 // Erros
 
+const MSG_ACCESS_DENIED = "Acesso negado! Você não possui acesso à este recurso!";
+const MSG_ACCESS_DENIED_CODE = 0x00000021;
+
 const MESSAGE_ERROR_GPS_VALIDATION_CODE = 0x00000008;
 const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
 

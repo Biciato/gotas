@@ -214,6 +214,8 @@ var manageUser = {
 
                 filters.tipo_perfil = tipoPerfil === "null" ? null : tipoPerfil;
                 filters.redes_id = rede === "null" ? null : rede;
+                filters.tipo_perfil_max = PROFILE_TYPE_MANAGER;
+                filters.tipo_perfil_min = PROFILE_TYPE_ADMIN_NETWORK;
 
                 d.filtros = filters;
 
@@ -225,14 +227,14 @@ var manageUser = {
                 let attributes = {
                     id: rowData.id,
                     active: rowData.ativado,
-                    name: rowData.nome_rede
+                    name: rowData.nome
                 };
 
                 if (rowData.foto_perfil_completo !== undefined && rowData.foto_perfil_completo !== null) {
                     rowData["foto_perfil_completo"] = imgHelper.generateDefaultImage(rowData.foto_perfil_completo, "Foto de perfil", "Foto de perfil", "foto-perfil-logo").outerHTML;
                 }
 
-                let manageBtn = btnHelper.generateSimpleButton(attributes, btnHelper.ICON_DELETE_V4, "Gerenciar", "Gerenciar", btnHelper.ICON_CONFIG, ".manage-user-btn");
+                let manageBtn = btnHelper.generateSimpleButton(attributes, btnHelper.ICON_DELETE_V4, "Gerenciar", "Gerenciar", btnHelper.ICON_CONFIG, "manage-user-btn");
 
                 let buttons = [manageBtn];
                 let buttonsString = "";
@@ -257,8 +259,8 @@ var manageUser = {
      */
     manageUser: function (event) {
         event.preventDefault();
-        let userId = event.target.getAttribute('data-id');
-        let userName = event.target.getAttribute('data-name');
+        let userId = $(this).attr('data-id');
+        let userName = $(this).attr('data-name');
         let question = "Deseja gerenciar o usuário :userName?"
             .replace(":userName", userName);
 
@@ -270,15 +272,13 @@ var manageUser = {
                 label: "OK",
                 action: async function (dialogItSelf) {
                     try {
-                        let response = await usuariosService.manageUser(userId);
+                        let response = await usuariosService.startManageUser(userId);
 
                         if (response === undefined || response === null || !response) {
                             return false;
                         }
-
-                        window.location.href = "#/";
                         dialogItSelf.close();
-
+                        window.location.href = "#/";
                         window.location.reload();
                     } catch (error) {
                         console.log(error);

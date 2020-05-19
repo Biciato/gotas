@@ -69,6 +69,7 @@ class UsuariosController extends AppController
         $nome = null;
         $email = null;
         $cpf = null;
+        $redesId = null;
 
         if ($this->request->is(Request::METHOD_GET)) {
             $queryParams = $this->request->getQueryParams();
@@ -83,6 +84,9 @@ class UsuariosController extends AppController
             $email = !empty($data["email"]) ? $data["email"] : null;
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : null;
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
+            $tipoPerfilMax = strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
+            $tipoPerfilMin = strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
+            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
         }
 
         if (strlen($tipoPerfil) > 0) {
@@ -90,7 +94,7 @@ class UsuariosController extends AppController
             $tipoPerfilMax = $tipoPerfil;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, null, null, 1);
+        $usuarios = $this->Usuarios->findAllUsuarios($redesId, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, null, null, 1);
 
         $total = $usuarios->count();
         // Cálculo da paginação
@@ -2206,64 +2210,101 @@ class UsuariosController extends AppController
     }
 
     /**
-     * Exibe a view para gerenciamento de um determinado usuário
+     * Funcionalidade de iniciar controle como usuário alvo
      *
-     * @return \Cake\Http\Response|void
+     * @param int $post['usuarios_id'] Id de usuário
+     * @return json response
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-19
      */
     public function startManageUser()
     {
+        $errors = [];
+        $errorCodes = [];
+
+        // Use estas linhas somente para debug e em sua máquina!
+        $this->request->session()->delete('Rede.PontoAtendimento');
+        $this->request->session()->delete('Rede.Grupo');
+        $this->request->session()->delete("Usuario.AdministradorLogado");
+        $this->request->session()->delete("Usuario.Administrar");
+        $this->request->session()->write("Usuario.UsuarioLogado", $this->Auth->user());
+
         try {
             // verificar se quem está acessando é de fato um administrador RTI
-            // @todo @gustavo continuar ajustes
             if ($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER) {
-                throw new Exception("Acesso negado! Você não tem permissão à esta funcionalidade!");
+                $errors[] = MSG_ACCESS_DENIED;
+                $errorCodes[] = MSG_ACCESS_DENIED_CODE;
             }
+
+            $usuariosId = null;
+            $cliente = null;
+            $rede = null;
 
             if ($this->request->is(Request::METHOD_POST)) {
                 $data = $this->request->getData();
-
-                // verifica se o usuário é um administrador RTI / developer
-                $query = $this->request->query;
-                $usuarioAdministrador = $this->getUserLogged();
-                $usuarioAdministrar = $this->Usuarios->getUsuarioById($query['usuariosId']);
-
-                // Pegar o Id do cliente que foi passado via query
-                $cliente = $this->Clientes->getClienteById($query["clientesId"]);
-
-                // pega qual é a rede que o usuário está vinculado
-
-                /**
-                 * Se o usuário for do tipo Usuário comum, não tem problema ele ainda não estar vinculado
-                 * pois quando fizer um abastecimento o script vai vincular.
-                 * Se for Níveis acimas, aí tem problema.
-                 */
-
-                $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
-                    [
-                        'ClientesHasUsuarios.usuarios_id' => $usuarioAdministrar["id"],
-                        'ClientesHasUsuarios.clientes_id' => $cliente["id"]
-                    ]
-                );
-
-                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
-                    $clienteHasUsuario["clientes_id"]
-                );
-
-                $rede = $redeHasCliente->rede;
-
-                $this->request->session()->write('Usuario.UsuarioLogado', $usuarioAdministrar);
-                $this->request->session()->write('Rede.Grupo', $rede);
-                $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-                $this->request->session()->write("Usuario.AdministradorLogado", $usuarioAdministrador);
-                $this->request->session()->write("Usuario.Administrar", $usuarioAdministrar);
+                $usuariosId = !empty($data["usuarios_id"]) ? (int) $data["usuarios_id"] : null;
             }
-        } catch (\Exception $e) {
 
-            $stringError = __("Erro: {0} ", $e->getMessage());
+            if (empty($usuariosId)) {
+                $errors[] = MSG_USUARIOS_ID_EMPTY;
+                $errorCodes[] = MSG_USUARIOS_ID_EMPTY_CODE;
+            }
 
-            Log::write('error', $stringError);
+            if (count($errors) > 0) {
+                throw new Exception(MESSAGE_GENERIC_ERROR);
+            }
 
-            $this->Flash->error($stringError);
+            $usuarioAdministrador = $this->usuarioLogado;
+            $usuarioAdministrar = $this->Usuarios->getUsuarioById($usuariosId);
+
+            // Limpa variáveis de session (não se deve limpar a de usuário logado atual)
+            $this->request->session()->delete('Rede.PontoAtendimento');
+            $this->request->session()->delete('Rede.Grupo');
+            $this->request->session()->delete("Usuario.AdministradorLogado");
+            // $this->request->session()->delete("Usuario.Administrar");
+
+            // Se usuário à ser gerenciado for funcionário, verifica os relacionamentos
+            if ($usuarioAdministrar->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioAdministrar->tipo_perfil <= PROFILE_TYPE_WORKER) {
+                $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarioAdministrar["id"], true);
+
+                if (!empty($postoFuncionario)) {
+                    $cliente = $postoFuncionario->cliente;
+                    // verifica qual rede o usuário se encontra
+                    $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+                    $rede = $redeHasCliente->rede;
+                }
+            }
+
+            $this->request->session()->write('Usuario.UsuarioLogado', $usuarioAdministrar);
+            $this->request->session()->write('Rede.Grupo', $rede);
+            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+            $this->request->session()->write("Usuario.AdministradorLogado", $usuarioAdministrador);
+            // $this->request->session()->write("Usuario.Administrar", $usuarioAdministrar);
+
+            $data = new stdClass();
+
+            $data->usuario_logado = $usuarioAdministrar;
+            $data->usuario_administrador = $usuarioAdministrador;
+            $data->cliente = $cliente;
+            $data->rede = $rede;
+
+            return ResponseUtil::successAPI(MSG_PROCESSING_COMPLETED, ["data" => $data]);
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 
@@ -2274,15 +2315,23 @@ class UsuariosController extends AppController
      */
     public function finishManageUser()
     {
-        // @todo @gustavo Ajustar
-        $this->request->session()->delete("Usuario.AdministradorLogado");
-        $this->request->session()->delete("Usuario.Administrar");
-        $this->request->session()->delete("Usuario.UsuarioLogado");
-        $this->request->session()->delete('Rede.Grupo');
-        $this->request->session()->delete('Rede.PontoAtendimento');
-        $this->request->session()->write("Usuario.UsuarioLogado", $this->Auth->user());
+        try {
+            if ($this->request->is(Request::METHOD_POST)) {
+                $this->request->session()->delete("Usuario.AdministradorLogado");
+                $this->request->session()->delete("Usuario.Administrar");
+                $this->request->session()->delete("Usuario.UsuarioLogado");
+                $this->request->session()->delete('Rede.Grupo');
+                $this->request->session()->delete('Rede.PontoAtendimento');
+                $this->request->session()->write("Usuario.UsuarioLogado", $this->Auth->user());
 
-        return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+                $data = new stdClass();
+                $data->usuarioLogado = $this->Auth->user();
+
+                return ResponseUtil::successAPI(MSG_PROCESSING_COMPLETED, ["data" => $data]);
+            }
+        } catch (Exception $e) {
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, ["Requisição não permitida."]);
+        }
     }
 
     /**
