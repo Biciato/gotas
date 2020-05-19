@@ -7,44 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title><?php echo $this->fetch('title'); ?></title>
-
-    <?php echo $this->Html->css('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'); ?>
-    <?php echo $this->Html->css('font-awesome/css/font-awesome.css'); ?>
-
-    <?php echo $this->Html->css('layout-update/animate.css'); ?>
-    <?php echo $this->Html->css('layout-update/style.css'); ?>
-    <?php echo $this->Html->css('//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'); ?>
-    <?php echo $this->fetch('css'); ?>
-
-
-
 </head>
 
 
 <body id="main_body" class="">
-
     <?= $this->element('header') ?>
-
     <div id="wrapper">
 
         <nav class="navbar-default navbar-static-side" role="navigation">
             <div class="sidebar-collapse">
                 <ul class="nav metismenu" id="side-menu">
                     <li class="nav-header">
-                        <div class="dropdown profile-element">
-                            <img alt="image" class="rounded-circle" src="img/profile_small.jpg" />
-                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                <span class="block m-t-xs font-bold">David Williams</span>
-                                <span class="text-muted text-xs block">Art Director <b class="caret"></b></span>
-                            </a>
-                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                <li><a class="dropdown-item" href="profile.html">Profile</a></li>
-                                <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
-                                <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li>
-                                <li class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="login.html">Logout</a></li>
-                            </ul>
-                        </div>
+                        <?php if (!empty($sessao) && !empty($sessao->usuarioLogado)) : ?>
+                            <div class="dropdown profile-element">
+                                <img alt="image" class="rounded-circle" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" />
+                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                    <span class="block m-t-xs font-bold"><?= $sessao->usuarioLogado->nome ?></span>
+                                    <span class="text-muted text-xs block"><?= $this->UserUtil->getProfileType($sessao->usuarioLogado->tipo_perfil) ?> <b class="caret"></b></span>
+                                </a>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                    <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                                    <!-- <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
+                                    <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li> -->
+                                    <li class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="login.html">Logout</a></li>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
                         <div class="logo-element">
                             <a href="#/">GOTAS </a>
                         </div>
@@ -70,7 +59,13 @@
                         <li>
                             <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active">
+                                <li>
+                                    <a href="#/admin/import-sefaz-products/index">
+                                        <i class="fas fa-clipboard-list"></i>
+                                        Importação de Gotas da SEFAZ
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="#/admin/manage-user">
                                         <i class="fas fa-eye"></i>
                                         Controlar Usuário

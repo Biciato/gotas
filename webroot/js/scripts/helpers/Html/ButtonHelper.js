@@ -57,6 +57,7 @@ class ButtonHelper {
 
         if (this.bootstrapVersion = 3) {
             divElement.classList.add("btn");
+            divElement.classList.add("btn-w-m");
 
             if (btnClass !== undefined) {
                 if (btnClass === this.ICON_CONFIG) {
@@ -143,6 +144,8 @@ class ButtonHelper {
 
         if (this.bootstrapVersion = 3) {
             linkElement.classList.add("btn");
+            linkElement.classList.add("btn-w-m");
+
 
             if (typeIcon !== undefined && typeIcon === this.ICON_CONFIG) {
                 linkElement.classList.add("btn-primary");
@@ -201,6 +204,8 @@ class ButtonHelper {
 
         if (this.bootstrapVersion = 3) {
             linkElement.classList = "btn btn-primary";
+            linkElement.classList.add("btn-w-m");
+
         }
 
         // @TODO add bootstrap 4
@@ -243,6 +248,8 @@ class ButtonHelper {
         if (this.bootstrapVersion = 3) {
             // @TODO add bootstrap 4
             linkElement.classList.add("btn");
+            linkElement.classList.add("btn-w-m");
+
             linkElement.classList.add(booleanStatus ? "btn-danger" : "btn-primary");
         }
 
@@ -296,6 +303,8 @@ class ButtonHelper {
         if (this.bootstrapVersion = 3) {
             // @TODO add bootstrap 4
             linkElement.classList.add("btn");
+            linkElement.classList.add("btn-w-m");
+
             linkElement.classList.add("btn-danger");
         }
 

@@ -8,6 +8,17 @@ var sammy = Sammy("#content-html", function () {
         self.runRoute('get', '#/404');
     };
 
+    /**
+     * Método que é executado antes de qualquer outra navegação
+     */
+    self.before({
+        except: {
+            path: "#/usuarios/login"
+        }
+    }, function () {
+
+    });
+
     self.get("#/", ((context) => {
         context.partial("view/index.tpl", {}, (html) => {
             $(document).html(html);
@@ -21,6 +32,9 @@ var sammy = Sammy("#content-html", function () {
 
     //#region ADMIN
 
+    self.get("#/admin/import-sefaz-products/index", function (context) {
+        context.partial("view/admin/import-sefaz-products/index.tpl");
+    });
     self.get("#/admin/manage-user", function (context) {
         context.partial("view/admin/manage-user.tpl");
     });

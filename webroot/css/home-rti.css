@@ -666,3 +666,12 @@ body {
 .paginationjs ul li {
     padding-left: 0em;
 }
+
+/**
+Estilo para ícone de perfil
+*/
+.profile-element img {
+    width: 48px;
+    border-radius: 50%;
+
+  }

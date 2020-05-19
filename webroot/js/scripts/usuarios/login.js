@@ -7,12 +7,13 @@ var login = {
     login: function (e) {
         e.preventDefault();
         $.ajax({
-            url: '/app_gotas/usuarios/login',
+            url: '/api/usuarios/token',
             data: $("#login-form").serialize(),
             method: 'POST',
             dataType: 'JSON',
             success: function (resposta) {
-                if (resposta.success === true) {
+                sessionStorage.setItem("credentials", resposta.usuario);
+                if (resposta.mensagem.status) {
                     window.location.href = '/pages';
                 } else {
                     toastr.error(resposta.message);

@@ -37,7 +37,7 @@ function generateDataTable(element, columns, dataSource, lengthMenu, languageOpt
         }
 
         if (lengthMenu === undefined || lengthMenu === null) {
-            lengthMenu = [10, 25, 50, 100];
+            lengthMenu = [5, 10, 25, 50, 100];
         }
 
         /**
