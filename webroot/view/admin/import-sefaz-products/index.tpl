@@ -36,54 +36,82 @@
                         </div>
                     </form>
 
-                    <div class="form-group row">
+                    <div id="import-sefaz-products-data">
 
-                        <div class="col-lg-6">
-                            <label for="redes_nome">Rede Encontrada</label>
-                            <input type="text" id="redes-nome" name="redes_nome" class="form-control" readonly disabled>
+                        <div class="form-group row">
+
+                            <div class="col-lg-6">
+                                <label for="redes_nome">Rede Encontrada</label>
+                                <input type="text" id="redes-nome" name="redes_nome" class="form-control" readonly
+                                    disabled>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label for="clientes_nome">Estabelecimento Encontrado</label>
+                                <input type="text" id="clientes-nome" name="clientes_nome" class="form-control" readonly
+                                    disabled>
+                            </div>
                         </div>
 
-                        <div class="col-lg-6">
-                            <label for="clientes_nome">Estabelecimento Encontrado</label>
-                            <input type="text" id="clientes-nome" name="clientes_nome" class="form-control" readonly
-                                disabled>
-                        </div>
-                    </div>
-
-                    <h4>Gotas Encontradas na NF</h4>
-                    <table class="table table-striped table-bordered table-hover" id="data-table">
-                        <thead>
-                            <!-- <tr>
+                        <h4>Produtos Encontrados</h4>
+                        <table class="table table-striped table-bordered table-hover" id="data-table">
+                            <thead>
+                                <!-- <tr>
                                 <th>Nome</th>
                                 <th>Quantidade Multiplicador</th>
                                 <th>Importar?</th>
                                 <th>Ações</th>
                             </tr> -->
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                    <div class="form-group row ">
-                        <div class="col-lg-2 pull-right">
-                            <button type="submit" class="btn btn-primary btn-block" id="botao-gravar-gotas">
-                                <span class="fas fa-save"></span>
-                                Gravar
-                            </button>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div class="form-group row ">
+                            <div class="col-lg-2 pull-right">
+                                <button type="submit" class="btn btn-primary btn-block" id="botao-gravar-gotas">
+                                    <span class="fas fa-save"></span>
+                                    Gravar
+                                </button>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- <link rel="stylesheet" href="/webroot/css/styles/admin/import-sefaz-products.css"> -->
-    <link rel="stylesheet" href="/webroot/css/styles/gotas/importacao_gotas_sefaz.css">
+<!-- Modal para Ajuste de multiplicador -->
 
-    <script>
-        $(function () {
-            importSefazProducts.init();
-        })
-            .ajaxStart(callLoaderAnimation)
-            .ajaxStop(closeLoaderAnimation)
-            .ajaxError(closeLoaderAnimation);
-    </script>
+<div class="modal" tabindex="-1" role="dialog" id="modal-edit-product">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Produto : <span id='nome-parametro'></span></h5>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <label for="multiplicador">Informe o multiplicador para o produto:</label>
+                    <input type="text" class="form-control" name="multiplicador-gota" id="multiplicador-gota" />
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirm">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <link rel="stylesheet" href="/webroot/css/styles/admin/import-sefaz-products.css"> -->
+<link rel="stylesheet" href="/webroot/css/styles/gotas/importacao_gotas_sefaz.css">
+
+<script>
+    $(function () {
+        importSefazProducts.init();
+    })
+        .ajaxStart(callLoaderAnimation)
+        .ajaxStop(closeLoaderAnimation)
+        .ajaxError(closeLoaderAnimation);
+</script>

@@ -1,6 +1,6 @@
 var sefazService = {
 
-    getDetailsQRCode: async function (qrCode) {
+    getDetailsQRCode: function (qrCode) {
         return Promise.resolve($.ajax({
             type: "GET",
             url: "/api/sefaz/get_nf_sefaz_qr_code",
@@ -11,5 +11,4 @@ var sefazService = {
 
         }));
     }
-
 };

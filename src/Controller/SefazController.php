@@ -166,8 +166,11 @@ class SefazController extends AppController
                             }
                         }
 
+                        $idCount = 0;
                         if (!$itemEncontrado) {
+                            $idCount++;
                             $itemTemp = new stdClass();
+                            $itemTemp->id = $idCount;
                             $itemTemp->nomeParametro = $item["descricao"];
                             $itemTemp->multiplicadorGota = 1.0;
                             $itemTemp->importar = true;

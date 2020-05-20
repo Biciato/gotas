@@ -31,9 +31,9 @@
  */
 function generateDataTable(element, columns, dataSource, lengthMenu, languageOptions, callbackFunction) {
     try {
-        if ($.fn.DataTable.isDataTable(element)) {
-            element.DataTable().clear();
-            element.DataTable().destroy();
+        if ($.fn.DataTable.isDataTable($(element))) {
+            $(element).DataTable().clear();
+            $(element).DataTable().destroy();
         }
 
         if (lengthMenu === undefined || lengthMenu === null) {
@@ -77,16 +77,18 @@ function generateDataTable(element, columns, dataSource, lengthMenu, languageOpt
             languageData.url = "/webroot/js/DataTables/i18n/dataTables.pt-BR.lang";
         }
 
-        element.DataTable({
+        let options = {
             language: languageData,
             columns: columns,
             lengthMenu: lengthMenu,
             data: dataRows
-        });
-
+        };
         if (callbackFunction !== undefined) {
-            callbackFunction();
+            options.callback = callbackFunction();
         }
+
+        $(element).DataTable(options);
+
     } catch (error) {
         window.alert("Error during DataTable initialization! \n" + error.message);
         console.log("Full Log of DataTable error: " + error);
