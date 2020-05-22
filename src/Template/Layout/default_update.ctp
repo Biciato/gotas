@@ -24,26 +24,23 @@
 
     <div id="wrapper">
 
-        <nav class="navbar-default navbar-static-side" role="navigation">
+        <nav class="navbar-default navbar-static-side" role="navigation" style="background-color: dodgerblue">
             <div class="sidebar-collapse">
                 <ul class="nav metismenu" id="side-menu">
-                    <li class="nav-header">
-                        <div class="dropdown profile-element">
-                            <img alt="image" class="rounded-circle" src="img/profile_small.jpg" />
+                    <li class="nav-header" style="background: limegreen">
+                        <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
+                            <img alt="image" src="/img/default-user.png" style="border-radius: 50%; width: 6rem;"/>
                             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                <span class="block m-t-xs font-bold">David Williams</span>
-                                <span class="text-muted text-xs block">Art Director <b class="caret"></b></span>
+                                <span class="block m-t-xs font-bold" id="username"></span>
                             </a>
                             <ul class="dropdown-menu animated fadeInRight m-t-xs">
                                 <li><a class="dropdown-item" href="profile.html">Profile</a></li>
-                                <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
-                                <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="login.html">Logout</a></li>
                             </ul>
                         </div>
                         <div class="logo-element">
-                            <a href="#/">GOTAS </a>
+                            <img alt="image" src="/img/rti-logo.png" style="width: 15rem"/>
                         </div>
                     </li>
                     <li>
@@ -79,18 +76,15 @@
                 <nav class="navbar navbar-static-top  " role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header">
                         <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-                        <form role="search" class="navbar-form-custom" action="search_results.html">
+                        <!-- <form role="search" class="navbar-form-custom" action="search_results.html">
                             <div class="form-group">
                                 <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">
                             </div>
-                        </form>
+                        </form> -->
                     </div>
-                    <ul class="nav navbar-top-links navbar-right">
-                        <li>
-                            <span class="m-r-sm text-muted welcome-message">Welcome to INSPINIA+ Admin Theme.</span>
-                        </li>
+                    <ul class="nav navbar-top-links navbar-right" style="margin-right: 0">
                         <li class="dropdown">
-                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                            <!-- <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
                                 <i class="fa fa-envelope"></i> <span class="label label-warning">16</span>
                             </a>
                             <ul class="dropdown-menu dropdown-messages">
@@ -183,12 +177,12 @@
                                     </div>
                                 </li>
                             </ul>
-                        </li>
+                        </li> -->
 
 
                         <li>
-                            <a href="login.html">
-                                <i class="fa fa-sign-out"></i> Log out
+                            <a href="/usuarios/logout">
+                                <i class="fa fa-sign-out-alt"></i> Log out
                             </a>
                         </li>
                     </ul>
@@ -214,7 +208,7 @@
                 </div>
             </div> -->
 
-            <div id="content">
+            <div id="content" style="margin-top: 1em">
                 <?php
                 echo $this->fetch('content');
                 ?>
@@ -225,7 +219,7 @@
                 <div class="float-right">
                 </div>
                 <div>
-                    <strong>Copyright</strong> Example Company &copy; 2014-2018
+                    <strong>Copyright</strong>App web GOTAS &copy; 2017-2020
                 </div>
             </div>
 
@@ -240,9 +234,6 @@
     <?php echo $this->Html->script("layout-update/pace/pace.min"); ?>
     <?php echo $this->Html->script("layout-update/metisMenu/jquery.metisMenu.js"); ?>
     <?php echo $this->Html->script("layout-update/slimscroll/jquery.slimscroll.min.js"); ?>
-
-    ?>
-
 
     <?php echo $this->fetch('script'); ?>
 

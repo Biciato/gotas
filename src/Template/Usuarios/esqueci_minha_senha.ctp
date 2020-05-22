@@ -19,7 +19,8 @@
 							</div>
 
 							<button type="submit" class="btn btn-primary block full-width m-b" id="btn-recuperar-senha"><?php echo __('Enviar senha nova'); ?></button>
-
+                            <br>
+                            <a class="btn btn-white btn-block" href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'login']) ?>"><?php echo __('Login'); ?></a>
 						</form>
 					</div>
 				</div>
@@ -36,9 +37,9 @@
 		</div>
 	</div>
 </div>
-<?php $this->append('title'); ?> 
+<?php $this->append('title'); ?>
   GOTAS - Recuperar senha
-<?php $this->end(); 
-$this->append('script'); 
+<?php $this->end();
+$this->append('script');
   echo $this->Html->script('scripts/usuarios/esqueci_minha_senha');
 $this->end(); ?>

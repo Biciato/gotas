@@ -647,6 +647,13 @@ Router::scope("/api", function ($routes) {
                 "action" => "carregarUsuarios",
                 "method" => Request::METHOD_GET,
                 "path" => "carregar-usuarios"
+            ],
+
+            // utilizado pelo web
+            "getUsuarioName" => [
+                "action" => "getUsuarioName",
+                "method" => Request::METHOD_GET,
+                "path" => "get-usuario-name"
             ]
         ]
     ]);

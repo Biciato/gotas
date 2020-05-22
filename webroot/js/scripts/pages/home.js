@@ -233,6 +233,10 @@ $(document).ready(function () {
             .prop("checked", false)
             .prop("selected", false);
     });
+
+    $.get('/usuarios/get-usuario-name').then(resp => $('#username').append([
+        JSON.parse(resp).msg,
+        '<b class="caret"></b>']))
 });
 
 //#region Global Functions

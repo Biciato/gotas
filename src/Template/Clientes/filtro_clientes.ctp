@@ -28,7 +28,7 @@
 <div class="panel-group">
     <div class="panel panel-default">
         <div class="panel-heading panel-heading-sm text-center" data-toggle="collapse" href="#collapse1" data-target="#filter-coupons">
-            <div>
+            <div class="search-filter">
                 <span class="fa fa-search"></span>
                     Exibir / Ocultar Filtros
             </div>

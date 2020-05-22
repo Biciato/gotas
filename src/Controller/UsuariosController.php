@@ -38,13 +38,13 @@ use Firebase\JWT\JWT;
  * @method \App\Model\Entity\Usuario[] paginate($object = null, array $settings = [])
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 2017-08-01
+ * @since  2017-08-01
  */
 class UsuariosController extends AppController
 {
     protected $usuarioLogado = null;
 
-    #region Actions Web
+    //region Actions Web
 
     /**
      * Index method
@@ -62,7 +62,8 @@ class UsuariosController extends AppController
 
         if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
             $perfisUsuariosList = [
-                PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                PROFILE_TYPE_ADMIN_DEVELOPER =>
+                    PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
                 PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
                 PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
                 PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
@@ -83,7 +84,8 @@ class UsuariosController extends AppController
 
         // $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
         $tipoPerfil = null;
-        $tipoPerfilMin = Configure::read("profileTypes")["AdminDeveloperProfileType"];
+        $tipoPerfilMin =
+            Configure::read("profileTypes")["AdminDeveloperProfileType"];
         $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
         $nome = null;
         $email = null;
@@ -103,17 +105,18 @@ class UsuariosController extends AppController
             $nome = !empty($data["nome"]) ? $data["nome"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : null;
-            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
+            $docEstrangeiro =
+                !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
         }
 
         if (strlen($tipoPerfil) == 0) {
-            $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
+            $tipoPerfilMin =
+                Configure::read('profileTypes')['AdminNetworkProfileType'];
             $tipoPerfilMax = Configure::read('profileTypes')['UserProfileType'];
         } else {
             $tipoPerfilMin = $tipoPerfil;
             $tipoPerfilMax = $tipoPerfil;
         }
-
 
         $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
@@ -5719,4 +5722,9 @@ class UsuariosController extends AppController
         }
     }
     #endregion
+
+    // Gets username to show in menu
+    public function getUsuarioName() {
+        return ResponseUtil::success($this->Auth->user()->nome);
+    }
 }

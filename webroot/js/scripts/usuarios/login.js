@@ -7,7 +7,7 @@ var login = {
     login: function (e) {
         e.preventDefault();
         $.ajax({
-            url: '/app_gotas/usuarios/login',
+            url: '/api/usuarios/login',
             data: $("#login-form").serialize(),
             method: 'POST',
             dataType: 'JSON',

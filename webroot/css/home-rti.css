@@ -523,6 +523,10 @@ body {
     height: 85.5px;
 }
 
+.search-filter {
+    cursor: pointer;
+}
+
 @media screen and (max-width: 1200px) {
     body {
         /* min-height: 128vh;
