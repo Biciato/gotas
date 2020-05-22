@@ -114,12 +114,7 @@ class UsuariosController extends AppController
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : null;
             $docEstrangeiro =
                 !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
-        }
 
-        if (strlen($tipoPerfil) == 0) {
-            $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
-            $tipoPerfilMax = Configure::read('profileTypes')['UserProfileType'];
-        } else {
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $tipoPerfilMax = strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
             $tipoPerfilMin = strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
