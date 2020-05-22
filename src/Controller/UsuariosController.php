@@ -38,13 +38,13 @@ use Firebase\JWT\JWT;
  * @method \App\Model\Entity\Usuario[] paginate($object = null, array $settings = [])
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 2017-08-01
+ * @since  2017-08-01
  */
 class UsuariosController extends AppController
 {
     protected $usuarioLogado = null;
 
-    #region Actions Web
+    //region Actions Web
 
     /**
      * Index method
@@ -56,6 +56,33 @@ class UsuariosController extends AppController
         $usuarioLogado = $this->usuarioLogado;
         $perfisUsuariosList = [];
 
+        if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
+            $perfisUsuariosList = [
+                PROFILE_TYPE_ADMIN_DEVELOPER =>
+                PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+            ];
+        } else {
+            $perfisUsuariosList = [
+                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+            ];
+        }
+
+        // $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
+        $tipoPerfil = null;
+        $tipoPerfilMin =
+            Configure::read("profileTypes")["AdminDeveloperProfileType"];
+        $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
         // Parâmetro de paginação
         $pagination = new stdClass();
         $pagination->start = 1;
@@ -83,6 +110,14 @@ class UsuariosController extends AppController
             $nome = !empty($data["nome"]) ? $data["nome"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : null;
+            $docEstrangeiro =
+                !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
+        }
+
+        if (strlen($tipoPerfil) == 0) {
+            $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
+            $tipoPerfilMax = Configure::read('profileTypes')['UserProfileType'];
+        } else {
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $tipoPerfilMax = strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
             $tipoPerfilMin = strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
@@ -94,7 +129,7 @@ class UsuariosController extends AppController
             $tipoPerfilMax = $tipoPerfil;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios($redesId, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, null, null, 1);
+        $usuarios = $this->Usuarios->findAllUsuarios($redesId, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
         $total = $usuarios->count();
         // Cálculo da paginação
@@ -5655,4 +5690,10 @@ class UsuariosController extends AppController
         }
     }
     #endregion
+
+    // Gets username to show in menu
+    public function getUsuarioName()
+    {
+        return ResponseUtil::success($this->Auth->user()->nome);
+    }
 }

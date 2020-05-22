@@ -101,7 +101,7 @@ class Usuario extends Entity
             "%s%s%s",
             Configure::read("webrootAddress"),
             Configure::read("documentUserPathRead"),
-            "empty.jpg"
+            "default-user.png"
         );
         return
             empty($this->_properties["foto_documento"]) ? $emptyImg : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
@@ -118,7 +118,7 @@ class Usuario extends Entity
             "%s%s%s",
             Configure::read("webrootAddress"),
             Configure::read("imageUserProfilePathRead"),
-            "empty.jpg"
+            "default-user.png"
         );
 
         return

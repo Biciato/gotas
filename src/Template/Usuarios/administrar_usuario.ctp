@@ -36,7 +36,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 href="#collapse1"
                 data-target="#filter-coupons">
                 <!-- <h4 class="panel-title"> -->
-                    <div>
+                    <div class="search-filter">
                         <span class="fa fa-search"></span>
                             Exibir / Ocultar Filtros
                     </div>
