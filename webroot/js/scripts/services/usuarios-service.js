@@ -1,3 +1,10 @@
+/**
+ * Arquivo de services para Usuário
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 1.2.3
+ * @date 2020-05-19
+ */
 var usuariosService = {
 
     /**

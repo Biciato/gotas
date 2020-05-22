@@ -147,6 +147,8 @@ class SefazController extends AppController
                     $sefaz = new stdClass();
                     $produtos = new stdClass();
                     $itensTemp = [];
+                    $idCount = 0;
+
                     foreach ($itens as $item) {
                         $itemEncontrado = false;
 
@@ -166,7 +168,6 @@ class SefazController extends AppController
                             }
                         }
 
-                        $idCount = 0;
                         if (!$itemEncontrado) {
                             $idCount++;
                             $itemTemp = new stdClass();

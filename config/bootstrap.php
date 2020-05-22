@@ -591,7 +591,7 @@ const MSG_MAX_RETRIEVES_USER_GIFT_CODE = 0x00090001;
 // Nome Comum Gota Bonificacao
 
 const MSG_GOTAS_DATA_EMPTY_CODE = 0x000A0001;
-const MSG_GOTAS_DATA_EMPTY = "Lista de gotas recebido sem informação!";
+const MSG_GOTAS_DATA_EMPTY = "É necessário enviar ao menos um produto!";
 
 const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_BONUS_EXTRA_POINTS_SEFAZ = "OUTROS PRODUTOS";

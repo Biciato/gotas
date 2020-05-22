@@ -169,6 +169,10 @@ echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYST
 
 
 <!-- Helpers -->
+<?php
+
+echo $this->Html->script("scripts/helpers/HTMLHelper.js");
+?>
 
 <!-- DataTables -->
 
@@ -194,6 +198,7 @@ echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?ver
 
 <?php
 echo $this->Html->script(sprintf("scripts/services/clientes-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/gotas-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/usuarios-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/redes-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/sefaz-service.js?version=%s", SYSTEM_VERSION));
