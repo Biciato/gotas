@@ -53,17 +53,13 @@ class UsuariosController extends AppController
      */
     public function index()
     {
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-
-        $this->viewBuilder()->setLayout('default_update');
-
+        $usuarioLogado = $this->usuarioLogado;
         $perfisUsuariosList = [];
 
         if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
             $perfisUsuariosList = [
                 PROFILE_TYPE_ADMIN_DEVELOPER =>
-                    PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
                 PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
                 PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
                 PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
@@ -87,20 +83,29 @@ class UsuariosController extends AppController
         $tipoPerfilMin =
             Configure::read("profileTypes")["AdminDeveloperProfileType"];
         $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
+        // Parâmetro de paginação
+        $pagination = new stdClass();
+        $pagination->start = 1;
+        $pagination->length = 1000;
+
+
+        // $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
+        $tipoPerfil = null;
+        $tipoPerfilMin = PROFILE_TYPE_ADMIN_DEVELOPER;
+        $tipoPerfilMax = PROFILE_TYPE_USER;
         $nome = null;
         $email = null;
         $cpf = null;
-        $docEstrangeiro = null;
+        $redesId = null;
 
-        if ($this->request->is(['post', 'put'])) {
-            $data = $this->request->getData();
+        if ($this->request->is(Request::METHOD_GET)) {
+            $queryParams = $this->request->getQueryParams();
+            $data = $queryParams["filtros"];
 
-            $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
-
-            if (!empty($tipoPerfil)) {
-                $tipoPerfilMin = $tipoPerfil;
-                $tipoPerfilMax = $tipoPerfil;
-            }
+            // Parâmetro de paginação
+            $pagination = new stdClass();
+            $pagination->start = isset($queryParams["start"]) ? (int) $queryParams["start"] : $pagination->start;
+            $pagination->length = isset($queryParams["length"]) ? (int) $queryParams["length"] : $pagination->length;
 
             $nome = !empty($data["nome"]) ? $data["nome"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
@@ -110,25 +115,38 @@ class UsuariosController extends AppController
         }
 
         if (strlen($tipoPerfil) == 0) {
-            $tipoPerfilMin =
-                Configure::read('profileTypes')['AdminNetworkProfileType'];
+            $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
             $tipoPerfilMax = Configure::read('profileTypes')['UserProfileType'];
         } else {
+            $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
+            $tipoPerfilMax = strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
+            $tipoPerfilMin = strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
+            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+        }
+
+        if (strlen($tipoPerfil) > 0) {
             $tipoPerfilMin = $tipoPerfil;
             $tipoPerfilMax = $tipoPerfil;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
+        $usuarios = $this->Usuarios->findAllUsuarios($redesId, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
-        $usuarios = $this->paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
+        $total = $usuarios->count();
+        // Cálculo da paginação
 
-        $unidades_ids = $this->Clientes->find('list')->toArray();
+        if (isset($pagination->start) && isset($pagination->length)) {
+            $usuarios = $usuarios
+                ->limit($pagination->length)
+                ->page(floor(($pagination->start + $pagination->length) / $pagination->length))->toArray();
+        }
 
-        // DebugUtil::printArray($usuarios);
+        $dataTableSource = new stdClass();
+        $dataTableSource->draw = $data['draw'];
+        $dataTableSource->recordsTotal = $total;
+        $dataTableSource->recordsFiltered = $total;
+        $dataTableSource->data = $usuarios;
 
-        $arraySet = array("usuarios", "unidades_ids", "perfisUsuariosList", "redes");
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
     }
 
     /**
@@ -2227,160 +2245,102 @@ class UsuariosController extends AppController
     }
 
     /**
-     * Exibe a view para gerenciamento de um determinado usuário
+     * Funcionalidade de iniciar controle como usuário alvo
      *
-     * @return \Cake\Http\Response|void
+     * @param int $post['usuarios_id'] Id de usuário
+     * @return json response
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-19
      */
-    public function administrarUsuario()
+    public function startManageUser()
     {
+        $errors = [];
+        $errorCodes = [];
+
+        // Use estas linhas somente para debug e em sua máquina!
+        $this->request->session()->delete('Rede.PontoAtendimento');
+        $this->request->session()->delete('Rede.Grupo');
+        $this->request->session()->delete("Usuario.AdministradorLogado");
+        $this->request->session()->delete("Usuario.Administrar");
+        $this->request->session()->write("Usuario.UsuarioLogado", $this->Auth->user());
+
         try {
             // verificar se quem está acessando é de fato um administrador RTI
-
-            if (!$this->securityUtil->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType', 'AdminDeveloperProfileType')) {
-                $this->securityUtil->redirectUserNotAuthorized($this);
+            if ($this->usuarioLogado->tipo_perfil !== PROFILE_TYPE_ADMIN_DEVELOPER) {
+                $errors[] = MSG_ACCESS_DENIED;
+                $errorCodes[] = MSG_ACCESS_DENIED_CODE;
             }
 
-            $conditions = [];
+            $usuariosId = null;
+            $cliente = null;
+            $rede = null;
 
-            // condições básicas do sistema
-            // só pode gerenciar de administradores de redes à cliente-final
-
-            $nome = null;
-            $email = null;
-            $cpf = null;
-            $docEstrangeiro = null;
-            $tipoPerfil = null;
-            $tipoPerfilMin = null;
-            $tipoPerfilMax = null;
-            $clientesIds = array();
-            $redesId = null;
-
-            $redesList = $this->Redes->getRedesList();
-
-            $perfisUsuariosList = Configure::read("profileTypesTranslatedAdminToWorker");
-
-            $queryPost = $this->request->session()->read("QueryConditions.AdministrarUsuario");
-
-            if ($this->request->is(['post', 'put'])) {
+            if ($this->request->is(Request::METHOD_POST)) {
                 $data = $this->request->getData();
-
-                // DebugUtil::print($data);
-                $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
-                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
-                $nome = !empty($data["nome"]) ? $data["nome"] : "";
-                $email = !empty($data["email"]) ? $data["email"] : "";
-                $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
-                $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
-                $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
-
-                $queryPost["tipoPerfil"] = $tipoPerfil;
-                $queryPost["nome"] = $nome;
-                $queryPost["email"] = $email;
-                $queryPost["docEstrangeiro"] = $docEstrangeiro;
-                $queryPost["filtrarUnidade"] = $filtrarUnidade;
-                $queryPost["cpf"] = $cpf;
-                $queryPost["redesId"] = $redesId;
-
-                $this->request->session()->write("QueryConditions.AdministrarUsuario", $queryPost);
-            } else {
-                // Obtem os dados cacheados para consulta
-                $tipoPerfil = $queryPost["tipoPerfil"];
-                $nome = $queryPost["nome"];
-                $email = $queryPost["email"];
-                $docEstrangeiro = $queryPost["docEstrangeiro"];
-                $filtrarUnidade = $queryPost["filtrarUnidade"];
-                $cpf = $queryPost["cpf"];
-                $redesId = $queryPost["redesId"];
+                $usuariosId = !empty($data["usuarios_id"]) ? (int) $data["usuarios_id"] : null;
             }
 
-            if (strlen($tipoPerfil) == 0) {
-                $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
-                $tipoPerfilMax = Configure::read('profileTypes')['WorkerProfileType'];
-            } else {
-                $tipoPerfilMin = $tipoPerfil;
-                $tipoPerfilMax = $tipoPerfil;
+            if (empty($usuariosId)) {
+                $errors[] = MSG_USUARIOS_ID_EMPTY;
+                $errorCodes[] = MSG_USUARIOS_ID_EMPTY_CODE;
             }
 
-            if (!empty($redesId)) {
-                $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+            if (count($errors) > 0) {
+                throw new Exception(MESSAGE_GENERIC_ERROR);
             }
 
-            $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
+            $usuarioAdministrador = $this->usuarioLogado;
+            $usuarioAdministrar = $this->Usuarios->getUsuarioById($usuariosId);
 
-            // DebugUtil::printArray($usuarios->toArray());
-            $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['Clientes.matriz_id' => 'ASC', "Usuarios.nome" => "ASC", "Clientes.nome_fantasia" => "ASC"]]);
+            // Limpa variáveis de session (não se deve limpar a de usuário logado atual)
+            $this->request->session()->delete('Rede.PontoAtendimento');
+            $this->request->session()->delete('Rede.Grupo');
+            $this->request->session()->delete("Usuario.AdministradorLogado");
+            // $this->request->session()->delete("Usuario.Administrar");
 
-            // DebugUtil::printArray($usuarios->toArray());
+            // Se usuário à ser gerenciado for funcionário, verifica os relacionamentos
+            if ($usuarioAdministrar->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioAdministrar->tipo_perfil <= PROFILE_TYPE_WORKER) {
+                $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarioAdministrar["id"], true);
 
-            $arraySet = array("usuarios", "perfisUsuariosList", "redesList", "redesId");
+                if (!empty($postoFuncionario)) {
+                    $cliente = $postoFuncionario->cliente;
+                    // verifica qual rede o usuário se encontra
+                    $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+                    $rede = $redeHasCliente->rede;
+                }
+            }
 
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
-        } catch (\Exception $e) {
+            $this->request->session()->write('Usuario.UsuarioLogado', $usuarioAdministrar);
+            $this->request->session()->write('Rede.Grupo', $rede);
+            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+            $this->request->session()->write("Usuario.AdministradorLogado", $usuarioAdministrador);
+            // $this->request->session()->write("Usuario.Administrar", $usuarioAdministrar);
 
-            $stringError = __("Erro: {0} ", $e->getMessage());
+            $data = new stdClass();
 
-            Log::write('error', $stringError);
+            $data->usuario_logado = $usuarioAdministrar;
+            $data->usuario_administrador = $usuarioAdministrador;
+            $data->cliente = $cliente;
+            $data->rede = $rede;
 
-            $this->Flash->error($stringError);
+            return ResponseUtil::successAPI(MSG_PROCESSING_COMPLETED, ["data" => $data]);
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
-    }
-
-    /**
-     * Inicia o gerenciamento de um determinado usuário
-     *
-     * @return \Cake\Http\Response|void
-     */
-    public function iniciarAdministracaoUsuario()
-    {
-        // verifica se o usuário é um administrador RTI / developer
-
-        if (!$this->securityUtil->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType', 'AdminDeveloperProfileType')) {
-            $this->securityUtil->redirectUserNotAuthorized($this);
-        }
-
-        $query = $this->request->query;
-        $usuarioAdministrador = $this->getUserLogged();
-        $usuarioAdministrar = $this->Usuarios->getUsuarioById($query['usuariosId']);
-
-        // Pegar o Id do cliente que foi passado via query
-        $cliente = $this->Clientes->getClienteById($query["clientesId"]);
-
-        // pega qual é a rede que o usuário está vinculado
-
-        /**
-         * Se o usuário for do tipo Usuário comum, não tem problema ele ainda não estar vinculado
-         * pois quando fizer um abastecimento o script vai vincular.
-         * Se for Níveis acimas, aí tem problema.
-         */
-
-        $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
-            [
-                'ClientesHasUsuarios.usuarios_id' => $usuarioAdministrar["id"],
-                'ClientesHasUsuarios.clientes_id' => $cliente["id"]
-            ]
-        );
-
-        if (empty($clienteHasUsuario) && $usuarioAdministrar["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
-            $this->Flash->error("Este usuário não pode ser administrado pois não possui vinculo ainda à uma rede / ponto de atendimento!");
-
-            return $this->redirect(['controller' => 'usuarios', 'action' => 'administrarUsuario']);
-        }
-
-        $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
-            $clienteHasUsuario["clientes_id"]
-        );
-
-        $rede = $redeHasCliente->rede;
-
-        $this->request->session()->write('Usuario.UsuarioLogado', $usuarioAdministrar);
-        $this->request->session()->write('Rede.Grupo', $rede);
-        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-
-        $this->request->session()->write("Usuario.AdministradorLogado", $usuarioAdministrador);
-        $this->request->session()->write("Usuario.Administrar", $usuarioAdministrar);
-
-        return $this->redirect(['controller' => 'pages', 'action' => 'display']);
     }
 
     /**
@@ -2388,16 +2348,25 @@ class UsuariosController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function finalizarAdministracaoUsuario()
+    public function finishManageUser()
     {
-        $this->request->session()->delete("Usuario.AdministradorLogado");
-        $this->request->session()->delete("Usuario.Administrar");
-        $this->request->session()->delete("Usuario.UsuarioLogado");
-        $this->request->session()->delete('Rede.Grupo');
-        $this->request->session()->delete('Rede.PontoAtendimento');
-        $this->request->session()->write("Usuario.UsuarioLogado", $this->Auth->user());
+        try {
+            if ($this->request->is(Request::METHOD_POST)) {
+                $this->request->session()->delete("Usuario.AdministradorLogado");
+                $this->request->session()->delete("Usuario.Administrar");
+                $this->request->session()->delete("Usuario.UsuarioLogado");
+                $this->request->session()->delete('Rede.Grupo');
+                $this->request->session()->delete('Rede.PontoAtendimento');
+                $this->request->session()->write("Usuario.UsuarioLogado", $this->Auth->user());
 
-        return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+                $data = new stdClass();
+                $data->usuarioLogado = $this->Auth->user();
+
+                return ResponseUtil::successAPI(MSG_PROCESSING_COMPLETED, ["data" => $data]);
+            }
+        } catch (Exception $e) {
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, ["Requisição não permitida."]);
+        }
     }
 
     /**
@@ -5434,8 +5403,7 @@ class UsuariosController extends AppController
      */
     public function getProfileTypes()
     {
-        $sessao = $this->getSessionUserVariables();
-        $tipoPerfil = (int) $sessao['usuarioLogado']->tipo_perfil;
+        $tipoPerfil = (int) $this->usuarioLogado->tipo_perfil;
         $perfis = new TipoPerfilResponse;
 
         // use esta variavel para fazer o teste entre os vários tipos de perfis
@@ -5724,7 +5692,8 @@ class UsuariosController extends AppController
     #endregion
 
     // Gets username to show in menu
-    public function getUsuarioName() {
+    public function getUsuarioName()
+    {
         return ResponseUtil::success($this->Auth->user()->nome);
     }
 }

@@ -654,6 +654,16 @@ Router::scope("/api", function ($routes) {
                 "action" => "getUsuarioName",
                 "method" => Request::METHOD_GET,
                 "path" => "get-usuario-name"
+            ],
+            "startManageUser" => [
+                "action" => "startManageUser",
+                "method" => Request::METHOD_POST,
+                "path" => "start_manage_user"
+            ],
+            "finishManageUser" => [
+                "action" => "finishManageUser",
+                "method" => Request::METHOD_POST,
+                "path" => "finish_manage_user"
             ]
         ]
     ]);

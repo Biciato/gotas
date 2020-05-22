@@ -24,6 +24,7 @@ use Cake\Network\Exception\NotFoundException;
 use Cake\View\Exception\MissingTemplateException;
 use Cake\I18n\Number;
 use App\Custom\RTI\DebugUtil;
+use stdClass;
 
 /**
  * Static content controller
@@ -40,7 +41,7 @@ class PagesController extends AppController
      * Fields
      * ------------------------------------------------------------
      */
-    protected $usuarioLogado = null;
+    // protected $usuarioLogado = null;
 
     /**
      * Initialize function
@@ -63,11 +64,6 @@ class PagesController extends AppController
      */
     public function display(...$path)
     {
-
-        $sessaoUsuario = $this->getSessionUserVariables();
-
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-
         $this->viewBuilder()->setLayout("default_update");
 
         // $user = $this->request->session()->read('Auth.User');
@@ -84,14 +80,11 @@ class PagesController extends AppController
             }
         }
 
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar  = $sessaoUsuario["usuarioAdministrar"];
-
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar->toArray();
-        }
-
-        // $this->setDashboard($usuarioLogado);
+        $sessao =  new stdClass();
+        $sessao->usuarioLogado = $this->usuarioLogado;
+        $sessao->usuarioAdministrador = $this->usuarioAdministrador;
+        $sessao->cliente = $this->cliente;
+        $sessao->rede = $this->rede;
 
         $count = count($path);
         if (!$count) {
@@ -108,7 +101,7 @@ class PagesController extends AppController
         if (!empty($path[1])) {
             $subpage = $path[1];
         }
-        $this->set(compact('page', 'subpage'));
+        $this->set(compact('page', 'subpage', "sessao"));
 
         try {
             $this->render(implode('/', $path));
@@ -174,6 +167,7 @@ class PagesController extends AppController
         try {
             $brindes_aguardando_autorizacao = [];
             $sessaoUsuario = $this->getSessionUserVariables();
+            $sessaoUsuario1 = $this->getSessionUserVariables();
 
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
             $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];

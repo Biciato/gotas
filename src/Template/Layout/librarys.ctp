@@ -8,7 +8,7 @@ echo $this->Html->meta('icon');
 
 ?>
 
-<?php //  echo  $this->Html->css(sprintf("home.css?version=%s", SYSTEM_VERSION));
+<?php // echo  $this->Html->css(sprintf("site.css?version=%s", SYSTEM_VERSION));
 ?>
 <?php echo $this->Html->css(sprintf("home-rti.css?version=%s", SYSTEM_VERSION)); ?>
 
@@ -169,6 +169,10 @@ echo $this->Html->script(sprintf("DataTables/datatables.min.js?version=%s", SYST
 
 
 <!-- Helpers -->
+<?php
+
+echo $this->Html->script("scripts/helpers/HTMLHelper.js");
+?>
 
 <!-- DataTables -->
 
@@ -194,8 +198,10 @@ echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?ver
 
 <?php
 echo $this->Html->script(sprintf("scripts/services/clientes-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/gotas-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/usuarios-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/redes-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/sefaz-service.js?version=%s", SYSTEM_VERSION));
 ?>
 
 <!-- Controllers JS -->
@@ -205,6 +211,7 @@ echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
 
 // Administrativo
 
+echo $this->Html->script(sprintf("scripts/admin/import-sefaz-products.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/admin/manage-user.js?version=%s", SYSTEM_VERSION));
 
 // Clientes
@@ -219,6 +226,16 @@ echo $this->Html->script(sprintf("scripts/redes/add.js?version=%s", SYSTEM_VERSI
 echo $this->Html->script(sprintf("scripts/redes/edit.js?version=%s", SYSTEM_VERSION));
 
 ?>
+
+<?php echo $this->Html->css('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'); ?>
+<?php echo $this->Html->css('font-awesome/css/font-awesome.css'); ?>
+
+<?php echo $this->Html->css('layout-update/animate.css'); ?>
+<?php echo $this->Html->css('layout-update/style.css'); ?>
+<?php echo $this->Html->css('//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'); ?>
+<?php //echo $this->fetch('css');
+?>
+
 
 <!-- Home -->
 <?= $this->Html->script(sprintf("scripts/pages/home.js?version=%s", SYSTEM_VERSION)); ?>

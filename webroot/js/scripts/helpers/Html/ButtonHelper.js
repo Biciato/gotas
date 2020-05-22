@@ -10,6 +10,7 @@ class ButtonHelper {
      * @since 1.2.3
      * @date 2020-04-27
      */
+    ICON_DELETE = "delete";
     ICON_CONFIG = "config";
     ICON_INFO = "info";
     ICON_DELETE_V4 = "fa fa-trash";
@@ -36,6 +37,72 @@ class ButtonHelper {
     }
 
     /**
+     * Generates a button to toggle Add / Remove Status
+     *
+     * @param {Object} dataAttributes Object of Data Attributes
+     * @param {Boolean} booleanStatus If true, shows plus sign. If False, shows remove sign
+     * @param {String} text Text within link
+     * @param {String} tooltip Tooltip
+     * @param {String} customClass Custom Class
+     * @returns Element HTML
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-20
+     */
+    generateAddRemovBtn(dataAttributes = [], booleanStatus = false, text = undefined, tooltip = undefined, customClass = undefined) {
+        let linkElement = document.createElement("a");
+
+        if (this.bootstrapVersion = 3) {
+            // @TODO add bootstrap 4
+            linkElement.classList.add("btn");
+            linkElement.classList.add(booleanStatus ? "btn-primary" : "btn-danger");
+        }
+
+        if (customClass !== undefined && customClass !== null) {
+            let classArray = [];
+            if (typeof (customClass) === "string") {
+                customClass.split(" ").filter(x => x.length > 0).forEach(x => classArray.push(x));
+            } else {
+                classArray = customClass;
+            }
+            classArray.forEach(c => linkElement.classList.add(c));
+        }
+
+        let iconClass = "";
+
+        if (this.fontAwesomeVersion = 4) {
+            iconClass = (booleanStatus) ? "fa fa-plus" : "fa fa-minus";
+        } else if (this.fontAwesomeVersion = 5) {
+            iconClass = (booleanStatus) ? "fas fa-plus" : "fas fa-minus";
+        }
+
+        let iconElement = document.createElement("em");
+        iconElement.classList = iconClass;
+
+        // Attributes will be wrapped in linkElement because it is this dom element which will be accessed on event trigger
+        let keys = Object.keys(dataAttributes);
+        keys.forEach(key => {
+            linkElement.setAttribute("data-" + key, dataAttributes[key]);
+            iconElement.setAttribute("data-" + key, dataAttributes[key]);
+        });
+
+        linkElement.append(iconElement);
+
+        if (text !== undefined && text !== null) {
+            let textElement = document.createElement("span");
+            textElement.textContent = text;
+            linkElement.append(textElement);
+        }
+
+        if (tooltip !== undefined && tooltip !== null) {
+            linkElement.title = tooltip;
+        }
+
+        return linkElement;
+    }
+
+    /**
      * Generates a link button to a destination
      *
      * @param {String} url Destination
@@ -55,6 +122,7 @@ class ButtonHelper {
 
         if (this.bootstrapVersion = 3) {
             linkElement.classList.add("btn");
+
 
             if (typeIcon !== undefined && typeIcon === this.ICON_CONFIG) {
                 linkElement.classList.add("btn-primary");
@@ -136,7 +204,7 @@ class ButtonHelper {
     }
 
     /**
-     * Generates a link button to a destination
+     * Generates a button to change Status (On / Off)
      *
      * @param {Object} dataAttributes Object of Data Attributes
      * @param {Boolean} booleanStatus
@@ -159,7 +227,13 @@ class ButtonHelper {
         }
 
         if (customClass !== undefined && customClass !== null) {
-            linkElement.classList.add(customClass);
+            let classArray = [];
+            if (typeof (customClass) === "string") {
+                customClass.split(" ").filter(x => x.length > 0).forEach(x => classArray.push(x));
+            } else {
+                classArray = customClass;
+            }
+            classArray.forEach(c => linkElement.classList.add(c));
         }
 
         let iconClass = "fas fa-power-off";
@@ -239,5 +313,93 @@ class ButtonHelper {
         }
 
         return linkElement;
+    }
+
+    /**
+     * Generates a link button to a destination
+     *
+     * @param {Object} dataAttributes Object of Data Attributes
+     * @param {String} btnClass Type Icon (config, info)
+     * @param {String} text Text within link
+     * @param {String} tooltip Tooltip
+     * @param {String} iconClass Type Icon (config, info)
+     * @param {String} customClass Custom Class
+     * @returns Element HTML
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-04-24
+     */
+    generateSimpleButton(dataAttributes = [], btnClass = undefined, text = undefined, tooltip = undefined, iconClass = undefined, customClass = undefined) {
+        let divElement = document.createElement("div");
+        divElement.href = "#";
+
+        if (this.bootstrapVersion = 3) {
+            divElement.classList.add("btn");
+
+            if (btnClass !== undefined) {
+                if (btnClass === this.ICON_INFO) {
+                    divElement.classList.add("btn-default");
+                } else if (btnClass === this.ICON_CONFIG) {
+                    divElement.classList.add("btn-primary");
+                } else if (btnClass === this.ICON_DELETE_V4) {
+                    divElement.classList.add("btn-danger");
+                } else {
+                    divElement.classList.add("btn-default");
+                }
+            } else {
+                divElement.classList.add("btn-default");
+            }
+        }
+
+        // @TODO add bootstrap 4
+        let iconElement = document.createElement("i");
+
+        switch (iconClass) {
+            case "config":
+                iconClass = "fas fa-cogs";
+                break;
+            case "delete":
+                iconClass = "fas fa-trash";
+                break;
+            case "alert":
+                iconClass = "fas fa-exclamation";
+                break;
+            case "info":
+                iconClass = "fas fa-info";
+                break;
+            default:
+                break;
+        }
+
+        iconElement.classList = iconClass;
+
+        if (customClass !== undefined && customClass !== null) {
+            customClass.split(" ").forEach(classItem => {
+                iconElement.classList.add(classItem);
+                divElement.classList.add(classItem);
+            });
+        }
+
+        // Attributes will be wrapped in linkElement because it is this dom element which will be accessed on event trigger
+        let keys = Object.keys(dataAttributes);
+        keys.forEach(key => {
+            divElement.setAttribute("data-" + key, dataAttributes[key]);
+            iconElement.setAttribute("data-" + key, dataAttributes[key]);
+        });
+
+        divElement.append(iconElement);
+
+        if (text !== undefined && text !== null) {
+            let textElement = document.createElement("span");
+            textElement.textContent = " " + text;
+            divElement.append(textElement);
+        }
+
+        if (tooltip !== undefined && tooltip !== null) {
+            divElement.title = tooltip;
+        }
+
+        return divElement;
     }
 }

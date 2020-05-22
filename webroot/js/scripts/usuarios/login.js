@@ -7,12 +7,17 @@ var login = {
     login: function (e) {
         e.preventDefault();
         $.ajax({
-            url: '/api/usuarios/login',
+            url: '/api/usuarios/token',
             data: $("#login-form").serialize(),
             method: 'POST',
             dataType: 'JSON',
             success: function (resposta) {
-                if (resposta.success === true) {
+                let credentials = {
+                    usuario: resposta.usuario,
+                    cliente: resposta.cliente
+                };
+                sessionStorage.setItem("credentials", JSON.stringify(credentials));
+                if (resposta.mensagem.status) {
                     window.location.href = '/pages';
                 } else {
                     toastr.error(resposta.message);

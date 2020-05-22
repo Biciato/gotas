@@ -298,6 +298,9 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 
 // Erros
 
+const MSG_ACCESS_DENIED = "Acesso negado! Você não possui acesso à este recurso!";
+const MSG_ACCESS_DENIED_CODE = 0x00000021;
+
 const MESSAGE_ERROR_GPS_VALIDATION_CODE = 0x00000008;
 const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
 
@@ -588,7 +591,7 @@ const MSG_MAX_RETRIEVES_USER_GIFT_CODE = 0x00090001;
 // Nome Comum Gota Bonificacao
 
 const MSG_GOTAS_DATA_EMPTY_CODE = 0x000A0001;
-const MSG_GOTAS_DATA_EMPTY = "Lista de gotas recebido sem informação!";
+const MSG_GOTAS_DATA_EMPTY = "É necessário enviar ao menos um produto!";
 
 const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_BONUS_EXTRA_POINTS_SEFAZ = "OUTROS PRODUTOS";

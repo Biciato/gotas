@@ -147,6 +147,8 @@ class SefazController extends AppController
                     $sefaz = new stdClass();
                     $produtos = new stdClass();
                     $itensTemp = [];
+                    $idCount = 0;
+
                     foreach ($itens as $item) {
                         $itemEncontrado = false;
 
@@ -167,7 +169,9 @@ class SefazController extends AppController
                         }
 
                         if (!$itemEncontrado) {
+                            $idCount++;
                             $itemTemp = new stdClass();
+                            $itemTemp->id = $idCount;
                             $itemTemp->nomeParametro = $item["descricao"];
                             $itemTemp->multiplicadorGota = 1.0;
                             $itemTemp->importar = true;

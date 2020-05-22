@@ -5,6 +5,16 @@
 // Configuração padrão de tema para select2
 $.fn.select2.defaults.set("theme", "bootstrap");
 
+let PROFILE_TYPE_ADMIN_DEVELOPER = 0;
+let PROFILE_TYPE_ADMIN_NETWORK = 1;
+let PROFILE_TYPE_ADMIN_REGIONAL = 2;
+let PROFILE_TYPE_ADMIN_LOCAL = 3;
+let PROFILE_TYPE_MANAGER = 4;
+let PROFILE_TYPE_WORKER = 5;
+let PROFILE_TYPE_USER = 6;
+let PROFILE_TYPE_DUMMY_WORKER = 998;
+let PROFILE_TYPE_DUMMY_USER = 999;
+
 $(document).ready(function () {
     // Todos os elementos de lista com classe select2-list serão inicializados
     setInterval(() => {
@@ -23,6 +33,59 @@ $(document).ready(function () {
         });
     }, 500);
 
+
+    $(document)
+        .off("click", "btn-quit-manage-unit")
+        .on("click", ".btn-quit-manage-unit", function () {
+            event.preventDefault();
+            let question = "Deseja encerrar o gerenciamento do usuário?";
+
+            let buttons = [{
+                    label: "Cancelar",
+                    action: ((dialogItSelf) => dialogItSelf.close())
+                },
+                {
+                    label: "OK",
+                    action: async function (dialogItSelf) {
+                        try {
+                            let response = await usuariosService.finishManageUser();
+
+                            if (response === undefined || response === null || !response) {
+                                return false;
+                            }
+
+                            window.location.href = "/";
+                            window.location.reload();
+                            dialogItSelf.close();
+                        } catch (error) {
+                            console.log(error);
+                            var msg = {};
+
+                            if (error.responseJSON !== undefined) {
+                                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                                return false;
+                            } else if (error.responseText !== undefined) {
+                                msg = error.responseText;
+                            } else {
+                                msg = error;
+                            }
+
+                            toastr.error(msg);
+                            return false;
+                        }
+                    }
+                }
+            ];
+
+            let param = {
+                message: question,
+                title: "Atenção!",
+                type: BootstrapDialog.TYPE_DANGER,
+                buttons: buttons
+            };
+
+            BootstrapDialog.show(param);
+        });
 
     validacaoGenericaForm();
 

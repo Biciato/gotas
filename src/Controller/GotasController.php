@@ -834,7 +834,7 @@ class GotasController extends AppController
                 foreach ($gotas as $gotaItem) {
                     $gota = new Gota();
                     $gota->nome_parametro = $gotaItem["nome_parametro"];
-                    $gota->multiplicador_gota = $gotaItem["multiplicador_gota"];
+                    $gota->multiplicador_gota = number_format($gotaItem["multiplicador_gota"], 3, ".", "");
                     $gota->clientes_id = $clientesId;
                     $gota->tipo_cadastro = 0;
                     $gota->habilitado = true;

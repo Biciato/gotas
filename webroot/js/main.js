@@ -8,6 +8,21 @@ var sammy = Sammy("#content-html", function () {
         self.runRoute('get', '#/404');
     };
 
+    /**
+     * Método que é executado antes de qualquer outra navegação
+     */
+    self.before({
+        except: {
+            path: "#/usuarios/login"
+        }
+    }, function () {
+        // Se as credentials na session não estiverem definidas, redireciona ao login
+        if (sessionStorage.getItem('credentials') === null) {
+            window.location.href = "/usuarios/login";
+        }
+
+    });
+
     self.get("#/", ((context) => {
         context.partial("view/index.tpl", {}, (html) => {
             $(document).html(html);
@@ -21,6 +36,12 @@ var sammy = Sammy("#content-html", function () {
 
     //#region ADMIN
 
+    self.get("#/admin/import-sefaz-products", function (context) {
+        context.partial("view/admin/import-sefaz-products.tpl");
+    });
+    self.get("#/admin/correction-user-points", function (context) {
+        context.partial("view/admin/correction-user-points.tpl");
+    });
     self.get("#/admin/manage-user", function (context) {
         context.partial("view/admin/manage-user.tpl");
     });

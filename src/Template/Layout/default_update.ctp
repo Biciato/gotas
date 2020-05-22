@@ -7,65 +7,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title><?php echo $this->fetch('title'); ?></title>
-
-    <?php echo $this->Html->css('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'); ?>
-    <?php echo $this->Html->css('font-awesome/css/font-awesome.css'); ?>
-
-    <?php echo $this->Html->css('layout-update/animate.css'); ?>
-    <?php echo $this->Html->css('layout-update/style.css'); ?>
-    <?php echo $this->Html->css('//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'); ?>
-    <?php echo $this->fetch('css'); ?>
-
-
-
 </head>
 
-<body id="main_body" class="">
 
+<body id="main_body" class="">
+    <?= $this->element('header') ?>
     <div id="wrapper">
 
         <nav class="navbar-default navbar-static-side" role="navigation" style="background-color: dodgerblue">
             <div class="sidebar-collapse">
                 <ul class="nav metismenu" id="side-menu">
                     <li class="nav-header" style="background: limegreen">
-                        <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
-                            <img alt="image" src="/img/default-user.png" style="border-radius: 50%; width: 6rem;"/>
-                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                <span class="block m-t-xs font-bold" id="username"></span>
-                            </a>
-                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                <li><a class="dropdown-item" href="profile.html">Profile</a></li>
-                                <li class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="login.html">Logout</a></li>
-                            </ul>
-                        </div>
-                        <div class="logo-element">
-                            <img alt="image" src="/img/rti-logo.png" style="width: 15rem"/>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level">
-                            <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="index.html"><i class="fas fa-building"></i> <span class="nav-label">Redes</span> <span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level">
-                            <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level">
-                            <li class="active">
-                                <a href="#/admin/manage-user">
-                                    <i class="fas fa-eye"></i>
-                                    Controlar Usuário
+                        <?php if (!empty($sessao) && !empty($sessao->usuarioLogado)) : ?>
+
+                            <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
+                                <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" style="border-radius: 50%; width: 6rem;" />
+                                <!-- <img alt="image" class="rounded-circle" src="" /> -->
+                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                    <span class="block m-t-xs font-bold"><?= $sessao->usuarioLogado->nome ?></span>
+                                    <span class="text-muted text-xs block"><?= $this->UserUtil->getProfileType($sessao->usuarioLogado->tipo_perfil) ?> <b class="caret"></b></span>
                                 </a>
-                            </li>
-                        </ul>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                    <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                                    <!-- <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
+                                    <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li> -->
+                                    <li class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="login.html">Logout</a></li>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="logo-element">
+                            <img alt="image" src="/img/rti-logo.png" style="width: 15rem" />
+                        </div>
                     </li>
+
+                    <?php
+
+                    if ($sessao->usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    ?>
+
+                        <li>
+                            <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="index.html"><i class="fas fa-building"></i> <span class="nav-label">Redes</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="#/admin/import-sefaz-products">
+                                        <i class="fas fa-clipboard-list"></i>
+                                        Importação de Gotas da SEFAZ
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#/admin/correction-user-points">
+                                        <em class="fas fa-check-circle"></em>
+                                        Correção de Pontos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#/admin/manage-user">
+                                        <i class="fas fa-eye"></i>
+                                        Controlar Usuário
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    <?php
+                    } elseif ($sessao->usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_NETWORK) {
+                    ?>
+                        <li>
+                            <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Minha Equipe (Usuários da Rede)</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                            </ul>
+                        </li>
+                    <?php } ?>
                 </ul>
 
             </div>

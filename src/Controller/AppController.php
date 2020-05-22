@@ -60,6 +60,7 @@ class AppController extends Controller
     protected $sessaoUsuario = null;
     protected $usuarioLogado = null;
     protected $usuarioAdministrar = null;
+    protected $usuarioAdministrador = null;
     protected $rede = null;
     protected $cliente = null;
 
@@ -212,7 +213,7 @@ class AppController extends Controller
         $this->_initializeUtils();
 
         // if (!$isMobile) {
-        $this->setUserTemplatePath();
+        // $this->setUserTemplatePath();
         // }
 
         $user = $this->Auth->user();
@@ -247,6 +248,7 @@ class AppController extends Controller
         $this->sessaoUsuario = $sessao;
         $this->usuarioLogado = $sessao["usuarioLogado"];
         $this->usuarioAdministrar = $sessao["usuarioAdministrar"];
+        $this->usuarioAdministrador = $sessao["usuarioAdministrador"];
         $this->rede = $sessao["rede"];
         $this->cliente = $sessao["cliente"];
 

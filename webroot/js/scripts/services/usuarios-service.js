@@ -1,12 +1,46 @@
+/**
+ * Arquivo de services para Usuário
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 1.2.3
+ * @date 2020-05-19
+ */
 var usuariosService = {
 
+    /**
+     * Finaliza gerenciamento de usuário
+     *
+     * @returns Promise|false Promise ou status de false da operação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-19
+     */
+    finishManageUser: async function () {
+        return await Promise.resolve(
+            $.ajax({
+                type: "POST",
+                url: "/api/usuarios/finish_manage_user",
+                dataType: "JSON"
+            })
+        );
+    },
 
-    getPerfisList: async () => {
+    /**
+     * Obtem lista de perfis
+     *
+     * @returns Promise|false Promise ou status de false da operação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-18
+     */
+    getPerfisList: async function () {
         let dataRequest = {};
         let obj = await Promise.resolve(
             $.ajax({
                 type: "GET",
-                url: "/api/usuarios/carregar_tipos_perfil",
+                url: "/api/usuarios/get_profile_types",
                 data: dataRequest,
                 dataType: "JSON"
             })
@@ -33,7 +67,33 @@ var usuariosService = {
             });
         }
 
-        return obj.source;
+        return obj.data;
+    },
+
+    /**
+     * Realiza troca de sessão do usuário atual com usuário alvo
+     *
+     * @param {Integer} id Id do usuário
+     * @returns Promise|false Promise ou status de false da operação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-19
+     */
+    startManageUser: async function (id) {
+        let dataRequest = {
+            usuarios_id: id
+        };
+
+        return await Promise.resolve(
+            $.ajax({
+                type: "POST",
+                url: "/api/usuarios/start_manage_user",
+                data: dataRequest,
+                dataType: "JSON"
+            })
+        );
+
     },
 
 };

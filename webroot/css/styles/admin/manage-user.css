@@ -1,0 +1,10 @@
+.foto-perfil-logo{
+    width: 50px;
+    opacity:85%;
+    transition: opacity 800ms ease-in-out;
+
+}
+.foto-perfil-logo:hover{
+    opacity:100%;
+    transition: opacity 100ms ease-in-out;
+}

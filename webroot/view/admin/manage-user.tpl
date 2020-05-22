@@ -54,7 +54,7 @@
                                                         </label>
                                                         <select name="redes_id" id="redes-select-list"
                                                             class="form-control select2-list-generic">
-                                                            <option value=""></option>
+                                                            <option></option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -63,8 +63,7 @@
                                                         <label for="nome">
                                                             Nome
                                                         </label>
-                                                        <input id="nome" name="nome" class="form-control"
-                                                            placeholder="Nome...">
+                                                        <input id="nome" name="nome" class="form-control">
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-3">
@@ -72,8 +71,7 @@
                                                         <label for="email">
                                                             Email
                                                         </label>
-                                                        <input id="email" name="email" class="form-control"
-                                                            placeholder="Email...">
+                                                        <input id="email" name="email" class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
@@ -106,7 +104,7 @@
         </div>
     </div>
 
-    <link rel="stylesheet" href="/webroot/css/styles/admin/master/manage-user.css">
+    <link rel="stylesheet" href="/webroot/css/styles/admin/manage-user.css">
 
     <script>
         $(function () {

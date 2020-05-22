@@ -97,8 +97,14 @@ class Usuario extends Entity
      */
     protected function _getFotoDocumentoCompleto()
     {
+        $emptyImg = sprintf(
+            "%s%s%s",
+            Configure::read("webrootAddress"),
+            Configure::read("documentUserPathRead"),
+            "empty.jpg"
+        );
         return
-            empty($this->_properties["foto_documento"]) ? null : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
+            empty($this->_properties["foto_documento"]) ? $emptyImg : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
     }
 
     /**
@@ -108,8 +114,15 @@ class Usuario extends Entity
      */
     protected function _getFotoPerfilCompleto()
     {
+        $emptyImg = sprintf(
+            "%s%s%s",
+            Configure::read("webrootAddress"),
+            Configure::read("imageUserProfilePathRead"),
+            "empty.jpg"
+        );
+
         return
-            empty($this->_properties["foto_perfil"]) ? null : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_perfil"]);
+            empty($this->_properties["foto_perfil"]) ? $emptyImg : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageUserProfilePathRead"), $this->_properties["foto_perfil"]);
     }
 
     /**
