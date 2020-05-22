@@ -60,9 +60,15 @@
                             <a href="#"><i class="fas fa-cogs"></i> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="#/admin/import-sefaz-products/index">
+                                    <a href="#/admin/import-sefaz-products">
                                         <i class="fas fa-clipboard-list"></i>
                                         Importação de Gotas da SEFAZ
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#/admin/correction-user-points">
+                                        <em class="fas fa-check-circle"></em>
+                                        Correção de Pontos
                                     </a>
                                 </li>
                                 <li>

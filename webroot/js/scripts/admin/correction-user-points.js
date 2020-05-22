@@ -7,10 +7,12 @@
  */
 var importSefazProducts = {
     //#region Variables
-    establishment: {},
+    // Rede
     network: {},
-    products: [],
-    product: {},
+    // Lista de usuários
+    usersList: [],
+    // Usuário
+    userSelectedItem: {},
     //#endregion
 
     //#region Functions
@@ -25,6 +27,9 @@ var importSefazProducts = {
         'use strict';
         var self = this;
 
+        $(document)
+            .off("change", "#correction-user-points-search #redes-list")
+            .on("change", "#correction-user-points-search #redes-list", self.selectNetwork);
         $(document)
             .off("keydown", "#qrcode-search-form #qr-code")
             .on("keydown", "#qrcode-search-form #qr-code", function (event) {
@@ -64,7 +69,7 @@ var importSefazProducts = {
      * @since 1.2.3
      * @date 2020-05-21
      */
-    fillData: function (network = undefined, establishment = undefined, products = undefined) {
+    fillData: function (users, vehicle = undefined) {
         'use strict';
         var self = this;
 
@@ -281,21 +286,26 @@ var importSefazProducts = {
 
         return self;
     },
+    getRedesList = async function () {
+        try {
+            let response = await redesService.getRedesList();
+        } catch (error) {
+
+        }
+    },
+
+
     /**
      *
      * Método 'construtor'
      */
-    init: function (produtos) {
+    init: function () {
         let self = this;
         document.title = "GOTAS - Importação de Produtos da SEFAZ";
 
         self.configureEvents();
 
-        $(document).find("#qrcode-search-form #qr-code").focus();
-
-        if (produtos !== undefined && produtos !== null) {
-            self.products = produtos;
-        }
+        self.getRedesList();
 
         return self;
     },

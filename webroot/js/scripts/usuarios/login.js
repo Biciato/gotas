@@ -12,7 +12,11 @@ var login = {
             method: 'POST',
             dataType: 'JSON',
             success: function (resposta) {
-                sessionStorage.setItem("credentials", resposta.usuario);
+                let credentials = {
+                    usuario: resposta.usuario,
+                    cliente: resposta.cliente
+                };
+                sessionStorage.setItem("credentials", JSON.stringify(credentials));
                 if (resposta.mensagem.status) {
                     window.location.href = '/pages';
                 } else {
