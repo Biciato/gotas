@@ -85,7 +85,7 @@ class ClientesController extends AppController
                 }
 
                 $dataTableSource = new stdClass();
-                $dataTableSource->draw = $data['draw'];
+                $dataTableSource->draw = $getData['draw'];
                 $dataTableSource->recordsTotal = $total;
                 $dataTableSource->recordsFiltered = $total;
                 $dataTableSource->data = $clientes;

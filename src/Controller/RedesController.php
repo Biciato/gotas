@@ -58,7 +58,8 @@ class RedesController extends AppController
             $pagination = new stdClass();
             $pagination->start = 1;
             $pagination->length = 1000;
-
+            $data = null;
+            $getData = null;
 
             if ($this->request->is(Request::METHOD_GET)) {
                 $getData = $this->request->getQueryParams();
@@ -110,7 +111,7 @@ class RedesController extends AppController
             }
 
             $dataTableSource = new stdClass();
-            $dataTableSource->draw = $data['draw'];
+            $dataTableSource->draw = $getData['draw'];
             $dataTableSource->recordsTotal = $total;
             $dataTableSource->recordsFiltered = $total;
             $dataTableSource->data = $redes;
@@ -148,20 +149,6 @@ class RedesController extends AppController
         try {
             $rede = $this->Redes->getRedeById($id);
             $imagem = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
-            $nomeFantasia = null;
-            $razaoSocial = null;
-            $cnpj = null;
-            $clientesIds = array();
-
-            if ($this->request->is("GET")) {
-                $data = $this->request->getData();
-                $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
-                $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
-                $cnpj = strlen($data["cnpj"]) > 0 ? $this->cleanNumber($data["cnpj"]) : null;
-            }
-
-            $redesHasClientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
-            $this->paginate($redesHasClientes, ['limit' => 10]);
 
             $data = [
                 'rede' => $rede
