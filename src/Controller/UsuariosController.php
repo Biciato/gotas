@@ -87,6 +87,8 @@ class UsuariosController extends AppController
         $pagination = new stdClass();
         $pagination->start = 1;
         $pagination->length = 1000;
+        $data = null;
+        $queryParams = null;
 
 
         // $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
@@ -141,7 +143,7 @@ class UsuariosController extends AppController
         }
 
         $dataTableSource = new stdClass();
-        $dataTableSource->draw = $data['draw'];
+        $dataTableSource->draw = $queryParams['draw'];
         $dataTableSource->recordsTotal = $total;
         $dataTableSource->recordsFiltered = $total;
         $dataTableSource->data = $usuarios;
