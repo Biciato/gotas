@@ -16,7 +16,7 @@ var login = {
                     usuario: resposta.usuario,
                     cliente: resposta.cliente
                 };
-                sessionStorage.setItem("credentials", JSON.stringify(credentials));
+                localStorage.setItem("credentials", JSON.stringify(credentials));
                 if (resposta.mensagem.status) {
                     window.location.href = '/pages';
                 } else {
