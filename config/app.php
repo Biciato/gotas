@@ -1,4 +1,9 @@
 <?php
+
+use Cake\Log\Log;
+
+require_once("definitions.php");
+
 return [
     /**
      * Debug Level:
@@ -10,6 +15,8 @@ return [
      * true: Errors and warnings shown.
      */
     'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
+    // 'debug' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN),
+
 
     /**
      * Configure basic information about the application.
@@ -39,7 +46,7 @@ return [
     'App' => [
         'namespace' => 'App',
         'encoding' => env('APP_ENCODING', 'UTF-8'),
-        'defaultLocale' => env('APP_DEFAULT_LOCALE', 'en_US'),
+        'defaultLocale' => env('APP_DEFAULT_LOCALE', 'pt_BR'),
         'base' => false,
         'dir' => 'src',
         'webroot' => 'webroot',
@@ -64,7 +71,7 @@ return [
      *   You should treat it as extremely sensitive data.
      */
     'Security' => [
-        'salt' => env('SECURITY_SALT', '__SALT__'),
+        'salt' => env('SECURITY_SALT', '47772d06bdcc7b7c6bb6a574004f193fa30d94a88429682e738592a554d402f8'),
     ],
 
     /**
@@ -150,11 +157,18 @@ return [
      *   breathing room to complete logging or error handling.
      */
     'Error' => [
-        'errorLevel' => E_ALL,
+        'errorLevel' => E_STRICT,
         'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
         'skipLog' => [],
         'log' => true,
         'trace' => true,
+    ],
+    'Info' => [
+        'errorLevel' => E_STRICT,
+        'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
+        'skipLog' => [],
+        'log' => true,
+        'trace' => false,
     ],
 
     /**
@@ -178,16 +192,31 @@ return [
      */
     'EmailTransport' => [
         'default' => [
-            'className' => 'Mail',
+            // 'className' => 'Mail',
+            'className' => 'Smtp',
             // The following keys are used in SMTP transports
-            'host' => 'localhost',
-            'port' => 25,
+            'host' => 'smtp.rtisolutions.com.br',
+
+            'port' => 587,
             'timeout' => 30,
-            'username' => 'user',
-            'password' => 'secret',
-            'client' => null,
-            'tls' => null,
+            'username' => 'noreply@rtisolutions.com.br',
+            'password' => 'rti2017*',
+
+            // 'client' => null,
+            // 'tls' => false,
+            'tls' => true,
             'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
+            'context' =>
+            [
+                'ssl' =>
+                [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ]
+
+
         ],
     ],
 
@@ -203,7 +232,7 @@ return [
     'Email' => [
         'default' => [
             'transport' => 'default',
-            'from' => 'you@localhost',
+            'from' => 'noreply@rtisolutions.com.br',
             //'charset' => 'utf-8',
             //'headerCharset' => 'utf-8',
         ],
@@ -221,22 +250,35 @@ return [
         'default' => [
             'className' => 'Cake\Database\Connection',
             'driver' => 'Cake\Database\Driver\Mysql',
-            'persistent' => false,
-            'host' => 'localhost',
+            // 'persistent' => false,
+            'persistent' => true,
+            'host' => __HOST__,
+            // 'host' => 'localhost',
+            // 'host' => 'sistema.gotas.com.br',
             /**
              * CakePHP will use the default DB port based on the driver selected
              * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => 'rti_gotas_devel',
-            'password' => ']tS(nyjFXBwP=u8+',
-            'database' => 'rti_gotas_devel',
+            'username' => __DATABASE__,
+            // 'username' => 'rti_gotas',
+            // 'password' => 'nanoboost',
+            'password' => __PASSWORD_DB__,
+            // 'password' => 'nanoboost',
+            // 'database' => 'rti_gotas',
+            'database' => __DATABASE__,
+            // 'database' => 'rti_gotas_devel',
             'encoding' => 'utf8',
+            // 'timezone' => 'America/Sao_Paulo',
             'timezone' => 'UTC',
             'flags' => [],
             'cacheMetadata' => true,
-            'log' => false,
+            // 'cacheMetadata' => false,
+            // true para guardar tudo no arquivo queries
+            'log' => true,
+            // 'log' => false,
+
 
             /**
              * Set identifier quoting to true if you are using reserved words or
@@ -247,6 +289,50 @@ return [
              * manipulated before being executed.
              */
             'quoteIdentifiers' => false,
+            // 'quoteIdentifiers' => true,
+
+            /**
+             * During development, if using MySQL < 5.6, uncommenting the
+             * following line could boost the speed at which schema metadata is
+             * fetched from the database. It can also be set directly with the
+             * mysql configuration directive 'innodb_stats_on_metadata = 0'
+             * which is the recommended value in production environments
+             */
+            //'init' => ['SET GLOBAL innodb_stats_on_metadata = 0'],
+
+            'url' => env('DATABASE_URL', null),
+        ],
+        'devel' => [
+            'className' => 'Cake\Database\Connection',
+            'driver' => 'Cake\Database\Driver\Mysql',
+            'persistent' => false,
+            'host' => 'localhost',
+            /**
+             * CakePHP will use the default DB port based on the driver selected
+             * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
+             * the following line and set the port accordingly
+             */
+            'username' => 'rti_gotas_devel',
+            'password' => ']tS(nyjFXBwP=u8+',
+            'database' => 'rti_gotas_devel',
+            'encoding' => 'utf8',
+            'flags' => [],
+            'cacheMetadata' => true,
+            // true para guardar tudo no arquivo queries
+            // 'log' => true,
+            'log' => false,
+
+
+            /**
+             * Set identifier quoting to true if you are using reserved words or
+             * special characters in your table or column names. Enabling this
+             * setting will result in queries built using the Query Builder having
+             * identifiers quoted when creating SQL. It should be noted that this
+             * decreases performance because each query needs to be traversed and
+             * manipulated before being executed.
+             */
+            'quoteIdentifiers' => false,
+            // 'quoteIdentifiers' => true,
 
             /**
              * During development, if using MySQL < 5.6, uncommenting the
@@ -273,7 +359,7 @@ return [
             'password' => 'secret',
             'database' => 'test_myapp',
             'encoding' => 'utf8',
-            'timezone' => 'UTC',
+            // 'timezone' => 'UTC',
             'cacheMetadata' => true,
             'quoteIdentifiers' => false,
             'log' => false,
@@ -290,16 +376,48 @@ return [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'debug',
-            'levels' => ['notice', 'info', 'debug'],
+            'size' => '100MB',
+            'rotate' => '30',
+            'levels' => ['notice', 'info', 'debug', "error"],
             'url' => env('LOG_DEBUG_URL', null),
         ],
         'error' => [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'error',
-            'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
+            'size' => '100MB',
+            'rotate' => '15',
+            'levels' => ['error', 'critical', 'alert', 'emergency'],
             'url' => env('LOG_ERROR_URL', null),
         ],
+        'info' => [
+            'className' => 'Cake\Log\Engine\FileLog',
+            'path' => LOGS,
+            'file' => 'info',
+            'levels' => ["info"],
+            'size' => '100MB',
+            'rotate' => '15',
+            'url' => env('LOG_ERROR_URL', null),
+        ],
+
+        // 'trace' => [
+        //     'className' => 'Cake\Log\Engine\FileLog',
+        //     'path' => LOGS,
+        //     'file' => 'trace',
+        //     'levels' => ["trace", "error", "debug", "info", "warning"],
+        //     'url' => env('LOG_ERROR_URL', null),
+        // ],
+
+        // guardar todas as queries executadas em log
+        // 'queries' => [
+        //     'className' => 'Cake\Log\Engine\FileLog',
+        //     'path' => LOGS,
+        //     'file' => 'queries',
+        //     'size' => '100MB',
+        //     'rotate' => '20',
+        //     'scopes' => ['queriesLog']
+        // ]
+
     ],
 
     /**
@@ -341,6 +459,13 @@ return [
      * To use database sessions, load the SQL file located at config/Schema/sessions.sql
      */
     'Session' => [
-        'defaults' => 'php',
+        'defaults' => 'cake',
+        // 'defaults' => 'php',
+        // 'timeout' => 30
+        // 'timeout' => 1
+        // uma semana
+        'timeout' => 60 * 24 * 7 * 7
+        // 'timeout' => TIME_EXPIRATION_TOKEN_MINUTES
+        // 'timeout' => 1
     ],
 ];
