@@ -17,9 +17,75 @@ var correctionUserPoints = {
     userSelectedItem: {},
     // Pesquisar Por
     userOptionSelectedItem: {},
+
+    vehicle: {},
     //#endregion
 
     //#region Functions
+
+    /**
+     * Altera a máscara do campo de usuário conforme filtro selecionado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-12
+     */
+    changeMaskUserFilter: function () {
+        let self = this;
+
+        // Reseta as definições de digitação do campo de pesquisa de usuário
+        $(document)
+            .find("#correction-user-points-search-form #user-input-search")
+            .unbind()
+            // .removeData()
+            .removeProp("maxlength");
+
+        $(document)
+            .off("blur", "#correction-user-points-search-form #user-input-search")
+            .off("focus", "#correction-user-points-search-form #user-input-search")
+            .off("keydown", "#correction-user-points-search-form #user-input-search")
+            .off("keyup", "#correction-user-points-search-form #user-input-search")
+            .on("keyup", "#correction-user-points-search-form #user-input-search", function (event) {
+                if (this.value.length === 0) {
+                    $(document).find("#correction-user-points-search-form #btn-search").addClass("disabled");
+                } else {
+                    $(document).find("#correction-user-points-search-form #btn-search").removeClass("disabled");
+                }
+            })
+            // remove a mascara de placa
+            .unmask();
+
+        if (self.userOptionSelectedItem !== undefined && self.userOptionSelectedItem !== null) {
+            // para máscara de telefone e CPF, permite somente a inserção de números no campo.
+            if (self.userOptionSelectedItem === "telefone") {
+                $(document).find("#correction-user-points-search-form #user-input-search").MaskTelephone({
+                    maxlength: 11
+                });
+            } else if (self.userOptionSelectedItem === "cpf") {
+                $(document).find("#correction-user-points-search-form #user-input-search").MaskCPF();
+            } else if (self.userOptionSelectedItem === "placa") {
+                // No caso de placa, por enquanto é melhor utilizar o próprio jquery.mask, visto que atende bem
+                $(document).find("#correction-user-points-search-form #user-input-search").mask("AAA9B99", {
+                    'translation': {
+                        A: {
+                            pattern: /[A-Za-z]/
+                        },
+                        9: {
+                            pattern: /[0-9]/
+                        },
+                        B: {
+                            pattern: /\D*/
+                        }
+                    },
+                    onKeyPress: function (value, event) {
+                        event.currentTarget.value = value.toUpperCase();
+                    }
+                });
+            }
+        }
+
+        return self;
+    },
     /**
      * Realiza configuração de eventos dos campos da tela
      *
@@ -35,7 +101,24 @@ var correctionUserPoints = {
             .on("change", "#correction-user-points-search-form #redes-select-list", self.selectNetwork);
         $(document)
             .off("change", "#correction-user-points-search-form #user-options-list")
-            .on("change", "#correction-user-points-search-form #user-options-list", self.selectFilterUser);
+            .on("change", "#correction-user-points-search-form #user-options-list", self.selectUserFilter);
+
+        $(document)
+            .off("keyup", "#correction-user-points-search-form")
+            .on("keyup", "#correction-user-points-search-form", function (event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    // se enter, dispara o botão pesquisar
+                    $(document).find("#correction-user-points-search-form #btn-search").trigger("click");
+                }
+            });
+        $(document)
+            .off("click", "#correction-user-points-search-form #btn-search")
+            .on("click", "#correction-user-points-search-form #btn-search", self.searchUser);
+
+        // --------------------------
+        // Atenção: O método changeMaskUserFilter provêm recursos dinâmicos à esta tela
+        // --------------------------
 
         return self;
     },
@@ -54,215 +137,125 @@ var correctionUserPoints = {
     fillData: function (users, vehicle = undefined) {
         var self = this;
 
-        let dataTable = "#import-sefaz-products-data #data-table";
-        $(document).find("#import-sefaz-products-data #redes-nome").val(null);
-        $(document).find("#import-sefaz-products-data #clientes-nome").val(null);
+        let btnHelper = new ButtonHelper(3, 5);
 
-        if (products !== undefined && products !== null && products.length > 0) {
-            $(document).find("#import-sefaz-products-data #btn-save").removeClass("disabled");
-        } else {
-            $(document).find("#import-sefaz-products-data #btn-save").addClass("disabled");
-        }
+        let columns = [{
+                data: "id",
+                name: "Id",
+                orderable: true,
+                visible: false,
+            },
+            {
+                data: "nome",
+                title: "Nome",
+                orderable: true,
+            },
+            {
+                data: "telefone",
+                title: "Telefone",
+                orderable: true,
+                render: function (value) {
+                    if (value === undefined || value === null)
+                        return "";
 
-        if ($.fn.DataTable.isDataTable($(dataTable))) {
+                    value = value.replace(/\D/g, "");
+
+                    let mask = {
+                        areaCode: 2,
+                        prefix: value.length === 11 ? 5 : 4,
+                        suffix: 4
+                    };
+
+                    let replace = `(\\d{${mask.areaCode}})(\\d{${mask.prefix}})(\\d{${mask.suffix}})`;
+                    let regex = new RegExp(replace, "g");
+
+                    // Define máscara ao perder o foco e define limite de caracteres na string de retorno
+                    return value.replace(regex, "($1)$2-$3").substr(0, mask.areaCode + mask.prefix + mask.suffix + 3);
+                }
+            },
+            {
+                data: "data_nasc",
+                title: "Data Nasc.",
+                orderable: true,
+                render: function (value) {
+                    return value === undefined || value === null || value.length === 0 ? "" : moment(value, "YYYY-MM-DD").format("DD/MM/YYYY");
+                }
+            },
+            {
+                data: "acoes",
+                title: "Ações",
+                orderable: false,
+                render: function (data, item, row, meta) {
+                    let attributes = {
+                        id: row.id,
+                        nome: row.nome
+                    };
+
+                    // 'Copia' as informações de attributes para attributesModal
+                    let attributesModal = new Object();
+                    Object.assign(attributesModal, attributes);
+
+                    let selectButton = btnHelper.generateAddRemovBtn(attributes, !row.importar, null, "Selecionar", "select-item");
+
+                    let buttons = [selectButton];
+                    let buttonsString = "";
+                    buttons.forEach(x => buttonsString += x.outerHTML + " ");
+
+                    return buttonsString;
+                }
+            }
+        ];
+
+        let dataTable = "#correction-user-points-search-form #data-table";
+
+        if ($.fn.DataTable.isDataTable(dataTable)) {
+            console.log('destroyed');
             $(dataTable).DataTable().clear();
             $(dataTable).DataTable().destroy();
         }
 
-        if (network !== undefined && network !== null) {
-            self.networkSelectedItem = network;
-            self.establishment = establishment;
-            self.products = products;
-            $(document).find("#import-sefaz-products-data #redes-nome").val(network.nome_rede);
-            $(document).find("#import-sefaz-products-data #clientes-nome").val(establishment.nome_fantasia_municipio_estado);
+        let callback = function () {
+            // Modifica o valor de multiplicador
+            $(document)
+                .off("click", ".select-item")
+                .on("click", ".select-item", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    let self = correctionUserPoints;
 
-            let btnHelper = new ButtonHelper(3, 5);
-            let columns = [{
-                    data: "id",
-                    title: "Id",
-                    orderable: true,
-                    visible: false,
-                },
-                {
-                    width: "40%",
-                    data: "nomeParametro",
-                    title: "Nome",
-                    className: "text-center",
-                    orderable: false,
-                },
-                {
-                    data: "multiplicadorGota",
-                    title: "Multiplicador",
-                    className: "text-center",
-                    orderable: true,
-                    render: function (data) {
-                        let value = parseFloat(data);
+                    // Obtem o registro clicado
+                    let id = event.currentTarget.getAttribute('data-id');
+                    let user = correctionUserPoints.users.find(x => x.id === parseInt(id));
 
-                        if (isNaN(value))
-                            value = 0;
+                    // Define as informações do registro selecionado
+                    correctionUserPoints.userSelectedItem = user;
 
-                        return value.toFixed(3);
-                    }
-                },
-                {
-                    data: "importar",
-                    title: "Importar?",
-                    className: "text-center",
-                    orderable: true,
-                    render: function (data) {
-                        return data ? "Sim" : "Não";
-                    }
-                },
-                {
-                    data: "actions",
-                    title: "Ações",
-                    orderable: false,
-                    render: function (data, item, row, meta) {
-                        let attributes = {
-                            id: row.id,
-                            nome: row.nomeParametro
-                        };
+                    $(document).find("#correction-user-points-search-form #usuario-region #usuario-nome").val(user.nome);
 
-                        // 'Copia' as informações de attributes para attributesModal
-                        let attributesModal = new Object();
-                        Object.assign(attributesModal, attributes);
+                    // @todo Fazer método de obter saldo de gotas]
+                    // @todo Fazer gravar
 
-                        let changeStatusTitle = row.importar ? "Remover" : "Adicionar";
-                        let editButton = btnHelper.generateSimpleButton(attributesModal, btnHelper.ICON_INFO, null, `Editar Multiplicador do Produto`, "fas fa-edit", "edit-item");
-                        let addRemoveButton = btnHelper.generateAddRemovBtn(attributes, !row.importar, null, `${changeStatusTitle} o produto da importação`, "add-remove-item");
-
-                        let buttons = [editButton, addRemoveButton];
-                        let buttonsString = "";
-
-                        buttons.forEach(x => buttonsString += x.outerHTML + " ");
-                        return buttonsString;
-                    }
-                }
-            ];
-
-            let callback = function () {
-                // Modifica o valor de multiplicador
-                $(document)
-                    .off("click", ".edit-item")
-                    .on("click", ".edit-item", function (event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        let self = this;
-
-                        // Obtem o registro clicado
-                        let id = event.currentTarget.getAttribute('data-id');
-                        let product = importSefazProducts.products.find(x => x.id === parseInt(id));
-
-                        // Define as informações do registro selecionado
-                        importSefazProducts.product = product;
-
-                        // Chama modal e define os valores
-                        bootbox.prompt({
-                            title: `Produto: ${product.nomeParametro}`,
-                            message: `<p>
-                            Informe o multiplicador para o produto:
-                            </p>`,
-                            locale: "pt",
-                            inputType: 'text',
-                            callback: async function (multiplicadorGota) {
-                                if (multiplicadorGota === null || multiplicadorGota === undefined) {
-                                    return false;
-                                }
-
-                                product.multiplicadorGota = Number.parseFloat(multiplicadorGota);
-
-                                // Altera registro na lista de dados
-                                let index = importSefazProducts.products.indexOf(importSefazProducts.product);
-                                importSefazProducts[index] = product;
-
-                                // Atualiza a tabela no DataTable
-                                let dataTable = "#import-sefaz-products-data #data-table";
-
-                                // Atualiza a tabela
-                                $(dataTable).DataTable().clear();
-                                $(dataTable).DataTable().rows.add(importSefazProducts.products);
-                                $(dataTable).DataTable().draw();
-
-                                importSefazProducts.product = {};
-                            },
-                        });
-
-                        $(".bootbox-input-text").MaskFloat({
-                            max: 9999.999
-                        }).val(product.multiplicadorGota.toFixed(3));
-
-                        return self;
-                    });
-
-                // Define se importa a linha em questão
-                $(document)
-                    .off("click", ".add-remove-item")
-                    .on("click", ".add-remove-item", function (event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        let self = this;
-
-                        // troca status de importação na lista e reflete na tabela
-                        let id = event.currentTarget.getAttribute('data-id');
-                        let product = importSefazProducts.products.find(x => x.id === parseInt(id));
-                        let indexProduct = importSefazProducts.products.indexOf(product);
-                        product.importar = !product.importar;
-                        importSefazProducts.products[indexProduct] = product;
-
-                        // Valida se tem ao menos 1 item para importação e (des)habilita o botão
-                        let count = importSefazProducts.products.filter(x => x.importar === true).length;
-
-                        if (count > 0) {
-                            $(document).find("#import-sefaz-products-data #btn-save").removeClass("disabled");
-                        } else {
-                            $(document).find("#import-sefaz-products-data #btn-save").addClass("disabled");
-                        }
-
-                        // Atualiza a tabela
-                        $(dataTable).DataTable().clear();
-                        $(dataTable).DataTable().rows.add(importSefazProducts.products);
-                        $(dataTable).DataTable().draw();
-
-                        return self;
-                    });
-            }
-
-            generateDataTable(dataTable, columns, self.products, null, null, callback);
-        } else {
-            $(document).find("#qrcode-search-form #qr-code").val(null);
+                    return self;
+                });
         }
 
-        return self;
-    },
-    /**
-     * Obtem dados de QR Code da SEFAZ
-     *
-     * @param {Event} event Evento de Click
-     * @returns this
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 1.2.3
-     * @date 2020-05-21
-     */
-    getQRCodeProducts: async function (event) {
-        let self = this;
-        let qrCode = $("#qrcode-search-form #qr-code").val();
+        generateDataTable(dataTable, columns, users, null, null, callback);
 
-        try {
-            let response = await sefazService.getDetailsQRCode(qrCode);
+        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-placa").val(vehicle === undefined ? "" : vehicle.placa);
+        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-modelo").val(vehicle === undefined ? "" : vehicle.modelo);
+        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-fabricante").val(vehicle === undefined ? "" : vehicle.fabricante);
+        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-ano").val(vehicle === undefined ? "" : vehicle.ano);
 
-            importSefazProducts.fillData(response.data.rede, response.data.cliente, response.data.sefaz.produtos.itens);
-        } catch (error) {
-            console.log(error);
-            if (error === undefined || error === null || !error) {
-                toastr.error("Erro na obtenção de dados da SEFAZ. Tente mais tarde", "Erro");
-            } else if (!error.responseJSON.mensagem.status) {
-                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
-            } else {
-                toastr.error(error);
-            }
+        $(document).find("#correction-user-points-search-form #veiculo-region").hide();
 
-            return false;
+        if (vehicle !== undefined && vehicle !== null) {
+            $(document).find("#correction-user-points-search-form #veiculo-region").show();
+        }
+
+        $(document).find("#usuarios-region").hide();
+
+        if (users !== undefined && users.length > 0) {
+            $(document).find("#usuarios-region").show();
         }
 
         return self;
@@ -313,6 +306,40 @@ var correctionUserPoints = {
             return false;
         }
     },
+    /**
+     * Obtem dados de QR Code da SEFAZ
+     *
+     * @param {Event} event Evento de Click
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-21
+     */
+    getQRCodeProducts: async function (event) {
+        let self = this;
+        let qrCode = $("#qrcode-search-form #qr-code").val();
+
+        try {
+            let response = await sefazService.getDetailsQRCode(qrCode);
+
+            importSefazProducts.fillData(response.data.rede, response.data.cliente, response.data.sefaz.produtos.itens);
+        } catch (error) {
+            console.log(error);
+            if (error === undefined || error === null || !error) {
+                toastr.error("Erro na obtenção de dados da SEFAZ. Tente mais tarde", "Erro");
+            } else if (!error.responseJSON.mensagem.status) {
+                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+            } else {
+                toastr.error(error);
+            }
+
+            return false;
+        }
+
+        return self;
+    },
+
     /**
      *
      * Método 'construtor'
@@ -396,14 +423,61 @@ var correctionUserPoints = {
 
         return this;
     },
+    searchUser: async function (event) {
+        event.preventDefault();
 
-    selectFilterUser: function (event) {
+        // Ao pesquisar, desabilita botão de gravar
+        $(document).find("#correction-user-points-search-form #btn-save").addClass("disabled");
+        // Limpa campo de quantidade de pontos
+        $(document).find("#correction-user-points-search-form #quantidade-multiplicador").val(0);
+
         let self = correctionUserPoints;
-        console.log(this.value);
+        self.users = [];
+        self.vehicle = {};
+
+        let nome = self.userOptionSelectedItem === "nome" ? $("#correction-user-points-search-form #user-input-search").val() : undefined;
+        let cpf = self.userOptionSelectedItem === "cpf" ? $("#correction-user-points-search-form #user-input-search").val() : undefined;
+        let telefone = self.userOptionSelectedItem === "telefone" ? $("#correction-user-points-search-form #user-input-search").val() : undefined;
+        let placa = self.userOptionSelectedItem === "placa" ? $("#correction-user-points-search-form #user-input-search").val() : undefined;
+
+        // Faz a pesquisa conforme a opção selecionada
+        try {
+            if (self.userOptionSelectedItem === "placa") {
+                self.vehicle = await veiculosService.getUsuariosByVeiculo(placa);
+
+                self.users = self.vehicle.usuarios_has_veiculos.map(function (data) {
+                    return data.usuario;
+                });
+            } else {
+                self.users = await usuariosService.getUsuariosFinais(nome, cpf, telefone);
+            }
+
+            // Preenche elementos de exibição
+            self.fillData(self.users, self.vehicle);
+            toastr.success("Dados carregados com sucesso!");
+        } catch (error) {
+            console.log(error);
+            var msg = {};
+
+            self.users = [];
+            self.vehicle = undefined;
+            self.fillData(self.users, self.vehicle);
+
+            if (error.responseJSON !== undefined) {
+                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                return false;
+            } else if (error.responseText !== undefined) {
+                msg = error.responseText;
+            } else {
+                msg = error;
+            }
+
+            toastr.error(msg);
+            return false;
+        }
 
         return self;
     },
-
     /**
      * Seleciona rede ao selecionar no list box
      *
@@ -427,6 +501,19 @@ var correctionUserPoints = {
 
         return self;
     },
+
+    selectUserFilter: function (event) {
+        let self = correctionUserPoints;
+        console.log(this.value);
+
+        self.userOptionSelectedItem = this.value;
+        $("#correction-user-points-search-form #user-input-search").val(null);
+
+        self.changeMaskUserFilter();
+
+        return self;
+    },
+
     /**
      * Dispara todos os eventos de todos os elementos da tela que são necessários
      *
@@ -441,6 +528,7 @@ var correctionUserPoints = {
             .find("#correction-user-points-search-form #redes-select-list").trigger("change");
 
         $(document).find("#correction-user-points-search-form #user-options-list").trigger("change");
+        $(document).find("#correction-user-points-search-form #user-input-search").trigger("keyup");
 
         return self;
     }

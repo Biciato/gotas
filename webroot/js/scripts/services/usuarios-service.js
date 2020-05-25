@@ -27,6 +27,40 @@ var usuariosService = {
     },
 
     /**
+     * Obtem lista de usuários finais, filtrado para inserção de pontos ou obtenção de brindes
+     *
+     * @param {String} nome Nome do Usuário
+     * @param {CPF} cpf CPF
+     * @param {Telefone} telefone Telefone
+     * @returns \App\Model\Entity\Usuario[] lista de Usuários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-25
+     */
+    getUsuariosFinais: async function (nome = undefined, cpf = undefined, telefone = undefined) {
+        var url = "/api/usuarios/get_usuarios_finais";
+
+        var dataToSend = {};
+
+        if (nome !== undefined) {
+            dataToSend.nome = usuarioParameterSearch.val().trim();
+        } else if (cpf !== undefined) {
+            dataToSend.cpf = cpf.trim().replace(/\D/gm, "");
+        } else if (telefone !== undefined) {
+            dataToSend.telefone = telefone.trim().replace(/\D/gm, "");
+        }
+
+        let response = await Promise.resolve($.ajax({
+            type: "GET",
+            url: url,
+            data: dataToSend,
+            dataType: "JSON"
+        }));
+
+        return response.data.usuarios;
+    },
+    /**
      * Obtem lista de perfis
      *
      * @returns Promise|false Promise ou status de false da operação

@@ -47,8 +47,8 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-6">
-                                    <label for="usuario-cpf">Dados de Pesquisa do Usuário:</label>
-                                    <input type="text" name="usuario-parameter-search" id="usuario-parameter-search"
+                                    <label for="user-input-search">Dados de Pesquisa do Usuário:</label>
+                                    <input type="text" name="user_input_search" id="user-input-search"
                                         class="form-control" placeholder="" title="">
                                 </div>
                             </div>
@@ -56,9 +56,10 @@
                             <div class="form-group row">
                                 <div class="col-lg-12">
                                     <div class="pull-right">
-                                        <div class="btn btn-primary" title="Pesquisar"
-                                            id="usuario-parameter-button-search"><i class="fas fa-search-plus"></i>
-                                            Pesquisar </div>
+                                        <div class="btn btn-primary" title="Pesquisar" id="btn-search">
+                                            <em class="fas fa-search-plus"></em>
+                                            Pesquisar
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -69,26 +70,26 @@
                                 <div class="form-group row">
                                     <div class="col-lg-3">
                                         <label for="veiculo-placa">Placa:</label>
-                                        <input type="text" name="veiculo-placa" id="veiculo-placa" class="form-control"
+                                        <input type="text" name="veiculo_placa" id="veiculo-placa" class="form-control"
                                             disabled placeholder="Placa do Veículo..." title="Placa do Veículo">
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="veiculo-modelo">Modelo:</label>
-                                        <input type="text" name="veiculo-modelo" id="veiculo-modelo"
+                                        <input type="text" name="veiculo_modelo" id="veiculo-modelo"
                                             class="form-control" disabled placeholder="Modelo do Veículo..."
                                             title="Modelo do Veículo">
 
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="veiculo-fabricante">Fabricante:</label>
-                                        <input type="text" name="veiculo-fabricante" id="veiculo-fabricante"
+                                        <input type="text" name="veiculo_fabricante" id="veiculo-fabricante"
                                             class="form-control" disabled placeholder="Fabricante do Veículo..."
                                             title="Fabricante do Veículo">
 
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="veiculo-ano">Ano:</label>
-                                        <input type="text" name="veiculo-ano" id="veiculo-ano" class="form-control"
+                                        <input type="text" name="veiculo_ano" id="veiculo-ano" class="form-control"
                                             disabled placeholder="Ano do Veículo..." title="Ano do Veículo">
 
                                     </div>
@@ -118,7 +119,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
+                            <div class="form-group row" id="usuario-region">
                                 <div class="col-lg-4">
                                     <label for="usuario-nome">Nome:</label>
                                     <input type="text" name="usuario-nome" id="usuario-nome" class="form-control"
@@ -131,15 +132,16 @@
                                         readonly disabled>
                                 </div>
                                 <div class="col-lg-4">
-                                    <label for="quantidade_multiplicador">Quantidade de Pontos à ser
+                                    <label for="quantidade-multiplicador">Quantidade de Pontos à ser
                                         Ajustado</label>
                                     <input type="text" class="form-control" name="quantidade_multiplicador"
                                         id="quantidade-multiplicador">
                                 </div>
                             </div>
                             <div class="text-right">
-                                <button type="button" class="btn btn-primary" id="botao-gravar-gotas">
-                                    <em class="fas fa-save"></em> Gravar
+                                <button type="button" class="btn btn-primary disabled" id="btn-save">
+                                    <em class="fas fa-save"></em>
+                                    Gravar
                                 </button>
 
                             </div>
@@ -151,7 +153,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="/webroot/css/styles/pontuacoes_comprovantes/correction-user-points.css">
+<link rel="stylesheet" href="/webroot/css/styles/admin/correction-user-points.css">
 
 <script>
     $(function () {

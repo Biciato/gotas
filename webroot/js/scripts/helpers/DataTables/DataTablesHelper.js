@@ -81,6 +81,7 @@ function generateDataTable(element, columns, dataSource, lengthMenu, languageOpt
             language: languageData,
             columns: columns,
             lengthMenu: lengthMenu,
+            searching: false,
             data: dataRows
         };
         if (callbackFunction !== undefined) {
