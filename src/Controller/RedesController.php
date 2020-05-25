@@ -110,7 +110,7 @@ class RedesController extends AppController
             }
 
             $dataTableSource = new stdClass();
-            $dataTableSource->draw = $data['draw'];
+            $dataTableSource->draw = $data['draw'] ?? true;
             $dataTableSource->recordsTotal = $total;
             $dataTableSource->recordsFiltered = $total;
             $dataTableSource->data = $redes;

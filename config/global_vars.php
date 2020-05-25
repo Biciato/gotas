@@ -6,7 +6,7 @@
 
 use Cake\Core\Configure;
 
-require_once("definitions.php");
+require_once "definitions.php";
 
 // const SITE_ADDRESS = 'https://40.71.26.138/',
 
@@ -352,6 +352,12 @@ Configure::write(
         'yesNoArray' => [
             1 => "Sim",
             0 => "Não"
+        ],
+
+        // Recaptcha keys
+        'googleRecatpchaSettings' => [
+            'site_key'=> __SITEKEY__,
+            'secret_key'=> __SECRETKEY__
         ]
     ]
 );

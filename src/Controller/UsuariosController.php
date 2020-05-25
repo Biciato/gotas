@@ -45,6 +45,10 @@ class UsuariosController extends AppController
     protected $usuarioLogado = null;
 
     //region Actions Web
+    public function usuarios()
+    {
+        $this->viewBuilder()->setLayout("default_update");
+    }
 
     /**
      * Index method
@@ -99,13 +103,13 @@ class UsuariosController extends AppController
         $redesId = null;
 
         if ($this->request->is(Request::METHOD_GET)) {
-            $queryParams = $this->request->getQueryParams();
-            $data = $queryParams["filtros"];
+            $data = $this->request->getQueryParams();
+            // $data = $queryParams["filtros"];
 
             // Parâmetro de paginação
             $pagination = new stdClass();
-            $pagination->start = isset($queryParams["start"]) ? (int) $queryParams["start"] : $pagination->start;
-            $pagination->length = isset($queryParams["length"]) ? (int) $queryParams["length"] : $pagination->length;
+            $pagination->start = isset($data["start"]) ? (int) $data["start"] : 1;
+            $pagination->length = isset($data["length"]) ? (int) $data["length"] : 50;
 
             $nome = !empty($data["nome"]) ? $data["nome"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
@@ -141,7 +145,7 @@ class UsuariosController extends AppController
         }
 
         $dataTableSource = new stdClass();
-        $dataTableSource->draw = $data['draw'];
+        $dataTableSource->draw = $data['draw'] ?? true;
         $dataTableSource->recordsTotal = $total;
         $dataTableSource->recordsFiltered = $total;
         $dataTableSource->data = $usuarios;
@@ -1638,23 +1642,28 @@ class UsuariosController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            $retornoLogin = $this->checkLoginUser($data["email"], $data["senha"], LOGIN_WEB);
+            if ($this->verifyRecatpcha($data)) {
+                $retornoLogin = $this->checkLoginUser($data["email"], $data["senha"], LOGIN_WEB);
 
-            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
-            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
-            $errors = !empty($retornoLogin["errors"]) ? $retornoLogin["errors"] : [];
+                $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
+                $email = !empty($data["email"]) ? $data["email"] : null;
+                $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
+                $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
+                $errors = !empty($retornoLogin["errors"]) ? $retornoLogin["errors"] : [];
 
-            if (empty($retornoLogin["usuario"])) {
-                $msg = $message;
+                if (empty($retornoLogin["usuario"])) {
+                    $msg = $message;
 
-                if (count($errors) > 0) {
-                    $msg .= " " . implode(" - ", $errors);
+                    if (count($errors) > 0) {
+                        $msg .= " " . implode(" - ", $errors);
+                    }
+                    $success = false;
+
+                    // return;
                 }
+            } else {
                 $success = false;
-
-                // return;
+                $msg = "Por favor, verifique o Recaptcha";
             }
             $this->response = $this->response->withType('application/json');
             $this->response = $this->response->withStringBody(json_encode(
@@ -1669,6 +1678,11 @@ class UsuariosController extends AppController
         $arraySet = ['recoverAccount', 'email', 'message'];
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+
+        // Recaptcha Flag
+        $usecaptcha = 1;
+        $this->set('usecaptcha', $usecaptcha);
+        $this->set('publickeycaptcha', Configure::read('googleRecatpchaSettings')['site_key']);
 
         if (isset($status) && ($status == false) && !$this->request->is(Request::METHOD_POST)) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
@@ -5691,9 +5705,38 @@ class UsuariosController extends AppController
     }
     #endregion
 
-    // Gets username to show in menu
+    /**
+     * getUsuarioName method
+     *
+     * @return ResponseUtil success
+     */
     public function getUsuarioName()
     {
         return ResponseUtil::success($this->Auth->user()->nome);
+    }
+
+    /**
+     * Verifica se o token do Recaptcha é válido
+     *
+     * @param Request $data Login Form Request
+     *
+     * @return boolean
+     */
+    public function verifyRecatpcha($data)
+    {
+        $recaptcha_secret = Configure::read('googleRecatpchaSettings')['secret_key'];
+        if (isset($data['g-recaptcha-response'])) {
+            $recaptcha_secret = Configure::read('google_recatpcha_settings.secret_key');
+            $url = "https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptcha_secret . "&response=" . $data['g-recaptcha-response'];
+            $response = json_decode(@file_get_contents($url));
+
+            if ($response->success == true) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

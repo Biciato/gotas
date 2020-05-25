@@ -26,5 +26,6 @@
 GOTAS - Faça o login no sistema
 <?php $this->end();
 $this->append('script');
+echo $this->Html->script('https://www.google.com/recaptcha/api.js?render='.$publickeycaptcha);
 echo $this->Html->script('scripts/usuarios/login');
 $this->end(); ?>

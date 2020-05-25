@@ -21,7 +21,7 @@
                         <?php if (!empty($sessao) && !empty($sessao->usuarioLogado)) : ?>
 
                             <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
-                                <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" style="border-radius: 50%; width: 6rem;" />
+                                <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" style="border-radius: 50%; max-width: 6rem;" />
                                 <!-- <img alt="image" class="rounded-circle" src="" /> -->
                                 <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                                     <span class="block m-t-xs font-bold"><?= $sessao->usuarioLogado->nome ?></span>
@@ -38,7 +38,7 @@
                         <?php endif; ?>
 
                         <div class="logo-element">
-                            <img alt="image" src="/img/rti-logo.png" style="width: 15rem" />
+                            <img alt="image" src="/img/rti-logo.png" style="max-width: 15rem" id="logoMenu"/>
                         </div>
                     </li>
 
@@ -50,7 +50,7 @@
                         <li>
                             <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                                <li class="active"><a href="#/usuarios/index">Cadastro de Usuários</a></li>
                             </ul>
                         </li>
                         <li>
@@ -209,7 +209,7 @@
 
                         <li>
                             <a href="/usuarios/logout">
-                                <i class="fa fa-sign-out-alt"></i> Log out
+                                <i class="fas fa-sign-out-alt"></i> Log out
                             </a>
                         </li>
                     </ul>
@@ -246,7 +246,7 @@
                 <div class="float-right">
                 </div>
                 <div>
-                    <strong>Copyright</strong>App web GOTAS &copy; 2017-2020
+                    <strong>Copyright</strong> App web GOTAS &copy; 2017-2020
                 </div>
             </div>
 

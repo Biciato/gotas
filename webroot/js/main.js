@@ -90,6 +90,11 @@ var sammy = Sammy("#content-html", function () {
     });
     //#endregion
 
+    // #region USUARIOS
+    self.get("#/usuarios/index", (context) => {
+        context.partial("view/usuarios/index.tpl");
+    });
+
     // #region REDES
     self.get("#/redes/index", (context) => {
         context.partial("view/redes/index.tpl");
