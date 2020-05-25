@@ -1323,6 +1323,10 @@ class BrindesController extends AppController
                     }
                 }
 
+                // Obtem o id de rede pertencente à aquele estabelecimento para obter lista de brindes
+                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+                $redesId = $redeHasCliente->rede->id;
+
                 $resultado = $this->Brindes->findBrindes(
                     $redesId,
                     $clientesId,
