@@ -30,14 +30,16 @@
                         <form id="correction-user-points-search-form">
                             <div class="form-group row">
                                 <div class="col-lg-4">
-                                    <label for="redes">Rede:</label>
-                                    <select name="redes_list" id="redes-list" class="form-control"
-                                        placeholder="Redes..." title="Redes"></select>
+                                    <label for="redes-select-list">Rede:</label>
+                                    <select name="redes_select_list" id="redes-select-list"
+                                        class="form-control select2-list-generic" placeholder="Redes..." title="Redes">
+                                        <option value="">&lt;Selecionar&gt;</option>
+                                    </select>
                                 </div>
                                 <div class="col-lg-2">
-                                    <label for="usuario-options-search">Pesquisar Por:</label>
-                                    <select id="usuario-options-search" name="usuario_options_search"
-                                        class="form-control" autofocus>
+                                    <label for="user-options-list">Pesquisar Por:</label>
+                                    <select id="user-options-list" name="user_options_list" class="form-control"
+                                        autofocus>
                                         <option value="nome">Nome</option>
                                         <option value="cpf">CPF</option>
                                         <option value="telefone" selected>Telefone</option>
@@ -153,7 +155,7 @@
 
 <script>
     $(function () {
-        importSefazProducts.init();
+        correctionUserPoints.init();
     })
         .ajaxStart(callLoaderAnimation)
         .ajaxStop(closeLoaderAnimation)
