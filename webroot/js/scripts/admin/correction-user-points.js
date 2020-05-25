@@ -5,14 +5,18 @@
  * @since 1.2.3
  * @date 2020-05-19
  */
-var importSefazProducts = {
+var correctionUserPoints = {
     //#region Variables
+    // Redes data list
+    networks: [],
     // Rede
-    network: {},
+    networkSelectedItem: {},
     // Lista de usuários
     usersList: [],
     // Usuário
     userSelectedItem: {},
+    // Pesquisar Por
+    userOptionSelectedItem: {},
     //#endregion
 
     //#region Functions
@@ -24,36 +28,14 @@ var importSefazProducts = {
      * @date 2020-05-12
      */
     configureEvents: function () {
-        'use strict';
         var self = this;
 
         $(document)
-            .off("change", "#correction-user-points-search #redes-list")
-            .on("change", "#correction-user-points-search #redes-list", self.selectNetwork);
+            .off("change", "#correction-user-points-search-form #redes-select-list")
+            .on("change", "#correction-user-points-search-form #redes-select-list", self.selectNetwork);
         $(document)
-            .off("keydown", "#qrcode-search-form #qr-code")
-            .on("keydown", "#qrcode-search-form #qr-code", function (event) {
-                if (event.keyCode === 13) {
-                    event.preventDefault();
-                    $(document)
-                        .find("#qrcode-search-form #btn-search").trigger('click');
-                }
-            });
-
-        $(document)
-            .off("click", "#qrcode-search-form #btn-search")
-            .on("click", "#qrcode-search-form #btn-search", self.getQRCodeProducts);
-
-        $(document)
-            .off("click", "#import-sefaz-products-breadcrumb #btn-refresh")
-            .on("click", "#import-sefaz-products-breadcrumb #btn-refresh", function () {
-                // chama a função de preencher dados, mas sem argumentos. Isto fará o reset
-                importSefazProducts.fillData();
-            });
-
-        $(document)
-            .off("click", "#import-sefaz-products-data #btn-save")
-            .on("click", "#import-sefaz-products-data #btn-save", self.save);
+            .off("change", "#correction-user-points-search-form #user-options-list")
+            .on("change", "#correction-user-points-search-form #user-options-list", self.selectFilterUser);
 
         return self;
     },
@@ -70,7 +52,6 @@ var importSefazProducts = {
      * @date 2020-05-21
      */
     fillData: function (users, vehicle = undefined) {
-        'use strict';
         var self = this;
 
         let dataTable = "#import-sefaz-products-data #data-table";
@@ -89,7 +70,7 @@ var importSefazProducts = {
         }
 
         if (network !== undefined && network !== null) {
-            self.network = network;
+            self.networkSelectedItem = network;
             self.establishment = establishment;
             self.products = products;
             $(document).find("#import-sefaz-products-data #redes-nome").val(network.nome_rede);
@@ -286,26 +267,64 @@ var importSefazProducts = {
 
         return self;
     },
-    getRedesList = async function () {
-        try {
-            let response = await redesService.getRedesList();
-        } catch (error) {
+    /**
+     * Preenche o select de Redes
+     *
+     * @param {HTMLElement} element Selector do elemento à ser preenchido
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-22
+     */
+    fillNetworkSelectList: async function (element) {
+        let self = this;
 
+        try {
+            var response = await redesService.getList();
+            if (response === undefined || response === null || !response) {
+                return false;
+            }
+
+            self.networks = response;
+
+            $(document).find(element).empty();
+            $(document).find(element).append(new Option(`<Selecionar>`, null));
+
+            response.forEach(rede => {
+                $(document).find(element).append(new Option(rede.nome_rede, rede.id));
+            });
+
+            return false;
+        } catch (error) {
+            console.log(error);
+            var msg = {};
+
+            if (error.responseJSON !== undefined) {
+                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                return false;
+            } else if (error.responseText !== undefined) {
+                msg = error.responseText;
+            } else {
+                msg = error;
+            }
+
+            toastr.error(msg);
+            return false;
         }
     },
-
-
     /**
      *
      * Método 'construtor'
      */
     init: function () {
         let self = this;
-        document.title = "GOTAS - Importação de Produtos da SEFAZ";
+        document.title = "GOTAS - Correção de Pontos de Usuário";
 
         self.configureEvents();
+        self.triggerEvents();
 
-        self.getRedesList();
+        self.fillNetworkSelectList("#correction-user-points-search-form #redes-select-list");
 
         return self;
     },
@@ -376,6 +395,54 @@ var importSefazProducts = {
         }
 
         return this;
+    },
+
+    selectFilterUser: function (event) {
+        let self = correctionUserPoints;
+        console.log(this.value);
+
+        return self;
+    },
+
+    /**
+     * Seleciona rede ao selecionar no list box
+     *
+     * @param {Event} event OnChange Event
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-22
+     */
+    selectNetwork: function (event) {
+        let self = correctionUserPoints;
+        let value = Number.parseInt(this.value);
+
+        self.networkSelectedItem = {};
+
+        if (!Number.isNaN(value)) {
+            // localiza a rede
+            self.networkSelectedItem = self.networks.find(x => x.id === value);
+        }
+
+        return self;
+    },
+    /**
+     * Dispara todos os eventos de todos os elementos da tela que são necessários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-12
+     */
+    triggerEvents: function () {
+        let self = this;
+
+        $(document)
+            .find("#correction-user-points-search-form #redes-select-list").trigger("change");
+
+        $(document).find("#correction-user-points-search-form #user-options-list").trigger("change");
+
+        return self;
     }
     //#endregion
 }

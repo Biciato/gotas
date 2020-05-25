@@ -212,6 +212,7 @@ echo $this->Html->script(sprintf("main.js?version=%s", SYSTEM_VERSION));
 // Administrativo
 
 echo $this->Html->script(sprintf("scripts/admin/import-sefaz-products.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/admin/correction-user-points.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/admin/manage-user.js?version=%s", SYSTEM_VERSION));
 
 // Clientes

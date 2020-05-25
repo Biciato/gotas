@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Classe javascript para ações de uso comum
  */
@@ -297,9 +298,9 @@ $(document).ready(function () {
             .prop("selected", false);
     });
 
-    $.get('/usuarios/get-usuario-name').then(resp => $('#username').append([
-        JSON.parse(resp).msg,
-        '<b class="caret"></b>']))
+    // $.get('/usuarios/get-usuario-name').then(resp => $('#username').append([
+    //     JSON.parse(resp).msg,
+    //     '<b class="caret"></b>']))
 });
 
 //#region Global Functions
