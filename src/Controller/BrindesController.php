@@ -56,7 +56,8 @@ class BrindesController extends AppController
                 "clientesId",
                 "brindes",
                 "usuario",
-                "dataPost"
+                "dataPost",
+                "usuarioLogado"
             ];
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -136,7 +137,7 @@ class BrindesController extends AppController
                 $tipoVenda = array($tipoVenda);
             }
 
-            $brindes = $this->Brindes->findBrindes(0, $clientesId, $categoriasBrindesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
+            $brindes = $this->Brindes->findBrindes($redesId, $clientesId, $categoriasBrindesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
 
             // DebugUtil::printArray($brindes);
             $brindes = $this->Paginate($brindes, array("limit" => 10));
@@ -1321,6 +1322,10 @@ class BrindesController extends AppController
                         unset($orderConditions[$key]);
                     }
                 }
+
+                // Obtem o id de rede pertencente à aquele estabelecimento para obter lista de brindes
+                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+                $redesId = $redeHasCliente->rede->id;
 
                 $resultado = $this->Brindes->findBrindes(
                     $redesId,
