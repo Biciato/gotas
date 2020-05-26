@@ -125,8 +125,7 @@ $(function () {
                             id: usuario.id,
                             nome: usuario.nome,
                             telefone: usuario.telefone === undefined || usuario.telefone === null ? "" : convertTextToPhone(usuario.telefone),
-                            data_nasc: usuario.data_nasc === undefined || usuario.data_nasc === null ? "" : moment(usuario.data_nasc, "YYYY-MM-DD").format("DD/MM/YYYY"),
-                            acoes: selectButton
+                            data_nasc: usuario.data_nasc === undefined || usuario.data_nasc === null ? "" : acoes: selectButton
                         });
                     });
 

@@ -10,11 +10,13 @@ var correctionUserPoints = {
     // Redes data list
     networks: [],
     // Rede
-    networkSelectedItem: {},
+    networkSelectedItem: undefined,
+    // Pontos à enviar do usuário
+    pointsToSend: 0.000,
     // Lista de usuários
     usersList: [],
     // Usuário
-    userSelectedItem: {},
+    userSelectedItem: undefined,
     // Pesquisar Por
     userOptionSelectedItem: {},
 
@@ -38,7 +40,7 @@ var correctionUserPoints = {
             .find("#correction-user-points-search-form #user-input-search")
             .unbind()
             // .removeData()
-            .removeProp("maxlength");
+            .removeAttr("maxlength");
 
         $(document)
             .off("blur", "#correction-user-points-search-form #user-input-search")
@@ -50,6 +52,12 @@ var correctionUserPoints = {
                     $(document).find("#correction-user-points-search-form #btn-search").addClass("disabled");
                 } else {
                     $(document).find("#correction-user-points-search-form #btn-search").removeClass("disabled");
+                }
+
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    // se enter, dispara o botão pesquisar
+                    $(document).find("#correction-user-points-search-form #btn-search").trigger("click");
                 }
             })
             // remove a mascara de placa
@@ -97,27 +105,53 @@ var correctionUserPoints = {
         var self = this;
 
         $(document)
-            .off("change", "#correction-user-points-search-form #redes-select-list")
-            .on("change", "#correction-user-points-search-form #redes-select-list", self.selectNetwork);
+            .off("change", "#correction-user-points-search-form #network-select-list")
+            .on("change", "#correction-user-points-search-form #network-select-list", self.selectNetwork);
         $(document)
-            .off("change", "#correction-user-points-search-form #user-options-list")
-            .on("change", "#correction-user-points-search-form #user-options-list", self.selectUserFilter);
-
-        $(document)
-            .off("keyup", "#correction-user-points-search-form")
-            .on("keyup", "#correction-user-points-search-form", function (event) {
-                if (event.keyCode === 13) {
-                    event.preventDefault();
-                    // se enter, dispara o botão pesquisar
-                    $(document).find("#correction-user-points-search-form #btn-search").trigger("click");
-                }
-            });
+            .off("change", "#correction-user-points-search-form #users-select-list")
+            .on("change", "#correction-user-points-search-form #users-select-list", self.selectUserFilter);
         $(document)
             .off("click", "#correction-user-points-search-form #btn-search")
             .on("click", "#correction-user-points-search-form #btn-search", self.searchUser);
 
+        $(document)
+            .off("click", "#correction-user-points #btn-refresh")
+            .on("click", "#correction-user-points #btn-refresh", self.resetWindow);
+
+        $(document)
+            .off("keydown", "#correction-user-points-search-form #user-region #user-points-send")
+            .on("keydown", "#correction-user-points-search-form #user-region #user-points-send", function (event) {
+                if (event.keyCode === 13) {
+                    $(document).find("#correction-user-points-search-form #user-region #btn-save").trigger("click");
+                }
+            })
+            .off("keyup", "#correction-user-points-search-form #user-region #user-points-send")
+            .on("keyup", "#correction-user-points-search-form #user-region #user-points-send", function (event) {
+                let self = correctionUserPoints;
+                if (parseFloat(this.value) === 0) {
+                    $(document).find("#correction-user-points-search-form #user-region #btn-save").addClass("disabled");
+                } else if (self.networkSelectedItem !== undefined && self.userSelectedItem !== undefined && this.value !== 0) {
+                    $(document).find("#correction-user-points-search-form #user-region #btn-save").removeClass("disabled");
+                }
+
+                self.pointsToSend = parseFloat(this.value);
+
+                return self;
+            });
+        $(document).find("#correction-user-points-search-form #user-region #user-points-send")
+            .MaskFloat({
+                max: 9999,
+                allowNegative: true,
+                decimals: 0,
+                separator: "."
+            });
+
+        $(document)
+            .off("click", "#correction-user-points-search-form #user-region #btn-save")
+            .on("click", "#correction-user-points-search-form #user-region #btn-save", self.save);
+
         // --------------------------
-        // Atenção: O método changeMaskUserFilter provêm recursos dinâmicos à esta tela
+        // Atenção: O método correctionUserPoints.changeMaskUserFilter provêm recursos dinâmicos à esta tela
         // --------------------------
 
         return self;
@@ -209,7 +243,6 @@ var correctionUserPoints = {
         let dataTable = "#correction-user-points-search-form #data-table";
 
         if ($.fn.DataTable.isDataTable(dataTable)) {
-            console.log('destroyed');
             $(dataTable).DataTable().clear();
             $(dataTable).DataTable().destroy();
         }
@@ -218,7 +251,7 @@ var correctionUserPoints = {
             // Modifica o valor de multiplicador
             $(document)
                 .off("click", ".select-item")
-                .on("click", ".select-item", function (event) {
+                .on("click", ".select-item", async function (event) {
                     event.preventDefault();
                     event.stopPropagation();
                     let self = correctionUserPoints;
@@ -229,11 +262,19 @@ var correctionUserPoints = {
 
                     // Define as informações do registro selecionado
                     correctionUserPoints.userSelectedItem = user;
+                    $(document).find("#correction-user-points-search-form #user-region #user-name").val(user.nome);
 
-                    $(document).find("#correction-user-points-search-form #usuario-region #usuario-nome").val(user.nome);
+                    try {
+                        await correctionUserPoints.getUserPoints(correctionUserPoints.networkSelectedItem.id, correctionUserPoints.userSelectedItem.id);
 
-                    // @todo Fazer método de obter saldo de gotas]
-                    // @todo Fazer gravar
+                        // Esconde a tabela de usuários e veículo encontrados
+                        $(document).find("#correction-user-points-search-form #users-table-region").hide();
+                        $(document).find("#correction-user-points-search-form #vehicle-region").hide();
+                    } catch (error) {
+                        // Este catch não precisa fazer nada, já foi tudo encapsulado no throw anterior.
+                        // Mas irá garantir que a tabela não se oculte em caso de erro
+                        console.log(error);
+                    }
 
                     return self;
                 });
@@ -241,21 +282,21 @@ var correctionUserPoints = {
 
         generateDataTable(dataTable, columns, users, null, null, callback);
 
-        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-placa").val(vehicle === undefined ? "" : vehicle.placa);
-        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-modelo").val(vehicle === undefined ? "" : vehicle.modelo);
-        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-fabricante").val(vehicle === undefined ? "" : vehicle.fabricante);
-        $(document).find("#correction-user-points-search-form #veiculo-region #veiculo-ano").val(vehicle === undefined ? "" : vehicle.ano);
+        $(document).find("#correction-user-points-search-form #vehicle-region #veiculo-placa").val(vehicle === undefined ? "" : vehicle.placa);
+        $(document).find("#correction-user-points-search-form #vehicle-region #veiculo-modelo").val(vehicle === undefined ? "" : vehicle.modelo);
+        $(document).find("#correction-user-points-search-form #vehicle-region #veiculo-fabricante").val(vehicle === undefined ? "" : vehicle.fabricante);
+        $(document).find("#correction-user-points-search-form #vehicle-region #veiculo-ano").val(vehicle === undefined ? "" : vehicle.ano);
 
-        $(document).find("#correction-user-points-search-form #veiculo-region").hide();
+        $(document).find("#correction-user-points-search-form #vehicle-region").hide();
 
-        if (vehicle !== undefined && vehicle !== null) {
-            $(document).find("#correction-user-points-search-form #veiculo-region").show();
+        if (vehicle !== undefined) {
+            $(document).find("#correction-user-points-search-form #vehicle-region").show();
         }
 
-        $(document).find("#usuarios-region").hide();
+        $(document).find("#users-table-region").hide();
 
         if (users !== undefined && users.length > 0) {
-            $(document).find("#usuarios-region").show();
+            $(document).find("#users-table-region").show();
         }
 
         return self;
@@ -309,7 +350,7 @@ var correctionUserPoints = {
     /**
      * Obtem dados de QR Code da SEFAZ
      *
-     * @param {Event} event Evento de Click
+     * @param {OnClick} event Evento de Click
      * @returns this
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -339,6 +380,45 @@ var correctionUserPoints = {
 
         return self;
     },
+    /**
+     * Chama service que obtem pontos de usuário
+     *
+     * @param {Integer} networkId Id de Rede
+     * @param {Integer} userId Id de usuário
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-26
+     */
+    getUserPoints: async function (networkId, userId) {
+        let self = this;
+
+        try {
+            let response = await pontuacoesService.getUserPoints(networkId, userId);
+
+            $("#correction-user-points-search-form #user-region #user-balance").val(response !== undefined ? response.saldo : 0);
+
+            toastr.success("Dados carregados com sucesso!");
+        } catch (error) {
+            console.log(error);
+            var msg = {};
+
+            if (error.responseJSON !== undefined) {
+                toastr.error(error.responseJSON.mensagem.errors.join(" "), error.responseJSON.mensagem.message);
+                return false;
+            } else if (error.responseText !== undefined) {
+                msg = error.responseText;
+            } else {
+                msg = error;
+            }
+
+            toastr.error(msg);
+            throw msg;
+        }
+
+        return self;
+    },
 
     /**
      *
@@ -351,59 +431,84 @@ var correctionUserPoints = {
         self.configureEvents();
         self.triggerEvents();
 
-        self.fillNetworkSelectList("#correction-user-points-search-form #redes-select-list");
+        self.fillNetworkSelectList("#correction-user-points-search-form #network-select-list");
 
         return self;
     },
     /**
-     * Grava os dados da tela.
-     * Retorna mensagem em caso de erro
+     * Reseta janela
+     * Reseta todos os campos da janela
      *
-     * @param {Event} event Evento de Click
+     * @param {OnClick} event Evento On Click
      * @returns this
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.2.3
-     * @date 2020-05-21
+     * @date 2020-05-26
+     */
+    resetWindow: function (event) {
+        var self = correctionUserPoints;
+
+        // reseta as variaveis
+        self.networkSelectedItem = undefined;
+        self.userSelectedItem = undefined;
+        self.users = [];
+        self.pointsToSend = 0;
+
+        // reseta os campos na tela
+
+        $("#correction-user-points-search-form #network-select-list").val(null).trigger('change');
+        $("#correction-user-points-search-form #users-select-list").val("telefone").trigger('change');
+        $("#correction-user-points-search-form #user-input-search").val(null).trigger('keyup');
+        $("#correction-user-points-search-form #user-region #user-name").val(null);
+        $("#correction-user-points-search-form #user-region #user-balance").val(null);
+        $("#correction-user-points-search-form #user-region #user-points-send").val(0).trigger('keyup');
+
+        return self;
+    },
+
+    /**
+     * Grava os dados da tela.
+     * Retorna mensagem em caso de erro
+     *
+     * @param {OnClick} event Evento de Click
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-26
      */
     save: async function (event) {
-        let self = importSefazProducts;
+        let self = correctionUserPoints;
 
         if ($(this).hasClass("disabled")) {
             event.preventDefault();
             return false;
         }
 
-        // Obtem somente os registros à serem importados. transforma no padrão desejado
-        let productsToSend = self.products
-            .filter(x => x.importar === true)
-            .map(function (row) {
-                return new Object({
-                    id: row.id,
-                    nome_parametro: row.nomeParametro,
-                    multiplicador_gota: row.multiplicadorGota
-                });
-            });
+        let hasErrors = self.networkSelectedItem === undefined || self.userSelectedItem === undefined || self.pointsToSend === 0;
 
-        // Raro desta situação acontecer, visto que desabilito o click. Mesmo assim, faz a validação
-        if (productsToSend === undefined || productsToSend === null || productsToSend.length === 0) {
-            toastr.error("É necessário enviar ao menos um produto!", "Erro!");
-
-            return false;
+        if (self.networkSelectedItem === undefined) {
+            toastr.error("É necessário selecionar uma rede!", "Erro!");
         }
 
+        if (self.userSelectedItem === undefined) {
+            toastr.error("É necessário selecionar um usuário!", "Erro!");
+        }
+
+        if (self.pointsToSend === 0) {
+            toastr.error("É necessário informar a quantidade de pontos à ser ajustado!", "Erro!");
+        }
+
+        if (hasErrors)
+            return;
+
         try {
-            let response = await gotasService.setGotasCliente(self.establishment.id, productsToSend);
+            let response = await pontuacoesComprovantesService.setPointsUserManual(self.networkSelectedItem.id, self.userSelectedItem.id, self.pointsToSend);
             toastr.success(response.mensagem.message);
 
             // Gravação concluída, limpa os dados
-            self.products = [];
-            self.product = {};
-            self.network = {};
-            self.establishment = {};
-
-            // Faz o refresh dos campos
-            $(document).find("#import-sefaz-products-breadcrumb #btn-refresh").trigger("click");
+            $(document).find("#correction-user-points #btn-refresh").trigger("click")
         } catch (error) {
             console.log(error);
             var msg = {};
@@ -423,17 +528,30 @@ var correctionUserPoints = {
 
         return this;
     },
+    /**
+     * Realiza pesquisa de usuário
+     *
+     * @param {OnClick} event Evento de click
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-22
+     */
     searchUser: async function (event) {
         event.preventDefault();
 
         // Ao pesquisar, desabilita botão de gravar
         $(document).find("#correction-user-points-search-form #btn-save").addClass("disabled");
-        // Limpa campo de quantidade de pontos
-        $(document).find("#correction-user-points-search-form #quantidade-multiplicador").val(0);
+        // Limpa campo de quantidade de pontos e nome de usuário selecionado
+        $(document).find("#correction-user-points-search-form #user-name").val(null);
+        $(document).find("#correction-user-points-search-form #user-balance").val(null);
+        $(document).find("#correction-user-points-search-form #user-points-send").val(0);
 
         let self = correctionUserPoints;
         self.users = [];
-        self.vehicle = {};
+        self.vehicle = undefined;
+        self.userSelectedItem = undefined;
 
         let nome = self.userOptionSelectedItem === "nome" ? $("#correction-user-points-search-form #user-input-search").val() : undefined;
         let cpf = self.userOptionSelectedItem === "cpf" ? $("#correction-user-points-search-form #user-input-search").val() : undefined;
@@ -502,9 +620,18 @@ var correctionUserPoints = {
         return self;
     },
 
+    /**
+     * Altera o tipo de pesquisa de usuário
+     *
+     * @param {OnChange} event onChange Event
+     * @returns this
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.2.3
+     * @date 2020-05-26
+     */
     selectUserFilter: function (event) {
         let self = correctionUserPoints;
-        console.log(this.value);
 
         self.userOptionSelectedItem = this.value;
         $("#correction-user-points-search-form #user-input-search").val(null);
@@ -517,17 +644,19 @@ var correctionUserPoints = {
     /**
      * Dispara todos os eventos de todos os elementos da tela que são necessários
      *
+     * @returns this
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.2.3
-     * @date 2020-05-12
+     * @date 2020-05-25
      */
     triggerEvents: function () {
         let self = this;
 
         $(document)
-            .find("#correction-user-points-search-form #redes-select-list").trigger("change");
+            .find("#correction-user-points-search-form #network-select-list").trigger("change");
 
-        $(document).find("#correction-user-points-search-form #user-options-list").trigger("change");
+        $(document).find("#correction-user-points-search-form #users-select-list").trigger("change");
         $(document).find("#correction-user-points-search-form #user-input-search").trigger("keyup");
 
         return self;

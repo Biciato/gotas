@@ -44,7 +44,7 @@ var usuariosService = {
         var dataToSend = {};
 
         if (nome !== undefined) {
-            dataToSend.nome = usuarioParameterSearch.val().trim();
+            dataToSend.nome = nome.trim();
         } else if (cpf !== undefined) {
             dataToSend.cpf = cpf.trim().replace(/\D/gm, "");
         } else if (telefone !== undefined) {

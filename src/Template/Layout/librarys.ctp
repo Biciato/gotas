@@ -199,10 +199,12 @@ echo $this->Html->script(sprintf("sammy-master/lib/plugins/sammy.template.js?ver
 <?php
 echo $this->Html->script(sprintf("scripts/services/clientes-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/gotas-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/pontuacoes-comprovantes-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/pontuacoes-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/usuarios-service.js?version=%s", SYSTEM_VERSION));
-echo $this->Html->script(sprintf("scripts/services/veiculos-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/redes-service.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/services/sefaz-service.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/services/veiculos-service.js?version=%s", SYSTEM_VERSION));
 ?>
 
 <!-- Controllers JS -->
