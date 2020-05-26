@@ -5720,6 +5720,10 @@ class UsuariosController extends AppController
      * @param Request $data Login Form Request
      *
      * @return boolean
+     *
+     * @author Leandro Biciato <leandro@aigen.com.br>
+     * @since 1.2.3
+     * @date 2020-05-26
      */
     public function verifyRecatpcha($data)
     {
