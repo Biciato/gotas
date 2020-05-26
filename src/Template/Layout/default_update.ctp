@@ -14,10 +14,10 @@
     <?= $this->element('header') ?>
     <div id="wrapper">
 
-        <nav class="navbar-default navbar-static-side" role="navigation" style="background-color: dodgerblue">
+        <nav class="navbar-default navbar-static-side" role="navigation">
             <div class="sidebar-collapse">
                 <ul class="nav metismenu" id="side-menu">
-                    <li class="nav-header" style="background: limegreen">
+                    <li class="nav-header">
                         <?php if (!empty($sessao) && !empty($sessao->usuarioLogado)) : ?>
 
                             <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
@@ -102,7 +102,7 @@
             <div class="row border-bottom">
                 <nav class="navbar navbar-static-top  " role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header">
-                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-warning " href="#"><i class="fa fa-bars"></i> </a>
                         <!-- <form role="search" class="navbar-form-custom" action="search_results.html">
                             <div class="form-group">
                                 <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">

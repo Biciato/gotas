@@ -119,9 +119,9 @@ class UsuariosController extends AppController
             $docEstrangeiro =
                 !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
 
-            $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
-            $tipoPerfilMax = strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
-            $tipoPerfilMin = strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
+            $tipoPerfil = !empty($data["tipo_perfil"]) && strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
+            $tipoPerfilMax = !empty($data["tipo_perfil_max"]) && strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
+            $tipoPerfilMin = !empty($data["tipo_perfil_min"]) && strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
             $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
         }
 
@@ -1639,29 +1639,25 @@ class UsuariosController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            if ($this->verifyRecatpcha($data)) {
-                $retornoLogin = $this->checkLoginUser($data["email"], $data["senha"], LOGIN_WEB);
+            $retornoLogin = $this->checkLoginUser($data["email"], $data["senha"], LOGIN_WEB);
 
-                $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
-                $email = !empty($data["email"]) ? $data["email"] : null;
-                $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
-                $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
-                $errors = !empty($retornoLogin["errors"]) ? $retornoLogin["errors"] : [];
+            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
+            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
+            $errors = !empty($retornoLogin["errors"]) ? $retornoLogin["errors"] : [];
 
-                if (empty($retornoLogin["usuario"])) {
-                    $msg = $message;
+            if (empty($retornoLogin["usuario"])) {
+                $msg = $message;
 
-                    if (count($errors) > 0) {
-                        $msg .= " " . implode(" - ", $errors);
-                    }
-                    $success = false;
-
-                    // return;
+                if (count($errors) > 0) {
+                    $msg .= " " . implode(" - ", $errors);
                 }
-            } else {
                 $success = false;
-                $msg = "Por favor, verifique o Recaptcha";
+
+                // return;
             }
+
             $this->response = $this->response->withType('application/json');
             $this->response = $this->response->withStringBody(json_encode(
                 [
@@ -3046,6 +3042,12 @@ class UsuariosController extends AppController
 
         if ($this->request->is("post")) {
             $data = $this->request->getData();
+
+            // Checa se o Recaptcha é válido
+            if (!$this->verifyRecatpcha($data)) {
+                // Retorna mensagem de erro se o recaptcha for inválido
+                return ResponseUtil::errorAPI('Atenção', ['Não foi possível validar o Recaptcha. Tente F5 para atualizar a página.']);
+            }
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
@@ -5721,9 +5723,8 @@ class UsuariosController extends AppController
      */
     public function verifyRecatpcha($data)
     {
-        $recaptcha_secret = Configure::read('googleRecatpchaSettings')['secret_key'];
         if (isset($data['g-recaptcha-response'])) {
-            $recaptcha_secret = Configure::read('google_recatpcha_settings.secret_key');
+            $recaptcha_secret = Configure::read('googleRecatpchaSettings')['secret_key'];
             $url = "https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptcha_secret . "&response=" . $data['g-recaptcha-response'];
             $response = json_decode(@file_get_contents($url));
 

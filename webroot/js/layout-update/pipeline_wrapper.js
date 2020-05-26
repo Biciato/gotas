@@ -177,6 +177,7 @@ var initPipelinedDT = function (tb_selector, columns, ajax_url, order, custom_da
             data: custom_data,
             rowModifier: rowModifier
         }),
-        drawCallback: drawCallback
+        drawCallback: drawCallback,
+        searching: false
     });
 }
