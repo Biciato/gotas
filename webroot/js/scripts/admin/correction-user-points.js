@@ -7,6 +7,7 @@
  */
 var correctionUserPoints = {
     //#region Variables
+
     // Redes data list
     networks: [],
     // Rede
