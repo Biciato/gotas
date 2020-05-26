@@ -226,6 +226,9 @@ echo $this->Html->script(sprintf("scripts/redes/view.js?version=%s", SYSTEM_VERS
 echo $this->Html->script(sprintf("scripts/redes/add.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script(sprintf("scripts/redes/edit.js?version=%s", SYSTEM_VERSION));
 
+//Usuarios
+echo $this->Html->script(sprintf("scripts/usuarios/usuarios.js?version=%s", SYSTEM_VERSION));
+
 ?>
 
 <?php echo $this->Html->css('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'); ?>

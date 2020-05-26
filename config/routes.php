@@ -664,7 +664,12 @@ Router::scope("/api", function ($routes) {
                 "action" => "finishManageUser",
                 "method" => Request::METHOD_POST,
                 "path" => "finish_manage_user"
-            ]
+            ],
+            "visualizarUsuarioAPI" => [
+                "action" => "visualizarUsuarioAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/visualizar-usuario"
+            ],
         ]
     ]);
 

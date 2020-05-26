@@ -178,16 +178,31 @@ return [
      */
     'EmailTransport' => [
         'default' => [
-            'className' => 'Mail',
+            // 'className' => 'Mail',
+            'className' => 'Smtp',
             // The following keys are used in SMTP transports
-            'host' => 'localhost',
-            'port' => 25,
+            'host' => 'smtp.rtisolutions.com.br',
+
+            'port' => 587,
             'timeout' => 30,
-            'username' => 'user',
-            'password' => 'secret',
-            'client' => null,
-            'tls' => null,
+            'username' => 'noreply@rtisolutions.com.br',
+            'password' => 'rti2017*',
+
+            // 'client' => null,
+            // 'tls' => false,
+            'tls' => true,
             'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
+            'context' =>
+            [
+                'ssl' =>
+                [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ]
+
+
         ],
     ],
 
@@ -203,11 +218,12 @@ return [
     'Email' => [
         'default' => [
             'transport' => 'default',
-            'from' => 'you@localhost',
+            'from' => 'noreply@rtisolutions.com.br',
             //'charset' => 'utf-8',
             //'headerCharset' => 'utf-8',
         ],
     ],
+
 
     /**
      * Connection information used by the ORM to connect
@@ -229,9 +245,9 @@ return [
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => 'rti_gotas_devel',
-            'password' => ']tS(nyjFXBwP=u8+',
-            'database' => 'rti_gotas_devel',
+            'username' => 'vinicius',
+            'password' => 'nanoboost',
+            'database' => 'rti_gotas',
             'encoding' => 'utf8',
             'timezone' => 'UTC',
             'flags' => [],

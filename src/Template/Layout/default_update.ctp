@@ -14,10 +14,10 @@
     <?= $this->element('header') ?>
     <div id="wrapper">
 
-        <nav class="navbar-default navbar-static-side" role="navigation" style="background-color: dodgerblue">
+        <nav class="navbar-default navbar-static-side" role="navigation">
             <div class="sidebar-collapse">
                 <ul class="nav metismenu" id="side-menu">
-                    <li class="nav-header" style="background: limegreen">
+                    <li class="nav-header">
                         <?php if (!empty($sessao) && !empty($sessao->usuarioLogado)) : ?>
 
                             <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
@@ -38,7 +38,8 @@
                         <?php endif; ?>
 
                         <div class="logo-element">
-                            <img alt="image" src="/img/rti-logo.png" style="width: 15rem" />
+                            <img alt="Gotas" src="/img/rti-logo.png" style="width: 15rem" class="main-logo"/>
+                            <img alt="Gotas" src="/img/icons/logo.png" class="small-logo"/>
                         </div>
                     </li>
 
@@ -50,13 +51,13 @@
                         <li>
                             <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Usuários</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                                <li><a href="#/usuarios/index">Consultar usuários</a></li>
                             </ul>
                         </li>
                         <li>
                             <a href="index.html"><i class="fas fa-building"></i> <span class="nav-label">Redes</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active"><a href="#/redes/index">Cadastro de Redes</a></li>
+                                <li><a href="#/redes/index">Cadastro de Redes</a></li>
                             </ul>
                         </li>
                         <li>
@@ -246,7 +247,7 @@
                 <div class="float-right">
                 </div>
                 <div>
-                    <strong>Copyright</strong>App web GOTAS &copy; 2017-2020
+                    <strong>Copyright</strong> App web GOTAS &copy; 2017-2020
                 </div>
             </div>
 
@@ -261,7 +262,6 @@
     <?php echo $this->Html->script("layout-update/pace/pace.min"); ?>
     <?php echo $this->Html->script("layout-update/metisMenu/jquery.metisMenu.js"); ?>
     <?php echo $this->Html->script("layout-update/slimscroll/jquery.slimscroll.min.js"); ?>
-
     <?php echo $this->fetch('script'); ?>
 
 </body>

@@ -5,10 +5,10 @@ var usuarios = {
         self.carregarOpcoes();
         $(document).on("click", "#filtrar_usuarios", self.filtrarUsuarios);
         $(document).on("change", "#redes_id", self.buscarUnidades);
+        $(document).on('click', '.visualizar-detalhes-usuario', self.visualizarUsuario); 
         return this;
     },
     initDT: function () {
-        if (typeof window["#usuarios-table"] === "undefined") {
             initPipelinedDT(
                 "#usuarios-table",
                 [
@@ -18,7 +18,7 @@ var usuarios = {
                     { className: "text-center" },
                     { className: "text-center", orderable: false },
                 ],
-                "/app_gotas/usuarios/carregar-usuarios",
+                "/api/usuarios/carregar-usuarios",
                 undefined,
                 function (d) {
                     var filtros = $("#filtro_usuarios_form").serialize();
@@ -32,24 +32,22 @@ var usuarios = {
                     var column = row[column_key];
                     //Botão de visualizar
                     row[column_key] =
-                        '<a href="/app_gotas/usuarios/view/' +
-                        column["usuario_id"] +
-                        '" class="btn btn-xs btn-default botao-navegacao-tabela" title="Ver detalhes"><i class="fa fa-info-circle"></i> </a> ' +
+                        '<a href="javascript:void(0)" data-id="' + column["usuario_id"] + '" class="btn btn-default botao-navegacao-tabela visualizar-detalhes-usuario" title="Ver detalhes"><i class="fa fa-info-circle"></i> </a> ' +
                         //Botão de editar operador
-                        '<a href="/app_gotas/usuarios/editar-operador/' +
+                        '<a href="/usuarios/editar-operador/' +
                         column["usuario_id"] +
-                        '" class="btn btn-xs btn-primary botao-navegacao-tabela" title="Editar"><i class="fa fa-edit"></i></a>';
+                        '" class="btn btn-primary botao-navegacao-tabela" title="Editar"><i class="fa fa-edit"></i></a>';
                     if (column["botoes_extras"]) {
                         if (column["conta_ativa"]) {
                             row[column_key] +=
-                                ' <a href="#" class="btn btn-xs  btn-danger btn-confirm" title="Desativar" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente desabilitar o acesso do usuário ' +
+                                ' <a href="#" class="btn  btn-danger btn-confirm" title="Desativar" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente desabilitar o acesso do usuário ' +
                                 row[0] +
                                 '?" data-action="' +
                                 column["url_desativar"] +
                                 '"><i class="fa fa-power-off"></i> </a>';
                         } else {
                             row[column_key] +=
-                                ' <a href="#" class="btn btn-xs  btn-primary btn-confirm" title="Ativar" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente habilitar o acesso do usuário ' +
+                                ' <a href="#" class="btn  btn-primary btn-confirm" title="Ativar" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente habilitar o acesso do usuário ' +
                                 row[0] +
                                 '?" data-action="' +
                                 column["url_ativar"] +
@@ -57,7 +55,7 @@ var usuarios = {
                         }
                     }
                     row[column_key] +=
-                        ' <a href="#" class="btn btn-xs  btn-danger btn-confirm" title="Remover" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente apagar o registro  ' +
+                        ' <a href="#" class="btn  btn-danger btn-confirm" title="Remover" data-toggle="modal" data-target="#modal-delete-with-message" data-message="Deseja realmente apagar o registro  ' +
                         row[0] +
                         '?" data-action="' +
                         column["url_deletar"] +
@@ -66,7 +64,6 @@ var usuarios = {
                     return row;
                 }
             );
-        }
     },
     filtrarUsuarios: function (e) {
         e.preventDefault();
@@ -81,7 +78,7 @@ var usuarios = {
             $("#clientes_rede").attr("disabled", "disabled");
         } else {
             $.ajax({
-                url: "/app_gotas/api/clientes/get_clientes_list",
+                url: "/api/clientes/get_clientes_list",
                 data: { redes_id: val },
                 method: "GET",
                 dataType: "JSON",
@@ -122,11 +119,11 @@ var usuarios = {
             '<option value="" selected="selected">&lt;Todos&gt </option>';
 
         $.ajax({
-            url: "/app_gotas/usuarios/carregar_tipos_perfil",
+            url: "/api/usuarios/get_profile_types",
             data: {},
             method: "GET",
             success: function (resposta) {
-                $.each(resposta.source, function (i, item) {
+                $.each(resposta.data.filter, function (i, item) {
                     opcoes_tipos_perfil +=
                         '<option value="' + i + '">' + item + "</option>";
                 });
@@ -134,18 +131,75 @@ var usuarios = {
             },
         });
         $.ajax({
-            url: "/app_gotas/usuarios/carregar_redes",
+            url: "/usuarios/carregar_redes",
             data: {},
             method: "GET",
             success: function (resposta) {
                 $.each(resposta.source, function (i, item) {
-                    opcoes_tipos_perfil +=
+                    opcoes_redes +=
                         '<option value="' + i + '">' + item + "</option>";
                 });
-                $("#redes_id").html(opcoes_tipos_perfil);
+                $("#redes_id").html(opcoes_redes);
             },
         });
     },
+    visualizarUsuario: function()
+      {
+        var id = $(this).data('id');
+        $.ajax(
+          {
+            url: '/api/usuarios/visualizar-usuario',
+            data: {id: id},
+            dataType: 'JSON',
+            method: 'GET',
+            success: function(resposta)
+              {
+                var markup = '<table class="table table-condensed">' +
+                '<tbody>' +
+                    '<tr>' +
+                    '<td><b>Nome</b></td>' +
+                    '<td>' + resposta.source.nome + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><b>Email</b></td>' +
+                    '<td>' + resposta.source.email + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><b>Telefone</b></td>' +
+                    '<td>' + resposta.source.telefone + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><b>Tipo de perfil</b></td>' +
+                    '<td>' + resposta.source.tipo_perfil + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><b>Data nascimento</b></td>' +
+                    '<td>' + resposta.source.data_nascimento + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><b>Sexo</b></td>' +
+                    '<td>' + resposta.source.sexo + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><b>Port. necessidades especiais</b></td>' +
+                    '<td>' + resposta.source.necessidades_especiais + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><b>Data criação</b></td>' +
+                    '<td>' + resposta.source.data_criacao + '</td>' +
+                    '</tr>' +
+                    '</tr>' +
+                    '<td><b>Última alteração</b></td>' +
+                    '<td>' + resposta.source.ultima_atualizacao + '</td>' +
+                    '</tr>' +
+                    '</tbody>' +
+                '</table>';
+                $("#modal-visualize-body").html(markup);
+                $("#modal-visualize").modal('show');
+              }
+          }
+        );
+      }
 };
 $(document).ready(function () {
     usuarios.init();

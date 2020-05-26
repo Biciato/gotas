@@ -1579,9 +1579,8 @@ class UsuariosController extends AppController
     public function esqueciMinhaSenha()
     {
         $this->viewBuilder()->setLayout('login');
-
+        $message = null;
         if ($this->request->is('post')) {
-            $message = null;
             $success = false;
             $usuario = $this->Usuarios->getUsuarioByEmail($this->request->data['email']);
             if (is_null($usuario)) {
@@ -1601,14 +1600,8 @@ class UsuariosController extends AppController
                     $message = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
-            $this->response = $this->response->withType('application/json');
-            $this->response = $this->response->withStringBody(json_encode(
-                [
-                    'success' => $success,
-                    'message' => $message
-                ]
-            ));
-            return $this->response;
+            
+            return ResponseUtil::successAPI('', ['message' => $message]);
         }
 
         $arraySet = [
@@ -1889,7 +1882,76 @@ class UsuariosController extends AppController
             $this->Flash->error($stringError);
         }
     }
+    /**
+     * UsuariosController::visualizarUsuarioAPI
+     *
+     * Traz os dados de um usuário pra ser exibido
+     *
+     * @param string id ID do usuário em questão
+     *
+     * @author Vinícius Abreu <vinicius@aigen.com.br>
+     * @since 2020-05-26
+     *
+     * @return void
+     */
+    public function visualizarUsuarioAPI()
+      {
+        try
+          {
+            if($this->request->is('GET'))
+              {
+                $id = $this->request->getQueryParams()['id'];
+                $usuario = $this->Usuarios->get($id);
+                $tipos = 
+                  [
+                    PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_USER => PROFILE_TYPE_DUMMY_USER_TRANSLATE,
+                  ];
+                $data_nascimento = ($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "";
+                $genero = "";
+                if ($usuario->sexo == 2){
+                    $genero = "Nâo informado";
+                }
+                if ($usuario->sexo == 1) {
+                    $genero = "Masculino";
+                } else {
+                    $genero = "Feminino";
+                }
+                $necessidades_especiais = ($usuario->necessidades_especiais) ? "Sim" : "Não";
+                $resposta = 
+                  [
+                    'nome' => $usuario->nome,
+                    'email' => $usuario->email,
+                    'telefone' => $usuario->telefone,
+                    'tipo_perfil' => $tipos[$usuario->tipo_perfil],
+                    'data_nascimento' => $data_nascimento,
+                    'cpf' =>  preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
+                    'sexo' => $genero,
+                    'necessidades_especiais' => $necessidades_especiais,
+                    'data_criacao' => $usuario->audit_insert->format('d/m/Y'),
+                    'ultima_atualizacao' => $usuario->audit_update->format('d/m/Y'),
+                    'telefone' => $usuario->telefone
+    
+                  ];
+                return ResponseUtil::successAPI('', ['source' => $resposta]);
+              }
+          }
+        catch (\Exception $e)
+          {
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao realizar o processo de visualização de usuário em {0}", $e->getMessage());
 
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
+          }
+      }
     /**
      * UsuariosController::alterarSenhaAPI
      *
@@ -2422,14 +2484,7 @@ class UsuariosController extends AppController
                     $mensagem = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
-            $this->response = $this->response->withType('application/json') .
-                $this->response = $this->response->withStringBody(json_encode(
-                    [
-                        'success' => $success,
-                        'message' => $mensagem
-                    ]
-                ));
-            return $this->response;
+            return ResponseUtil::successAPI('', ['message' => $mensagem]);
         }
 
         $arraySet = [
