@@ -2317,7 +2317,7 @@ class UsuariosController extends AppController
 
             $data = new stdClass();
 
-            $data->usuario_logado = $usuarioAdministrar;
+            $data->usuario = $usuarioAdministrar;
             $data->usuario_administrador = $usuarioAdministrador;
             $data->cliente = $cliente;
             $data->rede = $rede;

@@ -131,7 +131,7 @@
                                             id="user-points-send">
                                     </div>
                                 </div>
-                                <div class="text-right">
+                                <div>
                                     <button type="button" class="btn btn-primary disabled" id="btn-save">
                                         <em class="fas fa-save"></em>
                                         Gravar

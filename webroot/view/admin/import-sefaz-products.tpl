@@ -71,8 +71,8 @@
                                 </tbody>
                             </table>
                             <div class="form-group row ">
-                                <div class="col-lg-2 pull-right">
-                                    <button type="submit" class="btn btn-primary btn-block disabled" id="btn-save">
+                                <div class="col-lg-12">
+                                    <button type="submit" class="btn btn-primary disabled" id="btn-save">
                                         <span class="fas fa-save"></span>
                                         Gravar
                                     </button>

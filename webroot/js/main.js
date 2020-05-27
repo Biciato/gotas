@@ -1,5 +1,7 @@
 var sammy = Sammy("#content-html", function () {
     var self = this;
+
+    self.credentials = {};
     self.use(Sammy.Template, 'tpl');
 
     // Caminho para página não encontrada
@@ -19,7 +21,11 @@ var sammy = Sammy("#content-html", function () {
         // Se as credentials na session não estiverem definidas, redireciona ao login
         if (localStorage.getItem('credentials') === null) {
             window.location.href = "/usuarios/login";
+        } else {
+            self.credentials = JSON.parse(localStorage.getItem('credentials'));
         }
+
+        document.title = 'GOTAS - ' + self.credentials.usuario.nome;
 
     });
 
@@ -36,6 +42,7 @@ var sammy = Sammy("#content-html", function () {
 
     //#region ADMIN
 
+    //#region ADMIN SYSTEM
     self.get("#/admin/import-sefaz-products", function (context) {
         context.partial("view/admin/import-sefaz-products.tpl");
     });
@@ -46,7 +53,16 @@ var sammy = Sammy("#content-html", function () {
         context.partial("view/admin/manage-user.tpl");
     });
 
-    ////#endregion
+    //#endregion
+
+    //#region ADMIN NETWORK
+
+    self.get("#/admin/network-settings", function (context) {
+        context.partial("view/admin/network-settings.tpl");
+    });
+    //#endregion
+
+    //#endregion
 
     //#region CLIENTES
 

@@ -277,6 +277,9 @@ var manageUser = {
                         if (response === undefined || response === null || !response) {
                             return false;
                         }
+
+                        localStorage.setItem('credentials', JSON.stringify(response.data));
+                        console.log(response);
                         dialogItSelf.close();
                         window.location.href = "#/";
                         window.location.reload();
@@ -338,8 +341,6 @@ var manageUser = {
      */
     triggerEvents: function () {
         var self = this;
-        $(document)
-            .find("#manage-user-form #btn-search").trigger('click');
 
         return self;
     }
