@@ -18,7 +18,7 @@ var sammy = Sammy("#content-html", function () {
     }, function () {
         // Se as credentials na session não estiverem definidas, redireciona ao login
         if (localStorage.getItem('credentials') === null) {
-            window.location.href = "/usuarios/login";
+            // window.location.href = "/usuarios/login";
         }
 
     });
@@ -90,12 +90,12 @@ var sammy = Sammy("#content-html", function () {
     });
     //#endregion
 
-    // #region USUÁRIOS
+    // #region USUARIOS
     self.get("#/usuarios/index", (context) => {
         context.partial("view/usuarios/index.tpl");
     });
-    //#endregion
-    
+    ////#endregion
+
     // #region REDES
     self.get("#/redes/index", (context) => {
         context.partial("view/redes/index.tpl");

@@ -21,7 +21,7 @@
                         <?php if (!empty($sessao) && !empty($sessao->usuarioLogado)) : ?>
 
                             <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
-                                <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" style="border-radius: 50%; width: 6rem;" />
+                                <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" style="border-radius: 50%; max-width: 6rem;" />
                                 <!-- <img alt="image" class="rounded-circle" src="" /> -->
                                 <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                                     <span class="block m-t-xs font-bold"><?= $sessao->usuarioLogado->nome ?></span>
@@ -103,7 +103,7 @@
             <div class="row border-bottom">
                 <nav class="navbar navbar-static-top  " role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header">
-                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-warning " href="#"><i class="fa fa-bars"></i> </a>
                         <!-- <form role="search" class="navbar-form-custom" action="search_results.html">
                             <div class="form-group">
                                 <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">
@@ -210,7 +210,7 @@
 
                         <li>
                             <a href="/usuarios/logout">
-                                <i class="fa fa-sign-out-alt"></i> Log out
+                                <i class="fas fa-sign-out-alt"></i> Log out
                             </a>
                         </li>
                     </ul>

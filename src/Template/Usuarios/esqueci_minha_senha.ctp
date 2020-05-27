@@ -20,7 +20,7 @@
 
 							<button type="submit" class="btn btn-primary block full-width m-b" id="btn-recuperar-senha"><?php echo __('Enviar senha nova'); ?></button>
                             <br>
-                            <a class="btn btn-white btn-block" href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'login']) ?>"><?php echo __('Login'); ?></a>
+                            <a class="btn btn-info btn-block" href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'login']) ?>"><?php echo __('Login'); ?></a>
 						</form>
 					</div>
 				</div>

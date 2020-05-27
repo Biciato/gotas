@@ -117,6 +117,7 @@ $(document).ready(function () {
     $('.navbar-minimalize').on('click', function (event) {
         event.preventDefault();
         $("body").toggleClass("mini-navbar");
+        $('#logoMenu').hide();
         SmoothlyMenu();
 
     });
@@ -239,6 +240,7 @@ function SmoothlyMenu() {
     if (!$('body').hasClass('mini-navbar') || $('body').hasClass('body-small')) {
         // Hide menu in order to smoothly turn on when maximize menu
         $('#side-menu').hide();
+        $('#logoMenu').show();
         // For smoothly turn on menu
         setTimeout(
             function () {
