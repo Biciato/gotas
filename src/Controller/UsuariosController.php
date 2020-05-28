@@ -45,6 +45,10 @@ class UsuariosController extends AppController
     protected $usuarioLogado = null;
 
     //region Actions Web
+    public function usuarios()
+    {
+        $this->viewBuilder()->setLayout("default_update");
+    }
 
     /**
      * Index method
@@ -101,13 +105,13 @@ class UsuariosController extends AppController
         $redesId = null;
 
         if ($this->request->is(Request::METHOD_GET)) {
-            $queryParams = $this->request->getQueryParams();
-            $data = $queryParams["filtros"];
+            $data = $this->request->getQueryParams();
+            // $data = $queryParams["filtros"];
 
             // Parâmetro de paginação
             $pagination = new stdClass();
-            $pagination->start = isset($queryParams["start"]) ? (int) $queryParams["start"] : $pagination->start;
-            $pagination->length = isset($queryParams["length"]) ? (int) $queryParams["length"] : $pagination->length;
+            $pagination->start = isset($data["start"]) ? (int) $data["start"] : 1;
+            $pagination->length = isset($data["length"]) ? (int) $data["length"] : 50;
 
             $nome = !empty($data["nome"]) ? $data["nome"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
@@ -115,9 +119,9 @@ class UsuariosController extends AppController
             $docEstrangeiro =
                 !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
 
-            $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
-            $tipoPerfilMax = strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
-            $tipoPerfilMin = strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
+            $tipoPerfil = !empty($data["tipo_perfil"]) && strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
+            $tipoPerfilMax = !empty($data["tipo_perfil_max"]) && strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
+            $tipoPerfilMin = !empty($data["tipo_perfil_min"]) && strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
             $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
         }
 
@@ -1579,9 +1583,8 @@ class UsuariosController extends AppController
     public function esqueciMinhaSenha()
     {
         $this->viewBuilder()->setLayout('login');
-
+        $message = null;
         if ($this->request->is('post')) {
-            $message = null;
             $success = false;
             $usuario = $this->Usuarios->getUsuarioByEmail($this->request->data['email']);
             if (is_null($usuario)) {
@@ -1601,14 +1604,8 @@ class UsuariosController extends AppController
                     $message = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
-            $this->response = $this->response->withType('application/json');
-            $this->response = $this->response->withStringBody(json_encode(
-                [
-                    'success' => $success,
-                    'message' => $message
-                ]
-            ));
-            return $this->response;
+            
+            return ResponseUtil::successAPI('', ['message' => $message]);
         }
 
         $arraySet = [
@@ -1653,6 +1650,7 @@ class UsuariosController extends AppController
 
                 // return;
             }
+
             $this->response = $this->response->withType('application/json');
             $this->response = $this->response->withStringBody(json_encode(
                 [
@@ -1666,6 +1664,11 @@ class UsuariosController extends AppController
         $arraySet = ['recoverAccount', 'email', 'message'];
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+
+        // Recaptcha Flag
+        $usecaptcha = 1;
+        $this->set('usecaptcha', $usecaptcha);
+        $this->set('publickeycaptcha', Configure::read('googleRecatpchaSettings')['site_key']);
 
         if (isset($status) && ($status == false) && !$this->request->is(Request::METHOD_POST)) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
@@ -1889,7 +1892,76 @@ class UsuariosController extends AppController
             $this->Flash->error($stringError);
         }
     }
+    /**
+     * UsuariosController::visualizarUsuarioAPI
+     *
+     * Traz os dados de um usuário pra ser exibido
+     *
+     * @param string id ID do usuário em questão
+     *
+     * @author Vinícius Abreu <vinicius@aigen.com.br>
+     * @since 2020-05-26
+     *
+     * @return void
+     */
+    public function visualizarUsuarioAPI()
+      {
+        try
+          {
+            if($this->request->is('GET'))
+              {
+                $id = $this->request->getQueryParams()['id'];
+                $usuario = $this->Usuarios->get($id);
+                $tipos = 
+                  [
+                    PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                    PROFILE_TYPE_DUMMY_USER => PROFILE_TYPE_DUMMY_USER_TRANSLATE,
+                  ];
+                $data_nascimento = ($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "";
+                $genero = "";
+                if ($usuario->sexo == 2){
+                    $genero = "Nâo informado";
+                }
+                if ($usuario->sexo == 1) {
+                    $genero = "Masculino";
+                } else {
+                    $genero = "Feminino";
+                }
+                $necessidades_especiais = ($usuario->necessidades_especiais) ? "Sim" : "Não";
+                $resposta = 
+                  [
+                    'nome' => $usuario->nome,
+                    'email' => $usuario->email,
+                    'telefone' => $usuario->telefone,
+                    'tipo_perfil' => $tipos[$usuario->tipo_perfil],
+                    'data_nascimento' => $data_nascimento,
+                    'cpf' =>  preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
+                    'sexo' => $genero,
+                    'necessidades_especiais' => $necessidades_especiais,
+                    'data_criacao' => $usuario->audit_insert->format('d/m/Y'),
+                    'ultima_atualizacao' => $usuario->audit_update->format('d/m/Y'),
+                    'telefone' => $usuario->telefone
+    
+                  ];
+                return ResponseUtil::successAPI('', ['source' => $resposta]);
+              }
+          }
+        catch (\Exception $e)
+          {
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao realizar o processo de visualização de usuário em {0}", $e->getMessage());
 
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
+          }
+      }
     /**
      * UsuariosController::alterarSenhaAPI
      *
@@ -2422,14 +2494,7 @@ class UsuariosController extends AppController
                     $mensagem = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
-            $this->response = $this->response->withType('application/json') .
-                $this->response = $this->response->withStringBody(json_encode(
-                    [
-                        'success' => $success,
-                        'message' => $mensagem
-                    ]
-                ));
-            return $this->response;
+            return ResponseUtil::successAPI('', ['message' => $mensagem]);
         }
 
         $arraySet = [
@@ -3032,6 +3097,12 @@ class UsuariosController extends AppController
 
         if ($this->request->is("post")) {
             $data = $this->request->getData();
+
+            // Checa se o Recaptcha é válido
+            if (!$this->verifyRecatpcha($data)) {
+                // Retorna mensagem de erro se o recaptcha for inválido
+                return ResponseUtil::errorAPI('Atenção', ['Não foi possível validar o Recaptcha. Tente F5 para atualizar a página.']);
+            }
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
@@ -5688,9 +5759,41 @@ class UsuariosController extends AppController
     }
     #endregion
 
-    // Gets username to show in menu
+    /**
+     * getUsuarioName method
+     *
+     * @return ResponseUtil success
+     */
     public function getUsuarioName()
     {
         return ResponseUtil::success($this->Auth->user()->nome);
+    }
+
+    /**
+     * Verifica se o token do Recaptcha é válido
+     *
+     * @param Request $data Login Form Request
+     *
+     * @return boolean
+     *
+     * @author Leandro Biciato <leandro@aigen.com.br>
+     * @since 1.2.3
+     * @date 2020-05-26
+     */
+    public function verifyRecatpcha($data)
+    {
+        if (isset($data['g-recaptcha-response'])) {
+            $recaptcha_secret = Configure::read('googleRecatpchaSettings')['secret_key'];
+            $url = "https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptcha_secret . "&response=" . $data['g-recaptcha-response'];
+            $response = json_decode(@file_get_contents($url));
+
+            if ($response->success == true) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

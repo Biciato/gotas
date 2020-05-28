@@ -25,10 +25,10 @@
             </div>
             <input type="hidden" name="tipo_perfil" id="tipo_perfil" value="6">
 
-            <button type="submit" id="btn-registrar" class="btn btn-info block full-width m-b">Registrar</button>
+            <button type="submit" id="btn-registrar" class="btn btn-primary block full-width m-b">Registrar</button>
 
             <p class="text-muted text-center"><small><?php echo __('Já tem uma conta?'); ?></small></p>
-            <a class="btn btn-white btn-block" href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'login']) ?>">Login</a>
+            <a class="btn btn-info btn-block" href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'login']) ?>">Login</a>
         </form>
         <p class="m-t"> <small>APP web GOTAS &copy; <?php echo date('Y'); ?></small> </p>
     </div>

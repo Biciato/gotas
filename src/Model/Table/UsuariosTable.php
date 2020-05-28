@@ -2555,7 +2555,7 @@ class UsuariosTable extends GenericTable
           {
             array_push($conditions['AND'], ['Redes.id' => $filters['redes_id']]);
           }
-        if(strlen($filters['clientes_id']))
+        if(strlen(@$filters['clientes_id']))
           {
             array_push($conditions['AND'], ['Clientes.id' => $filters['clientes_id']]);
           }
