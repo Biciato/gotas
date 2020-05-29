@@ -105,13 +105,13 @@ class UsuariosController extends AppController
         $redesId = null;
 
         if ($this->request->is(Request::METHOD_GET)) {
-            $data = $this->request->getQueryParams();
-            // $data = $queryParams["filtros"];
+            $queryParams = $this->request->getQueryParams();
+            $data = $queryParams["filtros"];
 
             // Parâmetro de paginação
             $pagination = new stdClass();
-            $pagination->start = isset($data["start"]) ? (int) $data["start"] : 1;
-            $pagination->length = isset($data["length"]) ? (int) $data["length"] : 50;
+            $pagination->start = isset($queryParams["start"]) ? (int) $queryParams["start"] : 1;
+            $pagination->length = isset($queryParams["length"]) ? (int) $queryParams["length"] : 50;
 
             $nome = !empty($data["nome"]) ? $data["nome"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
@@ -1604,7 +1604,7 @@ class UsuariosController extends AppController
                     $message = __('Houve um erro ao solicitar o token de resetar a senha.');
                 }
             }
-            
+
             return ResponseUtil::successAPI('', ['message' => $message]);
         }
 
@@ -1905,28 +1905,26 @@ class UsuariosController extends AppController
      * @return void
      */
     public function visualizarUsuarioAPI()
-      {
-        try
-          {
-            if($this->request->is('GET'))
-              {
+    {
+        try {
+            if ($this->request->is('GET')) {
                 $id = $this->request->getQueryParams()['id'];
                 $usuario = $this->Usuarios->get($id);
-                $tipos = 
-                  [
-                    PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
-                    PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
-                    PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
-                    PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
-                    PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
-                    PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
-                    PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
-                    PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
-                    PROFILE_TYPE_DUMMY_USER => PROFILE_TYPE_DUMMY_USER_TRANSLATE,
-                  ];
+                $tipos =
+                    [
+                        PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                        PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                        PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                        PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                        PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                        PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                        PROFILE_TYPE_DUMMY_WORKER => PROFILE_TYPE_DUMMY_WORKER_TRANSLATE,
+                        PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE,
+                        PROFILE_TYPE_DUMMY_USER => PROFILE_TYPE_DUMMY_USER_TRANSLATE,
+                    ];
                 $data_nascimento = ($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "";
                 $genero = "";
-                if ($usuario->sexo == 2){
+                if ($usuario->sexo == 2) {
                     $genero = "Nâo informado";
                 }
                 if ($usuario->sexo == 1) {
@@ -1935,33 +1933,31 @@ class UsuariosController extends AppController
                     $genero = "Feminino";
                 }
                 $necessidades_especiais = ($usuario->necessidades_especiais) ? "Sim" : "Não";
-                $resposta = 
-                  [
-                    'nome' => $usuario->nome,
-                    'email' => $usuario->email,
-                    'telefone' => $usuario->telefone,
-                    'tipo_perfil' => $tipos[$usuario->tipo_perfil],
-                    'data_nascimento' => $data_nascimento,
-                    'cpf' =>  preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
-                    'sexo' => $genero,
-                    'necessidades_especiais' => $necessidades_especiais,
-                    'data_criacao' => $usuario->audit_insert->format('d/m/Y'),
-                    'ultima_atualizacao' => $usuario->audit_update->format('d/m/Y'),
-                    'telefone' => $usuario->telefone
-    
-                  ];
+                $resposta =
+                    [
+                        'nome' => $usuario->nome,
+                        'email' => $usuario->email,
+                        'telefone' => $usuario->telefone,
+                        'tipo_perfil' => $tipos[$usuario->tipo_perfil],
+                        'data_nascimento' => $data_nascimento,
+                        'cpf' =>  preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
+                        'sexo' => $genero,
+                        'necessidades_especiais' => $necessidades_especiais,
+                        'data_criacao' => $usuario->audit_insert->format('d/m/Y'),
+                        'ultima_atualizacao' => $usuario->audit_update->format('d/m/Y'),
+                        'telefone' => $usuario->telefone
+
+                    ];
                 return ResponseUtil::successAPI('', ['source' => $resposta]);
-              }
-          }
-        catch (\Exception $e)
-          {
+            }
+        } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $stringError = __("Erro ao realizar o processo de visualização de usuário em {0}", $e->getMessage());
 
             Log::write('error', $stringError);
             Log::write("error", $trace);
-          }
-      }
+        }
+    }
     /**
      * UsuariosController::alterarSenhaAPI
      *
@@ -5758,16 +5754,6 @@ class UsuariosController extends AppController
         }
     }
     #endregion
-
-    /**
-     * getUsuarioName method
-     *
-     * @return ResponseUtil success
-     */
-    public function getUsuarioName()
-    {
-        return ResponseUtil::success($this->Auth->user()->nome);
-    }
 
     /**
      * Verifica se o token do Recaptcha é válido

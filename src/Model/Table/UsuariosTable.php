@@ -1369,7 +1369,7 @@ class UsuariosTable extends GenericTable
      * @param array $usuariosIds
      * @param boolean $group Group by ClientesHasUsuarios.usuarios_id
      *
-     * @return Entity\Model\Usuarios[] $usuarios
+     * @return \Cake\ORM\Query|Entity\Model\Usuarios[] $usuarios
      */
     public function findAllUsuarios(
         int $redesId = null,
@@ -2524,46 +2524,39 @@ class UsuariosTable extends GenericTable
         return $usuario;
     }
     public function buscaListaUsuarios($data)
-      {
-        $columns = 
-        [
-         'tipo_perfil',
-         'nome',
-         'cpf',
-         'email'
-        ];
-       $order = $columns[$data['order'][0]['column']] . " " . strtoupper($data['order'][0]['dir']);
-       $conditions = ['AND' => []];
-       parse_str($data['filtros'], $filters);
-       if(strlen($filters['tipo_perfil']))
-         {
-           array_push($conditions['AND'], ['Usuarios.tipo_perfil' => $filters['tipo_perfil']]);
-          }
-        if(strlen($filters['nome']))
-          {
-            array_push($conditions['AND'], ['Usuarios.nome LIKE \'%' . $filters['nome'] . '%\'']); 
-          }
-        if(strlen($filters['email']))
-          {
-            array_push($conditions['AND'], ['Usuarios.email LIKE \'%' . $filters['email'] . '%\'']); 
-          }
-        if(strlen($filters['cpf']))
-          {
-            array_push($conditions['AND'], ['Usuarios.cpf LIKE \'%' . $filters['cpf'] . '%\'']); 
-          }
-        if(strlen($filters['redes_id']))
-          {
+    {
+        $columns =
+            [
+                'tipo_perfil',
+                'nome',
+                'cpf',
+                'email'
+            ];
+        $order = $columns[$data['order'][0]['column']] . " " . strtoupper($data['order'][0]['dir']);
+        $conditions = ['AND' => []];
+        parse_str($data['filtros'], $filters);
+        if (strlen($filters['tipo_perfil'])) {
+            array_push($conditions['AND'], ['Usuarios.tipo_perfil' => $filters['tipo_perfil']]);
+        }
+        if (strlen($filters['nome'])) {
+            array_push($conditions['AND'], ['Usuarios.nome LIKE \'%' . $filters['nome'] . '%\'']);
+        }
+        if (strlen($filters['email'])) {
+            array_push($conditions['AND'], ['Usuarios.email LIKE \'%' . $filters['email'] . '%\'']);
+        }
+        if (strlen($filters['cpf'])) {
+            array_push($conditions['AND'], ['Usuarios.cpf LIKE \'%' . $filters['cpf'] . '%\'']);
+        }
+        if (strlen($filters['redes_id'])) {
             array_push($conditions['AND'], ['Redes.id' => $filters['redes_id']]);
-          }
-        if(strlen(@$filters['clientes_id']))
-          {
+        }
+        if (strlen(@$filters['clientes_id'])) {
             array_push($conditions['AND'], ['Clientes.id' => $filters['clientes_id']]);
-          }
-       if(!count($conditions['AND']))
-         {
-           $conditions = false;
-         }
-       $lista = $this->find('all', ['order' => $order, 'conditions' => $conditions])->contain(['ClientesHasUsuarios' => ['Clientes' => ['RedesHasClientes' => ['Redes']]]])->toArray();
-       return $lista;
+        }
+        if (!count($conditions['AND'])) {
+            $conditions = false;
+        }
+        $lista = $this->find('all', ['order' => $order, 'conditions' => $conditions])->contain(['ClientesHasUsuarios' => ['Clientes' => ['RedesHasClientes' => ['Redes']]]])->toArray();
+        return $lista;
     }
 }
