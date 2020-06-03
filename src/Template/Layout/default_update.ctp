@@ -11,6 +11,7 @@
 
 
 <body id="main_body" class="">
+    <div id="preloader" style="position: fixed; padding: 0; margin: 0; top: 0; left: 0; width: 100%; height: 100%; background: url(/img/loading.gif) white; background-repeat: no-repeat; z-index: 99999; background-position: center center;"></div>
     <?= $this->element('header') ?>
     <div id="wrapper">
 
@@ -23,14 +24,16 @@
                             <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
                                 <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" style="border-radius: 50%; max-width: 6rem;" />
                                 <!-- <img alt="image" class="rounded-circle" src="" /> -->
-                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <a data-toggle="dropdown" class="dropdown-toggle" href="#" style="background-color: inherit">
                                     <span class="block m-t-xs font-bold"><?= $sessao->usuarioLogado->nome ?></span>
                                     <span class="text-muted text-xs block"><?= $this->UserUtil->getProfileType($sessao->usuarioLogado->tipo_perfil) ?> <b class="caret"></b></span>
                                 </a>
-                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                    <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs" style="left: auto">
+                                    <!-- <li><a class="dropdown-item" href="profile.html">Profile</a></li> -->
                                     <!-- <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
                                     <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li> -->
+                                    <li class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#/usuarios/alterar-senha">Altera senha</a></li>
                                     <li class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="login.html">Logout</a></li>
                                 </ul>
@@ -276,6 +279,11 @@
     <?php echo $this->Html->script("layout-update/pace/pace.min"); ?>
     <?php echo $this->Html->script("layout-update/metisMenu/jquery.metisMenu.js"); ?>
     <?php echo $this->Html->script("layout-update/slimscroll/jquery.slimscroll.min.js"); ?>
+    <script type="text/javascript">
+        window.onload = function() {
+            $("#preloader").css('display', 'none');
+        };
+    </script>
     <?php echo $this->fetch('script'); ?>
 
 </body>

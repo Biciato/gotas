@@ -1125,4 +1125,18 @@ class CuponsTable extends GenericTable
     }
 
     #endregion
+
+    /**
+     * Pega todos os cupons por um Usuário Id
+     *
+     * @param int $usuariosId Id de Usuário
+     *
+     * @return Array
+     *
+     * @author Leandro Biciato <leandro@aigen.com.br>
+     * @since 2020-02-06
+     */
+    public function getCuponsByUsuariosId($usuariosId) {
+        return $this->find('all')->where(['usuarios_id =' => $usuariosId]);
+    }
 }

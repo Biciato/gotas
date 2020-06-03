@@ -99,6 +99,7 @@ class UsuariosController extends AppController
         $tipoPerfil = null;
         $tipoPerfilMin = PROFILE_TYPE_ADMIN_DEVELOPER;
         $tipoPerfilMax = PROFILE_TYPE_USER;
+        $clientesId = null;
         $nome = null;
         $email = null;
         $cpf = null;
@@ -106,7 +107,7 @@ class UsuariosController extends AppController
 
         if ($this->request->is(Request::METHOD_GET)) {
             $queryParams = $this->request->getQueryParams();
-            $data = $queryParams["filtros"];
+            $data = $queryParams["filtros"] ?? [];
 
             // Parâmetro de paginação
             $pagination = new stdClass();
@@ -123,6 +124,7 @@ class UsuariosController extends AppController
             $tipoPerfilMax = !empty($data["tipo_perfil_max"]) && strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
             $tipoPerfilMin = !empty($data["tipo_perfil_min"]) && strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
             $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+            $clientesId = !empty($data["clientes_id"]) ? [(int) $data["clientes_id"]] : [];
         }
 
         if (strlen($tipoPerfil) > 0) {
@@ -130,7 +132,7 @@ class UsuariosController extends AppController
             $tipoPerfilMax = $tipoPerfil;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios($redesId, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
+        $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesId, $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
         $total = $usuarios->count();
         // Cálculo da paginação
@@ -655,11 +657,15 @@ class UsuariosController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete()
+    public function delete($id = null)
     {
-        $data = $this->request->query();
-        $usuario_id = $data['usuario_id'];
-        $return_url = $data['return_url'];
+        if ($id) {
+            $usuario_id = $id;
+        } else {
+            $data = $this->request->query();
+            $usuario_id = $data['usuario_id'];
+            $return_url = $data['return_url'];
+        }
 
         $this->request->allowMethod(['post', 'delete']);
         $usuario = $this->Usuarios->get($usuario_id);
@@ -673,6 +679,14 @@ class UsuariosController extends AppController
             $this->PontuacoesPendentes->deleteAllPontuacoesPendentesByUsuariosId($usuario->id);
             $this->Pontuacoes->deleteAllPontuacoesByUsuariosId($usuario->id);
             $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByUsuariosId($usuario->id);
+            $queryCupons = $this->Cupons->getCuponsByUsuariosId($usuario->id);
+            $cuponsIds = collection($queryCupons)->map(function ($cupon, $key) {
+                return $cupon->id;
+            })->toList();
+            // se não houver cupons, não há também cupons transações
+            if (count($cuponsIds) > 0) {
+                $this->CuponsTransacoes->deleteAllByCuponsId($cuponsIds);
+            }
             $this->Cupons->deleteAllCuponsByUsuariosId($usuario->id);
 
             $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByUsuariosId($usuario->id);
@@ -681,16 +695,26 @@ class UsuariosController extends AppController
 
             $this->Usuarios->delete($usuario);
 
-            $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
-            return $this->redirect($return_url);
+            // retorna redirect se não for API senão, retorna Json
+            if (isset($return_url)) {
+                $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
+                return $this->redirect($return_url);
+            } else {
+                return ResponseUtil::successAPI('Usuario Removido com sucesso', ['status' => 200]);
+            }
         } elseif ($usuario->tipo_perfil == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
             // admin rti / desenvolvedor não há problema
             // em ser removido, pois não realizam atendimento
 
             if ($this->Usuarios->delete($usuario)) {
-                $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
-                return $this->redirect($return_url);
+                // retorna redirect se não for API senão, retorna Json
+                if ($return_url) {
+                    $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
+                    return $this->redirect($return_url);
+                } else {
+                    return ResponseUtil::successAPI('Usuario Removido com sucesso', ['status' => 200]);
+                }
             }
         } else {
 
@@ -740,7 +764,12 @@ class UsuariosController extends AppController
                 $this->Usuarios->delete($usuario);
                 $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
 
-                return $this->redirect($return_url);
+                // retorna redirect se não for API senão, retorna Json
+                if ($return_url) {
+                    return $this->redirect($return_url);
+                } else {
+                    return ResponseUtil::successAPI('Usuario Removido com sucesso', ['status' => 200]);
+                }
             } else {
                 // não há outro usuário, então deve-se verificar se há alguma informação vinculada à ele. se não houver, pode remover.
 
@@ -777,9 +806,14 @@ class UsuariosController extends AppController
                 if ($found) {
                     // isso significa que não é permitido remover o
                     // usuário em questão, pois não tem como migrar os dados cadastrados
-                    $this->Flash->error(__("O usuário não pode ser deletado, pois é o único da unidade. Os dados dos clientes ficarão 'órfãos', e por isto, a operação não é permitida."));
+                    // retorna redirect se não for API rest
+                    if ($return_url) {
+                        $this->Flash->error(__("O usuário não pode ser deletado, pois é o único da unidade. Os dados dos clientes ficarão 'órfãos', e por isto, a operação não é permitida."));
 
-                    return $this->redirect(['action' => $return_url]);
+                        return $this->redirect(['action' => $return_url]);
+                    } else {
+                        return ResponseUtil::errorAPI('Atenção', [__("O usuário não pode ser deletado, pois é o único da unidade. Os dados dos clientes ficarão 'órfãos', e por isto, a operação não é permitida.")]);
+                    }
                 } else {
                     // realiza a remoção do usuário
 
@@ -798,7 +832,13 @@ class UsuariosController extends AppController
                     $this->Usuarios->delete($usuario);
 
                     $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
-                    return $this->redirect($return_url);
+
+                    // retorna redirect se não for API senão, retorna Json
+                    if ($return_url) {
+                        return $this->redirect($return_url);
+                    } else {
+                        return ResponseUtil::successAPI('Usuario Removido com sucesso', ['status' => 200]);
+                    }
                 }
             }
         }
@@ -1923,6 +1963,8 @@ class UsuariosController extends AppController
                         PROFILE_TYPE_DUMMY_USER => PROFILE_TYPE_DUMMY_USER_TRANSLATE,
                     ];
                 $data_nascimento = ($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "";
+                $data_criacao = ($usuario->audit_insert) ? $usuario->audit_insert->format('d/m/Y') : "";
+                $ultima_atualizacao = ($usuario->audit_update) ? $usuario->audit_update->format('d/m/Y') : "";
                 $genero = "";
                 if ($usuario->sexo == 2) {
                     $genero = "Nâo informado";
@@ -1943,8 +1985,8 @@ class UsuariosController extends AppController
                         'cpf' =>  preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $usuario->cpf),
                         'sexo' => $genero,
                         'necessidades_especiais' => $necessidades_especiais,
-                        'data_criacao' => $usuario->audit_insert->format('d/m/Y'),
-                        'ultima_atualizacao' => $usuario->audit_update->format('d/m/Y'),
+                        'data_criacao' => $data_criacao,
+                        'ultima_atualizacao' => $ultima_atualizacao,
                         'telefone' => $usuario->telefone
 
                     ];
@@ -2011,7 +2053,7 @@ class UsuariosController extends AppController
                     $tamanhoSenha = 6;
                 }
 
-                if (strlen($novaSenha) != $tamanhoSenha) {
+                if (strlen($novaSenha) < $tamanhoSenha) {
                     $errors[] = sprintf(MSG_USUARIOS_PASSWORD_LENGTH, $tamanhoSenha);
                 }
 
@@ -3506,7 +3548,7 @@ class UsuariosController extends AppController
                         $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
                         // Se usuarioLogado, significa que foi registrado através de um funcionário
                         // Faz vinculação
-                        if (!empty($usuarioLogado)) {
+                        if (!empty($usuarioLogado) && !empty($cliente)) {
                             $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, true, $usuarioLogado->id);
                         }
 
@@ -3595,7 +3637,12 @@ class UsuariosController extends AppController
         $errors = array();
 
         try {
-            $usuario = $this->Usuarios->getUsuarioById($this->Auth->user()["id"]);
+            if ($this->request->getData('id') && $this->Auth->user()['tipo_perfil'] !== 6) {
+                $id = $this->request->getData('id');
+            } else {
+                $id = $this->Auth->user()["id"];
+            }
+            $usuario = $this->Usuarios->getUsuarioById($id);
 
             if ($this->request->is("post")) {
 

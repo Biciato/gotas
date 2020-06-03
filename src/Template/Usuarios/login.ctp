@@ -13,7 +13,7 @@
             <div class="form-group">
                 <input type="password" class="form-control" placeholder="Senha" name="senha">
             </div>
-            <button type="submit" class="btn btn-primary block full-width m-b" id="btn-login">Login</button>
+            <button type="submit" class="btn btn-primary block full-width m-b" id="btn-login" style="min-height: 2.5em">Login</button>
 
             <a href="<?php echo $this->Url->build(['controller' => 'usuarios', 'action' => 'esqueciMinhaSenha']) ?>"><small><?php echo __('Esqueceu sua senha?'); ?></small></a>
             <p class="text-muted text-center"><small><?php echo __('Não tem uma conta?') ?></small></p>
@@ -29,3 +29,4 @@ $this->append('script');
 echo $this->Html->script('https://www.google.com/recaptcha/api.js?render='.$publickeycaptcha);
 echo $this->Html->script('scripts/usuarios/login');
 $this->end(); ?>
+

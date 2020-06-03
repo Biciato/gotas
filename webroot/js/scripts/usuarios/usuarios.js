@@ -3,9 +3,9 @@ var usuarios = {
         var self = this;
         self.initDT();
         self.carregarOpcoes();
-        $(document).on("click", "#filtrar_usuarios", self.filtrarUsuarios);
+        // $(document).on("click", "#filtrar_usuarios", self.filtrarUsuarios);
         $(document).on("change", "#redes_id", self.buscarUnidades);
-        $(document).on('click', '.visualizar-detalhes-usuario', self.visualizarUsuario); 
+        $(document).on('click', '.visualizar-detalhes-usuario', self.visualizarUsuario);
         return this;
     },
     initDT: function () {

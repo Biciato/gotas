@@ -263,12 +263,10 @@
                         </div>
 
                         <div class="action-buttons">
-                            <a href="#/redes/index" class="btn btn-default" tooltip="Cancelar" id="btn-cancel">
-                                <i class="fas fa-times"></i> Cancelar
-                            </a>
-                            <div type="submit" id="btn-save" class="btn btn-primary">
+                            <div type="submit" id="btn-save" class="btn btn-primary" style="float: right">
                                 <em class="fas fa-save"></em> Salvar
                             </div>
+                            <span style="clear: right; display: block;"></span>
                             <!-- <button type="submit" id="btn-save" class="btn btn-primary">
                                 <em class="fas fa-save"></em> Salvar
                             </button> -->

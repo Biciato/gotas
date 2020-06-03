@@ -230,7 +230,11 @@ echo $this->Html->script(sprintf("scripts/redes/add.js?version=%s", SYSTEM_VERSI
 echo $this->Html->script(sprintf("scripts/redes/edit.js?version=%s", SYSTEM_VERSION));
 
 //Usuarios
-echo $this->Html->script(sprintf("scripts/usuarios/usuarios.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/usuarios/index.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/usuarios/add.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/usuarios/edit.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/usuarios/alterar_senha.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script('vanilla-masker');
 
 ?>
 
