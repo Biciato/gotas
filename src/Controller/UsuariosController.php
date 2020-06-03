@@ -4180,7 +4180,7 @@ class UsuariosController extends AppController
         $email->template('resetpw');
         $email->emailFormat('both');
         $email->to($usuario->email, $usuario->nome);
-        $email->subject('Reset your password');
+        $email->subject('Redefinir Senha');
         $email->viewVars(['url' => $url, 'username' => $usuario->nome]);
         if ($email->send()) {
             $this->Flash->success(__('Verifique seu email pela requisição de reset de senha'));
