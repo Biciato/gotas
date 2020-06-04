@@ -22,55 +22,56 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5><?= __('Redes') ?></h5>
+                    <span class="fa fa-search"></span>
+                                    Exibir / Ocultar Filtros
+                    <div class="ibox-tools">
+                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    </div>
                 </div>
                 <div class="ibox-content">
-                    <div class="panel-group">
-                        <div class="panel panel-default">
-                            <div class="panel-heading panel-heading-sm text-center" data-toggle="collapse" href="#collapse1" data-target="#filter-coupons">
-                                <div>
-                                    <span class="fa fa-search"></span>
-                                    Exibir / Ocultar Filtros
+                    <div id="filtro-redes" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <form id="form">
+                                <div class="form-group row">
+                                    <div class="col-lg-4">
+                                        <label for="nome_rede">Nome:</label>
+                                        <input type="text" name="nome_rede" id="nome-rede" class="form-control" />
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label for="ativado">Ativado:</label>
+                                        <select name="ativado" id="ativado" class="form-control">
+                                            <option value="">Todos</option>
+                                            <option value="1" selected>Sim</option>
+                                            <option value="0">Não</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label for="app_personalizado">Aplicativo Personalizado:</label>
+                                        <select name="app_personalizado" id="app-personalizado" class="form-control">
+                                            <option value="" selected>Todos</option>
+                                            <option value="1">Sim</option>
+                                            <option value="0">Não</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div id="filtro-redes" class="panel-collapse collapse in">
-                                <div class="panel-body">
-                                    <form id="form">
-                                        <div class="form-group row">
-                                            <div class="col-lg-4">
-                                                <label for="nome_rede">Nome:</label>
-                                                <input type="text" name="nome_rede" id="nome-rede" class="form-control" />
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <label for="ativado">Ativado:</label>
-                                                <select name="ativado" id="ativado" class="form-control">
-                                                    <option value="">Todos</option>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <label for="app_personalizado">Aplicativo Personalizado:</label>
-                                                <select name="app_personalizado" id="app-personalizado" class="form-control">
-                                                    <option value="" selected>Todos</option>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0">Não</option>
-                                                </select>
-                                            </div>
+                                <div class="form-group row">
+                                    <div class="col-lg-12 text-right">
+                                        <div class="btn btn-info" id="btn-search">
+                                            <span class="fa fa-search"></span>
+                                            Pesquisar
                                         </div>
-                                        <div class="form-group row">
-                                            <div class="col-lg-12 text-right">
-                                                <div class="btn btn-primary" id="btn-search">
-                                                    <span class="fa fa-search"></span>
-                                                    Pesquisar
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
+                                    </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="ibox">
+                <div class="ibox-title">
+                    Redes
+                </div>
+                <div class="ibox-content">
                     <table class="table table-striped table-bordered table-hover" id="data-table">
                         <thead></thead>
                         <tbody></tbody>

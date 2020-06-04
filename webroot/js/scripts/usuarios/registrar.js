@@ -1,4 +1,4 @@
-var registrar = 
+var registrar =
 {
 init: function()
   {
@@ -24,9 +24,8 @@ registrar: function(e)
         data: $("#form-registrar").serialize(),
         dataType: 'JSON',
         method: 'POST',
-        success: function(resposta)
-          {
-            if(resposta.success === true)
+        success: function(resposta) {
+            if(resposta.mensagem.status)
               {
                 toastr.success('Usuário criado com sucesso!');
                 setTimeout(function()
@@ -36,12 +35,13 @@ registrar: function(e)
               }
             else
               {
-                toastr.error(resposta.message);
+                toastr.error(resposta.mensagem.message);
               }
-          }
+          },
+          error: (resp) => resp.responseJSON.mensagem.errors.forEach((error) => toastr.error(error))
       })
   },
-inputHandler: function(masks, max, event) 
+inputHandler: function(masks, max, event)
   {
     var c = event.target;
     var v = c.value.replace(/\D/g, '');

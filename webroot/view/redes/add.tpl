@@ -251,12 +251,10 @@
                         </div>
 
                         <div class="action-buttons">
-                            <div href="#" class="btn btn-default" tooltip="Cancelar" id="btn-cancel">
-                                <i class="fas fa-times"></i> Cancelar
-                            </div>
-                            <button type="submit" id="btn-save" class="btn btn-primary">
+                            <button type="submit" id="btn-save" class="btn btn-primary" style="float: right">
                                 <em class="fas fa-save"></em> Salvar
                             </button>
+                            <span style="clear: right; display: block;"></span>
                         </div>
                     </form>
                 </div>

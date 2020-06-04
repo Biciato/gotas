@@ -6,6 +6,7 @@ var login = {
     },
     login: function (e) {
         e.preventDefault();
+        $(this).html('<div id="preloader" style="width: 100%; height: 2.5em; background: url(/img/loading_login.gif) #1ab394; background-size: contain; background-repeat: no-repeat; background-position: center center;"></div>')
         grecaptcha.ready(function() {
             // do request for recaptcha token
             // response is promise with passed token
@@ -22,12 +23,15 @@ var login = {
                             usuario: resposta.usuario,
                             cliente: resposta.cliente
                         };
-                        sessionStorage.setItem("credentials", JSON.stringify(credentials));
+                        localStorage.setItem("credentials", JSON.stringify(credentials));
                         if (resposta.mensagem.status) {
                             window.location.href = '/pages';
                         }
                     },
-                    error: (resp) => toastr.error(resp.responseJSON.mensagem.errors[0])
+                    error: (resp) => {
+                        resp.responseJSON.mensagem.errors.forEach((error) => toastr.error(error));
+                        setTimeout(() => window.location.href = '/', 2000)
+                    }
                 })
             })
         })

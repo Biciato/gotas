@@ -1,4 +1,4 @@
-var esqueci_minha_senha = 
+var esqueci_minha_senha =
 {
 init: function()
     {
@@ -17,17 +17,18 @@ recuperarSenha: function(e)
         method: 'POST',
         success: function(resposta)
             {
-            if(resposta.success === true)
+            if(resposta.message.includes('não encontrado'))
                 {
-                toastr.success('Senha enviada com sucesso!');
+                    toastr.error(resposta.message);
+
+                }
+            else
+                {
+                    toastr.success(resposta.message);
                 setTimeout(function()
                     {
                     window.location.href = '/usuarios/login';
                     }, 1000);
-                }
-            else
-                {
-                toastr.error(resposta.message);
                 }
             }
         });

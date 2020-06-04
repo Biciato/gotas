@@ -110,6 +110,27 @@ var sammy = Sammy("#content-html", function () {
     self.get("#/usuarios/index", (context) => {
         context.partial("view/usuarios/index.tpl");
     });
+    self.get("#/usuarios/add", (context) => {
+        context.partial("view/usuarios/add.tpl", {
+            controller: "scripts/usuarios/add.js"
+        }, function (html) {
+            $(document).html(html);
+        })
+    });
+    self.get("#/usuarios/edit/:id", (context) => {
+        context.partial("view/usuarios/edit.tpl", {
+            controller: "scripts/usuarios/edit.js"
+        }, function (html) {
+            $(document).html(html);
+        })
+    });
+    self.get("#/usuarios/alterar-senha", (context) => {
+        context.partial("view/usuarios/alterar-senha.tpl", {
+            controller: "scripts/usuarios/alterar_senha.js"
+        }, function (html) {
+            $(document).html(html);
+        });
+    });
     ////#endregion
 
     // #region REDES

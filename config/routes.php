@@ -668,8 +668,13 @@ Router::scope("/api", function ($routes) {
             "visualizarUsuarioAPI" => [
                 "action" => "visualizarUsuarioAPI",
                 "method" => Request::METHOD_GET,
-                "path" => "/visualizar-usuario"
+                "path" => "/visualizar_usuario"
             ],
+            "delete" => [
+                "action" => "delete",
+                "method" => Request::METHOD_DELETE,
+                "path" => "/delete_usuario/:id"
+            ]
         ]
     ]);
 

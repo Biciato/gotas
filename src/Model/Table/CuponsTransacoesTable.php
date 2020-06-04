@@ -585,6 +585,33 @@ class CuponsTransacoesTable extends GenericTable
         }
     }
 
+    /**
+     * Remove registros de transação pelo id do usuário
+     *
+     * @param Array $cuponIds Array de Cupons
+     *
+     * @return void
+     *
+     * @author Leandro Biciato <leandro@aigen.com.br>
+     * @since 2020-02-06
+     */
+    public function deleteAllByCuponsId(array $cuponIds)
+    {
+        try {
+            return $this->deleteAll(["cupons_id IN" => $cuponIds]);
+        } catch (\Throwable $th) {
+            $code = MSG_DELETE_EXCEPTION_CODE;
+            $message = sprintf("[%s] %s: %s", MSG_DELETE_EXCEPTION, MSG_DELETE_EXCEPTION_CODE, $th->getMessage());
+
+            $trace = $th->getTraceAsString();
+
+            Log::write("error", $message);
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MSG_DELETE_EXCEPTION, $message, $trace));
+
+            throw new Exception($message, $code);
+        }
+    }
+
     public function getCuponsClienteFinal($redesId, $dataInicio, $dataFim, $clientesId, $usuarioId)
     {
         try {

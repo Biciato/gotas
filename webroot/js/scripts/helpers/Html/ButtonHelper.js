@@ -116,19 +116,22 @@ class ButtonHelper {
      * @since 1.2.3
      * @date 2020-04-24
      */
-    generateLinkViewToDestination(url, typeIcon = undefined, text = undefined, tooltip = undefined, customClass = undefined) {
+    generateLinkViewToDestination(url, typeIcon = undefined, text = undefined, tooltip = undefined, customClass = undefined, id = null) {
         let linkElement = document.createElement("a");
-        linkElement.href = url;
+
+        // Sets data to open modal e get id to show user data
+        if (url.includes('usuarios')) {
+            linkElement.classList.add(customClass);
+            linkElement.setAttribute('data-id', id);
+            linkElement.setAttribute('data-target', '#myModal');
+            linkElement.setAttribute('data-toggle', 'modal');
+        } else {
+            linkElement.href = url;
+        }
 
         if (this.bootstrapVersion = 3) {
             linkElement.classList.add("btn");
-
-
-            if (typeIcon !== undefined && typeIcon === this.ICON_CONFIG) {
-                linkElement.classList.add("btn-primary");
-            } else {
-                linkElement.classList.add("btn-default");
-            }
+            linkElement.classList.add("btn-default");
         }
 
         // @TODO add bootstrap 4
@@ -180,7 +183,7 @@ class ButtonHelper {
         linkElement.href = url;
 
         if (this.bootstrapVersion = 3) {
-            linkElement.classList = "btn btn-primary";
+            linkElement.classList = "btn btn-info";
         }
 
         // @TODO add bootstrap 4
@@ -311,7 +314,6 @@ class ButtonHelper {
         if (tooltip !== undefined && tooltip !== null) {
             linkElement.title = tooltip;
         }
-
         return linkElement;
     }
 
