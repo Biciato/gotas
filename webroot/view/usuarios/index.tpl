@@ -131,7 +131,7 @@
     </div>
 </div>
 
-<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal inmodal" id="modal_info" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content animated bounceInRight">
             <div class="modal-header">
@@ -174,6 +174,26 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-white close-modal" data-dismiss="modal" >Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal" id="modal_confirmar" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="modal" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Aviso</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="confirm_remover" />
+                <p class="text-center">Tem certeza que deseja remover este usuário ?</p>
+            </div>
+            <div class="modal-footer">
+                <div class="preloader" style="display: none; width: 100%; height: 2.5em; background: url(/img/loading_login.gif); background-size: contain; background-repeat: no-repeat; background-position: center center;"></div>
+                <button class="btn btn-default close-modal" data-dismiss="modal" >Cancelar</button>
+                <button class="btn btn-danger" id="confirm_remover">Confirmar</button>
             </div>
         </div>
     </div>

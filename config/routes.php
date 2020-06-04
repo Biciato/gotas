@@ -674,6 +674,11 @@ Router::scope("/api", function ($routes) {
                 "action" => "delete",
                 "method" => Request::METHOD_DELETE,
                 "path" => "/delete_usuario/:id"
+            ],
+            "changeStatus" => [
+                "action" => "changeStatusAPI",
+                "method" => Request::METHOD_POST,
+                "path" => "/change-status"
             ]
         ]
     ]);

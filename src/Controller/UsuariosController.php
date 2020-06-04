@@ -4256,52 +4256,35 @@ class UsuariosController extends AppController
      */
 
     /**
-     * Action para habilitar usuário
+     * Action para habilitar/desabilitar usuário
      *
      * @return \Cake\Http\Response|void
      */
-    public function habilitarUsuario()
+    public function changeStatusAPI()
     {
-        $query = $this->request->query;
+        $errors = [];
+        $errorCodes = [];
+        $data = $this->request->getData();
 
-        $result = $this->_alteraContaAtivaUsuario((int) $query['usuarios_id'], true);
+        try {
+            $result = $this->Usuarios->changeStatus((int) $data['usuarios_id'], (boolean) $data['condicao']);
 
-        if ($result) {
-            $this->Flash->success(Configure::read('messageEnableSuccess'));
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['status' => 200]);
+        } catch (Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-            return $this->redirect($query['return_url']);
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", $errorMessage, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
-    }
-
-    /**
-     * Action para desabilitar usuário
-     *
-     * @return \Cake\Http\Response|void
-     */
-    public function desabilitarUsuario()
-    {
-        $query = $this->request->query;
-
-        $result = $this->_alteraContaAtivaUsuario((int) $query['usuarios_id'], false);
-
-        if ($result) {
-            $this->Flash->success(Configure::read('messageDisableSuccess'));
-
-            return $this->redirect($query['return_url']);
-        }
-    }
-
-    /**
-     * Altera estado de conta ativa de usuário
-     *
-     * @param int  $usuarios_id Id de usuário
-     * @param bool $status      Estado da conta
-     *
-     * @return \Cake\Http\Response|void
-     */
-    private function _alteraContaAtivaUsuario(int $usuarios_id, bool $status)
-    {
-        return $this->Usuarios->changeAccountEnabledByUsuarioId($usuarios_id, $status);
     }
 
     /**

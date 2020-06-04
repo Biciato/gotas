@@ -60,7 +60,14 @@ class Usuario extends Entity
         "foto_documento_completo",
         "foto_perfil_completo",
         "sexo_formatado",
+        "tipo_perfil_convertido"
     );
+
+    protected function _getTipoPerfilConvertido() {
+        return !empty($this->_properties["tipo_perfil"])
+                ? Configure::read('profileTypesTranslated')[$this->_properties["tipo_perfil"]]
+                : "";
+    }
 
     protected function _setSenha($password)
     {

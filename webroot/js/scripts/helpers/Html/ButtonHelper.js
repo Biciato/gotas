@@ -123,7 +123,7 @@ class ButtonHelper {
         if (url.includes('usuarios')) {
             linkElement.classList.add(customClass);
             linkElement.setAttribute('data-id', id);
-            linkElement.setAttribute('data-target', '#myModal');
+            linkElement.setAttribute('data-target', '#modal_info');
             linkElement.setAttribute('data-toggle', 'modal');
         } else {
             linkElement.href = url;
@@ -226,7 +226,7 @@ class ButtonHelper {
         if (this.bootstrapVersion = 3) {
             // @TODO add bootstrap 4
             linkElement.classList.add("btn");
-            linkElement.classList.add(booleanStatus ? "btn-danger" : "btn-primary");
+            linkElement.classList.add(booleanStatus ? "btn-primary" : "btn-danger");
         }
 
         if (customClass !== undefined && customClass !== null) {
@@ -286,6 +286,8 @@ class ButtonHelper {
             // @TODO add bootstrap 4
             linkElement.classList.add("btn");
             linkElement.classList.add("btn-danger");
+            linkElement.setAttribute('data-target', '#modal_confirmar');
+            linkElement.setAttribute('data-toggle', 'modal');
         }
 
         if (customClass !== undefined && customClass !== null) {
