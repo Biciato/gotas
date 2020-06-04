@@ -138,6 +138,9 @@
                         </div>
                     </div>
                     <div class="action-buttons">
+                        <a href="#/usuarios/index" class="btn btn-danger">
+                            <em class="fas fa-close"></em> Cancelar
+                        </a>
                         <button id="btn-save" class="btn btn-primary" style="float: right">
                             <em class="fas fa-save"></em> Salvar
                         </button>

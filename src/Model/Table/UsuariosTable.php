@@ -2208,7 +2208,7 @@ class UsuariosTable extends GenericTable
      *
      * @return bool $usuario Registro atualizado
      */
-    public function changeAccountEnabledByUsuarioId(int $usuarios_id, bool $conta_ativa)
+    public function changeStatus(int $usuarios_id, bool $conta_ativa)
     {
         try {
             $usuario = $this->getUsuarioById($usuarios_id);

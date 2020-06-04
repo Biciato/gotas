@@ -8,7 +8,7 @@
 
 // Event that fetch user data and show it inside a modal
 $(document).on('click', '.detalhes-usuario', function(e) {
-    const id = e.currentTarget.attributes[1].value
+    const id = e.currentTarget.attributes['data-id'].value
     $.get('/api/usuarios/visualizar_usuario', { id }).then((resp) => {
         buildModal(resp)
     });
@@ -37,19 +37,18 @@ $(document).on('click', '#filtrar_usuarios', (e) => {
 
 // Event that removes user
 $(document).on('click', '.delete-item', function(e) {
-    const id = e.target.attributes[1].value
-    $.ajax({
-        url: '/api/usuarios/delete_usuario/' + id,
-        method: 'DELETE',
-        success: (resp) => {
-            toastr.success(resp.mensagem.message)
-            usuariosIndex.refreshDataTable(e)
-        },
-        error: () => {
-            toastr.error('Não foi possível remover o usuário nesse momento !!!')
-        }
-    });
+    $('input[name="confirm_remover"]').val(e.target.attributes['data-id'].value)
 });
+
+$(document).on('click', '#confirm_remover', function(e) {
+    usuariosIndex.removerUsuario(e);
+})
+
+$(document).on('click', '.change-status', function(e) {
+    console.log(e.target.attributes)
+    const attributes = e.target.attributes;
+    usuariosIndex.changeStatus(e, attributes['data-id'].value, attributes['data-active'].value);
+})
 
 // Event that handles search data and fetch it
 $(document).on('click', '#redes_filtro > option', function(e) {
@@ -98,8 +97,23 @@ const usuariosIndex = {
 
         return self;
     },
+    changeStatus: function(e, id, isActive) {
+        const condicao = isActive === 'false' ? 1 : 0
+        $.ajax({
+            url: '/api/usuarios/change-status',
+            method: 'POST',
+            data: { usuarios_id: id, condicao },
+            dataType: 'json',
+            success: function(resp) {
+                toastr.success(resp.mensagem.message);
+                usuariosIndex.refreshDataTable(e);
+            },
+            error: function(resp) {
+                toastr.error(resp.mensagem.message);
+            }
+        })
+    },
     buildFiltroSelect: function(collection, select) {
-
         $.each(collection, function(k, value) {
             $(select).append('<option value="' + value.id + '">' + value.nome + '</option>');
         });
@@ -114,7 +128,7 @@ const usuariosIndex = {
             )
     },
     getClientes: function(id) {
-        $.get('/api/clientes', { filtros: { redes_id: id }})
+        $.get('/api/clientes', { filtros: { redes_id: id }, draw: '1'})
             .then((resp) =>
                 usuariosIndex.buildFiltroSelect(
                     resp.data_table_source.data.map((item) => ({ nome: item.nome_fantasia, id: item.id })),
@@ -142,7 +156,7 @@ const usuariosIndex = {
                 visible: false,
             },
             {
-                data: "tipo_perfil",
+                data: "tipo_perfil_convertido",
                 width: "10%",
                 title: "Tipo Perfil",
                 className: "text-center",
@@ -218,18 +232,17 @@ const usuariosIndex = {
             function (rowData) {
                 let attributes = {
                     id: rowData.id,
-                    active: rowData.ativado,
+                    active: rowData.conta_ativa,
                     name: rowData.nome_rede
                 };
-
                 if (rowData.nome_img_completo !== undefined && rowData.nome_img_completo !== null) {
                     rowData["nome_img_completo"] = imgHelper.generateDefaultImage(rowData.nome_img_completo, "Logo da Rede", "Logo da Rede", "nome-img-logo").outerHTML;
                 }
 
-                let actionView = btnHelper.generateLinkViewToDestination(`#/usuarios/view/${rowData.id}`, btnHelper.ICON_CONFIG, null, "Ver Detalhes/Configurar", 'detalhes-usuario', rowData.id);
+                let actionView = btnHelper.generateLinkViewToDestination(`#/usuarios/view/${rowData.id}`, btnHelper.ICON_INFO, null, "Ver Detalhes", 'detalhes-usuario', rowData.id);
                 let editView = btnHelper.generateLinkEditToDestination(`#/usuarios/edit/${rowData.id}`, null, "Editar");
-                let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
-                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, undefined, "change-status");
+                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.conta_ativa, undefined, "Ativar/Inativar", "change-status");
+                let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, "Remover", "delete-item", undefined);
 
                 let buttons = [actionView, editView, deleteBtn, changeStatus];
                 let buttonsString = "";
@@ -254,5 +267,26 @@ const usuariosIndex = {
     },
 
     //#endregion
+    removerUsuario: function(e) {
+        $('.modal-footer > button').hide()
+        $('.preloader').show()
+        $.ajax({
+            url: '/api/usuarios/delete_usuario/' + $('input[name="confirm_remover"]').val(),
+            method: 'DELETE',
+            success: (resp) => {
+                toastr.success(resp.mensagem.message)
+                usuariosIndex.refreshDataTable(e)
+                $('.modal').modal('hide')
+                $('.modal-footer > button').show()
+                $('.preloader').hide()
+            },
+            error: () => {
+                toastr.error('Não foi possível remover o usuário nesse momento !!!')
+                $('.modal').modal('hide')
+                $('.modal-footer > button').show()
+                $('.preloader').hide()
+            }
+        });
+    }
 
 };
