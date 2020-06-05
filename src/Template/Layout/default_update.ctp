@@ -35,7 +35,7 @@
                                     <li class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="#/usuarios/alterar-senha">Altera senha</a></li>
                                     <li class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="login.html">Logout</a></li>
+                                    <li><a class="dropdown-item" href="/usuarios/logout">Logout</a></li>
                                 </ul>
                             </div>
                         <?php endif; ?>

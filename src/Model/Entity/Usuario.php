@@ -60,7 +60,14 @@ class Usuario extends Entity
         "foto_documento_completo",
         "foto_perfil_completo",
         "sexo_formatado",
+        "tipo_perfil_convertido"
     );
+
+    protected function _getTipoPerfilConvertido() {
+        return !empty($this->_properties["tipo_perfil"])
+                ? Configure::read('profileTypesTranslated')[$this->_properties["tipo_perfil"]]
+                : "";
+    }
 
     protected function _setSenha($password)
     {
@@ -104,7 +111,7 @@ class Usuario extends Entity
             "default-user.png"
         );
         return
-            empty($this->_properties["foto_documento"]) ? $emptyImg : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
+            empty($this->_properties["foto_documento"]) ? $emptyImg : __("{0}{1}", Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
     }
 
     /**
@@ -115,14 +122,13 @@ class Usuario extends Entity
     protected function _getFotoPerfilCompleto()
     {
         $emptyImg = sprintf(
-            "%s%s%s",
-            Configure::read("webrootAddress"),
+            "%s%s",
             Configure::read("imageUserProfilePathRead"),
             "default-user.png"
         );
 
         return
-            empty($this->_properties["foto_perfil"]) ? $emptyImg : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageUserProfilePathRead"), $this->_properties["foto_perfil"]);
+            empty($this->_properties["foto_perfil"]) ? $emptyImg : __("{0}{1}", Configure::read("imageUserProfilePathRead"), $this->_properties["foto_perfil"]);
     }
 
     /**
