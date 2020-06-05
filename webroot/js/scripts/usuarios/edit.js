@@ -96,6 +96,7 @@ const usuariosEdit = {
                         toastr.error('Por favor, insira uma data de nascimento')
                     } else {
                         toastr.success(resp.mensagem.message)
+                        setTimeout(() => window.location.href = '#/usuarios/index', 2000)
                     }
                 }
             },
