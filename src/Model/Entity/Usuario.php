@@ -60,7 +60,7 @@ class Usuario extends Entity
         "foto_documento_completo",
         "foto_perfil_completo",
         "sexo_formatado",
-        "tipo_perfil_convertido"
+        "tipo_perfil_convertido",
         // utilizado para exibição em página,
         "foto_perfil_view"
     );

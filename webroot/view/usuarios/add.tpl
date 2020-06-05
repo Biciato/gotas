@@ -142,7 +142,7 @@
                             <em class="fas fa-arrow-left"></em> Voltar
                         </a>
                         <button id="btn-save" class="btn btn-primary" style="float: right">
-                            <em class="fas fa-save"></em> Salvar
+                            <em class="fas fa-save"></em> Confirmar
                         </button>
                         <span style="clear: right; display: block;"></span>
                     </div>
