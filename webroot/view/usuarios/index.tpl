@@ -40,13 +40,15 @@
                                             </label>
                                             <select id="tipo_perfil" name="tipo_perfil" class="form-control col-lg-2">
                                                 <option value="">&lt;Todos&gt;</option>
-                                                <option value="0">0</option>
-                                                <option value="1">1</option>
-                                                <option value="2">2</option>
-                                                <option value="3">3</option>
-                                                <option value="4">4</option>
-                                                <option value="5">5</option>
-                                                <option value="6">6</option>
+                                                <option value="0">Admin. RTI / Desenvolvedor</option>
+                                                <option value="1">Administrador de Rede</option>
+                                                <option value="2">Administrador Regional</option>
+                                                <option value="3">Administrador</option>
+                                                <option value="4">Gerente</option>
+                                                <option value="5">Funcionário</option>
+                                                <option value="6">Usuário</option>
+                                                <option value="998">Mobile API</option>
+                                                <option value="999">Usuário de Venda Avulsa</option>
                                             </select>
                                         </div>
 
@@ -192,8 +194,8 @@
             </div>
             <div class="modal-footer">
                 <div class="preloader" style="display: none; width: 100%; height: 2.5em; background: url(/img/loading_login.gif); background-size: contain; background-repeat: no-repeat; background-position: center center;"></div>
-                <button class="btn btn-default close-modal" data-dismiss="modal" >Cancelar</button>
-                <button class="btn btn-danger" id="confirm_remover">Confirmar</button>
+                <button class="btn btn-danger close-modal" data-dismiss="modal" >Cancelar</button>
+                <button class="btn btn-primary" id="confirm_remover">Confirmar</button>
             </div>
         </div>
     </div>

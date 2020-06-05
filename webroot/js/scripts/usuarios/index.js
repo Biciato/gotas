@@ -72,6 +72,7 @@ const usuariosIndex = {
         document.title = 'GOTAS - Usuarios';
         self.getRedes();
         self.initDataTable();
+        self.mascararCampos(self.inputHandler);
 
         // Adiciona enter dentro do form, pesquisar
         $(document)
@@ -112,6 +113,17 @@ const usuariosIndex = {
                 toastr.error(resp.mensagem.message);
             }
         })
+    },
+    mascararCampos: function(inputHandler) {
+        VMasker(document.querySelector('input[name="cpf"]')).maskPattern('999.999.999-99');
+    },
+    inputHandler: function(masks, max, event) {
+        let c = event.target;
+        let v = c.value.replace(/\D/g, '');
+        const m = c.value.length > max ? 1 : 0;
+        VMasker(c).unMask();
+        VMasker(c).maskPattern(masks[m]);
+        c.value = VMasker.toPattern(v, masks[m]);
     },
     buildFiltroSelect: function(collection, select) {
         $.each(collection, function(k, value) {
@@ -168,7 +180,7 @@ const usuariosIndex = {
                 orderable: true,
             },
             {
-                data: "cpf",
+                data: "cpf_formatado",
                 title: "CPF",
                 orderable: false,
             },
@@ -196,7 +208,7 @@ const usuariosIndex = {
                 let nome = $("#nome").val();
                 let email = $("#email").val();
                 let cpf = $("#cpf").val();
-                const redesId = ['', '0'].includes($('#redes_filtro').val()) ? undefined : $('#redes_filtro').val();
+                const redesId = $('#redes_filtro').val() === '' ? undefined : $('#redes_filtro').val();
                 const clientesId = ['', '0'].includes($('#unidades_filtro').val()) ? undefined : $('#unidades_filtro').val();
 
                 if (tipoPerfil !== undefined && tipoPerfil !== null) {
