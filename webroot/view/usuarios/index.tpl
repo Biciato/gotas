@@ -87,7 +87,7 @@
                                                 Filtrar por rede
                                             </label>
                                             <select id="redes_filtro" name="redes_filtro" class="form-control col-lg-2">
-                                                <option value="0">&lt;Todos&gt;</option>
+                                                <option class="redes_filtro_option" value="0">&lt;Todos&gt;</option>
 
                                             </select>
                                         </div>

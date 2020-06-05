@@ -41,8 +41,8 @@
                         <?php endif; ?>
 
                         <div class="logo-element">
-                            <img alt="Gotas" src="/img/rti-logo.png" style="width: 15rem" class="main-logo"/>
-                            <img alt="Gotas" src="/img/icons/logo.png" class="small-logo"/>
+                            <img alt="Gotas" src="/img/logotipogotas.png" style="width: 15rem" class="main-logo"/>
+                            <img alt="Gotas" src="/img/logotipogotas_mini.png" class="small-logo"/>
                         </div>
                     </li>
 
