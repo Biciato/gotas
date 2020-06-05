@@ -8,6 +8,7 @@
 
 // Event that fetch user data and show it inside a modal
 $(document).on('click', '.detalhes-usuario', function(e) {
+    e.preventDefault();
     const id = e.currentTarget.attributes['data-id'].value
     $.get('/api/usuarios/visualizar_usuario', { id }).then((resp) => {
         buildModal(resp)
@@ -37,30 +38,20 @@ $(document).on('click', '#filtrar_usuarios', (e) => {
 
 // Event that removes user
 $(document).on('click', '.delete-item', function(e) {
+    e.preventDefault();
     $('input[name="confirm_remover"]').val(e.target.attributes['data-id'].value)
 });
 
 $(document).on('click', '#confirm_remover', function(e) {
+    e.preventDefault();
     usuariosIndex.removerUsuario(e);
 })
 
 $(document).on('click', '.change-status', function(e) {
-    console.log(e.target.attributes)
+    e.preventDefault();
     const attributes = e.target.attributes;
     usuariosIndex.changeStatus(e, attributes['data-id'].value, attributes['data-active'].value);
 })
-
-// Event that handles search data and fetch it
-$(document).on('click', '#redes_filtro > option', function(e) {
-    $('#unidades_filtro').attr('disabled', false);
-    $('#unidades_filtro').empty();
-    const id = e.target.value;
-    if (id !== '0') {
-        usuariosIndex.getClientes(id);
-    } else {
-        $('#unidades_filtro').attr('disabled', true);
-    }
-});
 
 const usuariosIndex = {
     /**
@@ -125,9 +116,9 @@ const usuariosIndex = {
         VMasker(c).maskPattern(masks[m]);
         c.value = VMasker.toPattern(v, masks[m]);
     },
-    buildFiltroSelect: function(collection, select) {
+    buildFiltroSelect: function(collection, select, className = null) {
         $.each(collection, function(k, value) {
-            $(select).append('<option value="' + value.id + '">' + value.nome + '</option>');
+            $(select).append(`<option class="${className}" value="${value.id}">${value.nome}</option>`);
         });
     },
     getRedes: function() {
@@ -135,9 +126,24 @@ const usuariosIndex = {
             .then((resp) =>
                 usuariosIndex.buildFiltroSelect(
                     resp.data.redes.map((item) => ({ nome: item.nome_rede, id: item.id })),
-                    '#redes_filtro'
+                    '#redes_filtro',
+                    'redes_filtro_option'
                 )
             )
+            .then(() => {
+                $('#redes_filtro').change(function(e) {
+                    e.preventDefault();
+                    $('#unidades_filtro').attr('disabled', true);
+                    $('#unidades_filtro').empty();
+                    const id = e.target.value;
+                    console.log(id)
+                    if (id != '0') {
+                        usuariosIndex.getClientes(id);
+                        $('#unidades_filtro').attr('disabled', false);
+                        $('#unidades_filtro').removeAttr('disabled');
+                    }
+                })
+            })
     },
     getClientes: function(id) {
         $.get('/api/clientes', { filtros: { redes_id: id }, draw: '1'})

@@ -1,7 +1,7 @@
 <div class="middle-box text-center loginscreen animated fadeInDown">
     <div>
         <div class="logo-element" style="display: block">
-            <img alt="image" src="/img/rti-logo.png" style="width: 15rem"/>
+            <img alt="image" src="/img/logotipogotas.png" style="width: 15rem"/>
         </div>
         <p>
             <?php echo __("Insira seu email e senha para continuar"); ?>

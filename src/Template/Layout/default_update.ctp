@@ -22,7 +22,7 @@
                         <?php if (!empty($sessao) && !empty($sessao->usuarioLogado)) : ?>
 
                             <div class="dropdown profile-element" style="display: flex;flex-direction: column;align-items: center;">
-                                <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_completo ?>" style="border-radius: 50%; max-width: 6rem;" />
+                                <img alt="image" src="<?= $sessao->usuarioLogado->foto_perfil_view ?>" style="border-radius: 50%; max-width: 6rem;" />
                                 <!-- <img alt="image" class="rounded-circle" src="" /> -->
                                 <a data-toggle="dropdown" class="dropdown-toggle" href="#" style="background-color: inherit">
                                     <span class="block m-t-xs font-bold"><?= $sessao->usuarioLogado->nome ?></span>
@@ -41,8 +41,8 @@
                         <?php endif; ?>
 
                         <div class="logo-element">
-                            <img alt="Gotas" src="/img/rti-logo.png" style="width: 15rem" class="main-logo"/>
-                            <img alt="Gotas" src="/img/icons/logo.png" class="small-logo"/>
+                            <img alt="Gotas" src="/img/logotipogotas.png" style="width: 15rem" class="main-logo"/>
+                            <img alt="Gotas" src="/img/logotipogotas_mini.png" class="small-logo"/>
                         </div>
                     </li>
 
