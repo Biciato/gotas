@@ -248,7 +248,7 @@ var redesIndex = {
                 let actionView = btnHelper.generateLinkViewToDestination(`#/redes/view/${rowData.id}`, btnHelper.ICON_CONFIG, null, "Ver Detalhes/Configurar");
                 let editView = btnHelper.generateLinkEditToDestination(`#/redes/edit/${rowData.id}`, null, "Editar");
                 let deleteBtn = btnHelper.genericImgDangerButton(attributes, undefined, undefined, "delete-item", undefined);
-                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, undefined, "change-status");
+                let changeStatus = btnHelper.generateImgChangeStatus(attributes, rowData.ativado, undefined, rowData.ativado ? "Desativar" : "Ativar", "change-status");
 
                 let buttons = [actionView, editView, deleteBtn, changeStatus];
                 let buttonsString = "";
