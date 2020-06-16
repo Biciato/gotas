@@ -143,6 +143,49 @@ var redesService = {
         return obj.data.redes;
     },
     /**
+     * Obtem lista de Unidades da rede
+     *
+     * @returns {Unidades[]} Lista de Unidades da rede
+     *
+     * @author Leandro Biciato <leandro@aigen.com.br>
+     * @since 1.2.3
+     * @date 2020-06-09
+     */
+    getUnidadesList: async (id) => {
+        let dataRequest = { filtros: { redes_id: id }, draw: '1'};
+        let obj = await Promise.resolve(
+            $.ajax({
+                type: "GET",
+                url: "/api/clientes",
+                data: dataRequest,
+                dataType: "JSON"
+            })
+        );
+
+        if (obj === undefined || obj === null || !obj) {
+            toastr.error(response.mensagem.message);
+            throw "Registro não encontrado!";
+        } else if (!obj.mensagem.status) {
+            let msgs = [];
+            let codes = [];
+
+            obj.mensagem.errors.forEach(error => {
+                msgs.push(error);
+            });
+
+            obj.mensagem.error_codes.forEach(error => {
+                codes.push(error);
+            });
+
+            throw new Object({
+                errors: msgs,
+                errorCodes: codes
+            });
+        }
+
+        return obj.data_table_source.data;
+    },
+    /**
      * Realiza inserção de uma nova rede
      *
      * @param {any} data

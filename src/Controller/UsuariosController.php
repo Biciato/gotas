@@ -57,8 +57,21 @@ class UsuariosController extends AppController
      */
     public function index()
     {
-        $usuarioLogado = $this->usuarioLogado;
+        // @todo @gustavosg Corrigir questão de sessão de usuário neste bloco
+        $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado", "senhaObrigatoriaEdicao");
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogadoTipoPerfil = PROFILE_TYPE_USER;
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
         $perfisUsuariosList = [];
+        $rede = $sessaoUsuario["rede"];
 
         if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
             $perfisUsuariosList = [
@@ -123,7 +136,7 @@ class UsuariosController extends AppController
             $tipoPerfil = !empty($data["tipo_perfil"]) && strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $tipoPerfilMax = !empty($data["tipo_perfil_max"]) && strlen($data["tipo_perfil_max"]) > 0 ? (int) $data["tipo_perfil_max"] : $tipoPerfilMax;
             $tipoPerfilMin = !empty($data["tipo_perfil_min"]) && strlen($data["tipo_perfil_min"]) > 0 ? (int) $data["tipo_perfil_min"] : $tipoPerfilMin;
-            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : $rede->id;
             $clientesId = !empty($data["clientes_id"]) ? [(int) $data["clientes_id"]] : [];
         }
 
@@ -1189,7 +1202,7 @@ class UsuariosController extends AppController
 
         // Verifica se tem posto cadastrado para esta rede, se não tiver, avisa ao operador que pode ocorrer inconsistências
         if (count($unidadesRede) == 0 && !empty($rede)) {
-            $this->Flash->warning("Atenção! Não há postos cadastrados para esta rede! Cadastre previamente para evitar inconsistências!");
+            return ResponseUtil::errorAPI("Atenção! Não há postos cadastrados para esta rede! Cadastre previamente para evitar inconsistências!");
         }
 
         if ($this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
@@ -1239,27 +1252,9 @@ class UsuariosController extends AppController
             // Regional já está em algum lugar, pois antes ele foi um Administrador Comum!
 
             if ($usuarioData['tipo_perfil'] > PROFILE_TYPE_ADMIN_REGIONAL && strlen($data['clientes_id']) == 0) {
-                $this->Flash->error(Configure::read('messageUsuarioRegistrationClienteNotNull'));
-
                 $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
 
-                $arraySet = array(
-                    'usuario',
-                    'rede',
-                    'redes',
-                    'redesId',
-                    'usuarioLogadoTipoPerfil',
-                    'usuarioLogado',
-                    "unidadesRede",
-                    "unidadeRede",
-                    "unidadeRedeId",
-                );
-
-                $this->set(compact($arraySet));
-                $this->set('_serialize', $arraySet);
-
-                // return $this->redirect(array("controller" => "usuarios", "action" => "adicionarOperador", $redesId));
-                return;
+                return ResponseUtil::errorAPI(Configure::read('messageUsuarioRegistrationClienteNotNull'));
             }
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
@@ -1314,51 +1309,24 @@ class UsuariosController extends AppController
                     // Define qual foi o usuário que cadastrou o novo funcionário
                     $usuarioInsercaoId = !empty($usuarioLogado) ? $usuarioLogado->id : 0;
 
-                    // Só vincula se o posto tiver sido selecionado
-                    if (!empty($clientes_id)) {
+                    // Só vincula se o posto tiver sido selecionado ou se vir pelo request
+                    if (!empty($clientes_id) || !empty($data['clientes_id'])) {
+                        $clientes_id = $clientes_id ?? $data['clientes_id'];
                         $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
                     }
                 }
 
-                $this->Flash->success(__('O usuário foi salvo.'));
-
-                // se cadastrou um usuário, retorna à meus clientes,
-                // caso contrário, retorna à usuários da rede
-                if ($usuarioSave['tipo_perfil'] == Configure::read('profileTypes')['UserProfileType']) {
-                    return $this->redirect(['action' => 'meus_clientes']);
-                } elseif ($usuarioSave['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                    return $this->redirect(['action' => 'index']);
-                } else {
-                    if (isset($redesId)) {
-                        return $this->redirect(['action' => 'usuarios_rede', $redesId]);
-                    }
-                    return $this->redirect(['action' => 'index']);
-                }
+                return ResponseUtil::successAPI('O usuário foi salvo.');
             }
-
-            $this->Flash->error(__('O usuário não pode ser registrado. '));
 
             // exibe os erros logo acima identificados
             foreach ($errors as $key => $error) {
                 $key = key($error);
                 $this->Flash->error(__("{0}", $error[$key]));
             }
+
+            return ResponseUtil::errorAPI('O usuário não pode ser registrado. ', ['errors' => $errors]);
         }
-
-        // DebugUtil::print($redes->toArray());
-        $arraySet = array(
-            'usuario',
-            'rede',
-            'redes',
-            'redesId',
-            'usuarioLogadoTipoPerfil',
-            "unidadesRede",
-            "unidadeRedeId",
-            'usuarioLogado'
-        );
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
     }
 
     /**

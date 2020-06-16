@@ -679,6 +679,11 @@ Router::scope("/api", function ($routes) {
                 "action" => "changeStatusAPI",
                 "method" => Request::METHOD_POST,
                 "path" => "/change-status"
+            ],
+            "adicionarOperador" => [
+                "action" => "adicionarOperador",
+                "method" => Request::METHOD_POST,
+                "path" => "/adicionar_operador/:redesId"
             ]
         ]
     ]);

@@ -22,6 +22,33 @@
                 <div class="ibox-content">
                     <input type="hidden" name="id"/>
                     <input type="hidden" name="tipo_perfil" id="tipo_perfil" value="6"/>
+
+                    <div class="form-group row">
+
+                        <div class="col-lg-4">
+                            <div class="form-group select required">
+                                <label for="tipo_perfil_select">Tipo de Perfil*</label>
+                                <select name="tipo_perfil_perfil" id="tipo_perfil_select" required="required" class="form-control">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-group select required">
+                                <label for="redes_select">Rede</label>
+                                <select name="redes_select" id="redes_select" class="form-control" disabled>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-group select required">
+                                <label for="unidades_select">Unidade</label>
+                                <select name="unidades_select" id="unidades_select" class="form-control" disabled>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group row">
                         <div class="col-lg-12">
                             <div class="form-check">
@@ -67,10 +94,23 @@
                         </div>
 
                         <div class="col-lg-3">
-                            <div class="form-group select required"><label for="sexo">Sexo*</label><select name="sexo" placeholder="Sexo*..." required="required" id="sexo" class="form-control"><option value=""></option><option value="2">Não informar</option><option value="1">Masculino</option><option value="0">Feminino</option></select></div>                </div>
+                            <div class="form-group select required">
+                                <label for="sexo">Sexo*</label>
+                                <select name="sexo" placeholder="Sexo*..." required="required" id="sexo" class="form-control">
+                                    <option value=""></option>
+                                    <option value="2">Não informar</option>
+                                    <option value="1">Masculino</option>
+                                    <option value="0">Feminino</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="col-lg-4">
-                            <div class="form-group text"><label for="data_nasc">Data de Nascimento</label><input type="text" name="data_nasc" class="datepicker-input form-control" div="form-inline" id="data_nasc" format="d/m/Y" value="29/05/2020"/></div>                </div>
+                            <div class="form-group text">
+                                <label for="data_nasc">Data de Nascimento</label>
+                                <input type="text" name="data_nasc" class="datepicker-input form-control" div="form-inline" id="data_nasc" format="d/m/Y" value="29/05/2020"/>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group row">

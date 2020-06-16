@@ -61,6 +61,7 @@ const usuariosIndex = {
         'use strict';
         var self = this;
         document.title = 'GOTAS - Usuarios';
+        self.getTipoPerfis();
         self.getRedes();
         self.initDataTable();
         self.mascararCampos(self.inputHandler);
@@ -121,11 +122,20 @@ const usuariosIndex = {
             $(select).append(`<option class="${className}" value="${value.id}">${value.nome}</option>`);
         });
     },
+    getTipoPerfis: function() {
+        usuariosService.getPerfisList().then((resp) => {
+            const perfis = Object.keys(resp.insert).map((key) => ({
+                id: key,
+                nome: resp.insert[key]
+            }));
+            usuariosIndex.buildFiltroSelect(perfis, tipo_perfil_select);
+        })
+    },
     getRedes: function() {
-        $.get('/api/redes/get_redes_list')
-            .then((resp) =>
+        redesService.getList()
+            .then((list) =>
                 usuariosIndex.buildFiltroSelect(
-                    resp.data.redes.map((item) => ({ nome: item.nome_rede, id: item.id })),
+                    list.map((rede) => ({ id: rede.id, nome: rede.nome_rede })),
                     '#redes_filtro',
                     'redes_filtro_option'
                 )
@@ -136,7 +146,6 @@ const usuariosIndex = {
                     $('#unidades_filtro').attr('disabled', true);
                     $('#unidades_filtro').empty();
                     const id = e.target.value;
-                    console.log(id)
                     if (id != '0') {
                         usuariosIndex.getClientes(id);
                         $('#unidades_filtro').attr('disabled', false);
@@ -210,7 +219,7 @@ const usuariosIndex = {
             function (d) {
                 var filters = {};
 
-                let tipoPerfil = $("#tipo_perfil").val();
+                let tipoPerfil = $("#tipo_perfil_select").val();
                 let nome = $("#nome").val();
                 let email = $("#email").val();
                 let cpf = $("#cpf").val();

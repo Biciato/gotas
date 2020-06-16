@@ -38,17 +38,8 @@
                                             <label for="tipo_perfil">
                                                 Tipo de Perfil
                                             </label>
-                                            <select id="tipo_perfil" name="tipo_perfil" class="form-control col-lg-2">
+                                            <select id="tipo_perfil_select" name="tipo_perfil_select" class="form-control col-lg-2">
                                                 <option value="">&lt;Todos&gt;</option>
-                                                <option value="0">Admin. RTI / Desenvolvedor</option>
-                                                <option value="1">Administrador de Rede</option>
-                                                <option value="2">Administrador Regional</option>
-                                                <option value="3">Administrador</option>
-                                                <option value="4">Gerente</option>
-                                                <option value="5">Funcionário</option>
-                                                <option value="6">Usuário</option>
-                                                <option value="998">Mobile API</option>
-                                                <option value="999">Usuário de Venda Avulsa</option>
                                             </select>
                                         </div>
 

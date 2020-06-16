@@ -101,7 +101,7 @@
                         <li>
                             <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Minha Equipe (Usuários da Rede)</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active"><a href="/usuarios/index">Cadastro de Usuários</a></li>
+                                <li class="active"><a href="#/usuarios/index">Cadastro de Usuários</a></li>
                             </ul>
                         </li>
                         <li>
