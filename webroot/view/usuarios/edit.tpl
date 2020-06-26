@@ -23,6 +23,32 @@
                     <input type="hidden" name="id"/>
                     <input type="hidden" name="tipo_perfil" id="tipo_perfil" value="6"/>
                     <div class="form-group row">
+
+                        <div class="col-lg-4">
+                            <div class="form-group select required">
+                                <label for="tipo_perfil_select">Tipo de Perfil*</label>
+                                <select name="tipo_perfil_perfil" id="tipo_perfil_select" required="required" class="form-control">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-group select required">
+                                <label for="redes_select">Rede</label>
+                                <select name="redes_select" id="redes_select" class="form-control" disabled>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-group select required">
+                                <label for="unidades_select">Unidade</label>
+                                <select name="unidades_select" id="unidades_select" class="form-control" disabled>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <div class="col-lg-12">
                             <span id="cpf_validation" class="text-danger validation-message"></span>
                         </div>

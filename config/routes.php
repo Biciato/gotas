@@ -683,7 +683,7 @@ Router::scope("/api", function ($routes) {
             "adicionarOperador" => [
                 "action" => "adicionarOperador",
                 "method" => Request::METHOD_POST,
-                "path" => "/adicionar_operador/:redesId"
+                "path" => "/adicionar_operador/:id"
             ]
         ]
     ]);

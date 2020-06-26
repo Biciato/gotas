@@ -1196,7 +1196,6 @@ class UsuariosController extends AppController
 
             $unidadesRede = $unidades;
         }
-
         $redesId = $rede["id"];
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
 

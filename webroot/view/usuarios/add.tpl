@@ -28,7 +28,7 @@
                         <div class="col-lg-4">
                             <div class="form-group select required">
                                 <label for="tipo_perfil_select">Tipo de Perfil*</label>
-                                <select name="tipo_perfil_perfil" id="tipo_perfil_select" required="required" class="form-control">
+                                <select name="tipo_perfil_select" id="tipo_perfil_select" required="required" class="form-control">
                                 </select>
                             </div>
                         </div>

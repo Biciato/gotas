@@ -90,26 +90,26 @@
                     <?php
                     } elseif ($sessao->usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_NETWORK) {
                     ?>
-                        <li>
+                        <!-- <li>
                             <a href="index.html"><em class="fas fa-cogs"></em> <span class="nav-label">Administração</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li class="active">
                                     <a href="#/admin/network-settings"><em class="fas fa-building"></em> Parâmetros da Rede</a>
                                 </li>
                             </ul>
-                        </li>
+                        </li> -->
                         <li>
-                            <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Minha Equipe (Usuários da Rede)</span> <span class="fa arrow"></span></a>
+                            <a href="index.html"><i class="fas fa-user"></i> <span class="nav-label">Minha Equipe</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active"><a href="#/usuarios/index">Cadastro de Usuários</a></li>
+                                <li class="active"><a href="#/usuarios/index">Consultar</a></li>
                             </ul>
                         </li>
-                        <li>
+                        <!-- <li>
                             <a href="index.html"><em class="fas fa-chart-bar"></em> <span class="nav-label">Relatórios</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li class="active"><a href="/">A fazer</a></li>
                             </ul>
-                        </li>
+                        </li> -->
                     <?php } ?>
                 </ul>
 

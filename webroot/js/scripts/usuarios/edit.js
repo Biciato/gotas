@@ -39,6 +39,12 @@ const usuariosEdit = {
         self.getUser(self);
         $('#btn-save').click(self.save)
         self.mascararCampos(self.inputHandler);
+        self.getTipoPerfis();
+    },
+    buildFiltroSelect: function(collection, select, className = null) {
+        $.each(collection, function(k, value) {
+            $(select).append(`<option class="${className}" value="${value.id}">${value.nome}</option>`);
+        });
     },
     getUser: function() {
         $.ajax({
@@ -80,6 +86,73 @@ const usuariosEdit = {
         VMasker(c).unMask();
         VMasker(c).maskPattern(masks[m]);
         c.value = VMasker.toPattern(v, masks[m]);
+    },
+    getTipoPerfis: function() {
+        usuariosService.getPerfisList()
+            .then((resp) => {
+                const perfis = Object.keys(resp.insert).map((key) => ({
+                    id: key,
+                    nome: resp.insert[key]
+                }));
+                usuariosEdit.buildFiltroSelect(perfis, tipo_perfil_select);
+                if (resp.insert[1] === 'Administrador da Rede') {
+                    $('#redes_select').attr('disabled', false);
+                    usuariosEdit.getRedes();
+                }
+            })
+            .then(() => {
+                $('#tipo_perfil_select').change(function(e) {
+                    if (e.target.value > 0) {
+                        e.preventDefault();
+                        $('#redes_select').removeAttr('disabled', false);
+                        $('#redes_select').empty();
+                        if (['1','2'].includes(e.target.value)) {
+                            $('#unidades_select').attr('disabled', true);
+                            $('#unidades_select').empty();
+                        }
+                        usuariosEdit.getRedes();
+                    } else {
+                        $('#redes_select').attr('disabled', true);
+                        $('#redes_select').empty();
+                        $('#unidades_select').attr('disabled', true);
+                        $('#unidades_select').empty();
+                    }
+                })
+            })
+    },
+    getRedes: function() {
+        redesService.getList()
+            .then((list) => {
+                usuariosEdit.buildFiltroSelect(
+                    list.map((rede) => ({ id: rede.id, nome: rede.nome_rede })),
+                    '#redes_select',
+                    'redes_filtro_option'
+                )
+                if ($('#tipo_perfil_select').val() > 2) {
+                    $('#unidades_select').attr('disabled', false);
+                    $('#unidades_select').empty();
+                    usuariosEdit.getClientes(list[0].id);
+                }
+            })
+            .then(() => {
+                $('#redes_select').change(function(e) {
+                    e.preventDefault();
+                    const id = e.target.value;
+                    if (id != '0' && $('#tipo_perfil_select').val() > 2) {
+                        $('#unidades_select').empty();
+                        usuariosEdit.getClientes(id);
+                    }
+                })
+            })
+    },
+    getClientes: function(id) {
+        $.get('/api/clientes', { filtros: { redes_id: id }, draw: '1'})
+            .then((resp) =>
+                usuariosEdit.buildFiltroSelect(
+                    resp.data_table_source.data.map((item) => ({ nome: item.nome_fantasia, id: item.id })),
+                    '#unidades_select'
+                )
+            )
     },
     save: function() {
         $.ajax({
