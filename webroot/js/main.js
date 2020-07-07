@@ -167,6 +167,30 @@ var sammy = Sammy("#content-html", function () {
 
     //#endregion
 
+    // #region GOTAS
+    self.get("#/gotas/index", (context) => {
+        context.partial("view/gotas/index.tpl");
+    });
+
+    self.get("#/gotas/add", (context) => {
+        context.partial("view/gotas/add.tpl", {
+            controller: "scripts/gotas/add.js"
+        }, function (html) {
+            $(document).html(html);
+        })
+    });
+    self.get("#/gotas/edit/:id", async function (context) {
+        let id = parseInt(context.params.id);
+        let rede = {
+            id: id
+        };
+
+        localStorage.setItem("data", JSON.stringify(rede));
+        context.partial("view/gotas/edit.tpl");
+    });
+
+    //#endregion
+
     return self;
 });
 

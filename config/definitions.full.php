@@ -9,7 +9,7 @@
  */
 
 // host
-const __HOST__ = "sistema.gotas.local";
+const __HOST__ = "";
 // Server
 // const __HOST__ = "sistema.gotas.com.br";
 
@@ -23,4 +23,8 @@ const __HOST__ = "sistema.gotas.local";
 // const __SERVER__ = "https://sistema-devel.gotas.local/";
 const __SERVER__ = "https://" . __HOST__ . "/";
 // const __DATABASE__ = "rti_gotas";
-const __DATABASE__ = "rti_gotas_devel";
+const __DATABASE__ = "";
+const __DATABASE_USERNAME__ = '';
+const __DATABASE_PASSWORD__ = '';
+const __SITEKEY__ = '';
+const __SECRETKEY__ = '';

@@ -104,6 +104,12 @@
                                 <li class="active"><a href="#/usuarios/index">Consultar</a></li>
                             </ul>
                         </li>
+                        <li>
+                            <a href="index.html"><i class="fa fa-usd"></i> <span class="nav-label">Atribuição de Gotas</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="#/gotas/index">Consultar</a></li>
+                            </ul>
+                        </li>
                         <!-- <li>
                             <a href="index.html"><em class="fas fa-chart-bar"></em> <span class="nav-label">Relatórios</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">

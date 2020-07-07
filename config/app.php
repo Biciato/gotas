@@ -261,10 +261,10 @@ return [
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => __DATABASE__,
+            'username' => __DATABASE_USERNAME__,
             // 'username' => 'rti_gotas',
             // 'password' => 'nanoboost',
-            'password' => __PASSWORD_DB__,
+            'password' => __DATABASE_PASSWORD__,
             // 'password' => 'nanoboost',
             // 'database' => 'rti_gotas',
             'database' => __DATABASE__,

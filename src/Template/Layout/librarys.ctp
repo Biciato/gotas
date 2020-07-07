@@ -236,6 +236,11 @@ echo $this->Html->script(sprintf("scripts/usuarios/edit.js?version=%s", SYSTEM_V
 echo $this->Html->script(sprintf("scripts/usuarios/alterar_senha.js?version=%s", SYSTEM_VERSION));
 echo $this->Html->script('vanilla-masker');
 
+//Gotas
+echo $this->Html->script(sprintf("scripts/gotas/index.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/gotas/add.js?version=%s", SYSTEM_VERSION));
+echo $this->Html->script(sprintf("scripts/gotas/edit.js?version=%s", SYSTEM_VERSION));
+
 ?>
 
 <?php echo $this->Html->css('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'); ?>

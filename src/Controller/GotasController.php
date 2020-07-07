@@ -13,6 +13,8 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Http\Client\Request;
 use Exception;
+use stdClass;
+use Cake\Collection\Collection;
 
 /**
  * Gotas Controller
@@ -71,13 +73,54 @@ class GotasController extends AppController
      */
     public function index()
     {
-        $this->paginate = [
-            'contain' => ['Clientes']
-        ];
-        $gotas = $this->paginate($this->Gotas);
+        $sessao = $this->getSessionUserVariables();
+        $usuario = $sessao["usuarioLogado"];
+        $rede = $sessao["rede"];
+        $errors = [];
+        $errorCodes = [];
 
-        $this->set(compact('gotas'));
-        $this->set('_serialize', ['gotas']);
+        $unidades = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
+        $unidadesObj = [];
+
+        foreach ($unidades as $key => $value) {
+            array_push($unidadesObj, [
+                'id' => $key,
+                'name' => $value
+            ]);
+        }
+
+        $conditions = [];
+
+        $gotas = $this->Gotas->findGotasByClientesId([$unidadesObj[0]['id']]);
+
+        $queryParams = $this->request->getQueryParams();
+        $gotasWithClientName = [];
+        foreach ($gotas as $gota) {
+            array_push($gotasWithClientName, [
+                'cliente' => $gota->cliente->nome_fantasia,
+                'clientes_id'=> $gota->clientes_id,
+                'habilitado' => $gota->habilitado ? 'Habilitado' : 'Não Habilitado',
+                'id' => $gota->id,
+                'multiplicador_gota' => number_format(floatval($gota->multiplicador_gota), 2, ',', ''),
+                'nome_parametro' => $gota->nome_parametro,
+                'tipo_cadastro' => $gota->tipo_cadastro
+            ]);
+        }
+
+        $dataTableSource = new stdClass();
+        $dataTableSource->draw = $queryParams['draw'];
+        $dataTableSource->recordsTotal = $gotas->count();
+        $dataTableSource->recordsFiltered = $gotas->count();
+        $dataTableSource->data = $gotasWithClientName;
+
+        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data_table_source' => $dataTableSource]);
+        /* } catch (\Throwable $th) {
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s: %s", MSG_LOAD_EXCEPTION, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
+        } */
     }
 
     /**
